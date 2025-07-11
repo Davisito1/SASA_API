@@ -1,12 +1,12 @@
-package APISASA.API_sasa.Controller.Usuario;
+package APISASA.API_sasa.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
-public class ControllerUsuario {
+@RequestMapping("/apiVehiculo")
+public class ControllerVehiculo {
     @Autowired
-    private userService acceso;
+    private VehicleService acceso;
 }
