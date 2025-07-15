@@ -128,7 +128,6 @@
 			<artifactId>jakarta.xml.bind-api</artifactId>
 			<version>3.0.0</version>
 		</dependency>
-
 		<!--Dependencia para validación, permite utilizar @Valid-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
