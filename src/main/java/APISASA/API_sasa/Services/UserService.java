@@ -13,14 +13,15 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     @Autowired
-    private UserRepository repo;
+     UserRepository repo;
 
     public List<UserDTO> getAllUsers(){
         List<UserEntity> users = repo.findAll();
         return users.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    private UserDTO convertToDTO(UserEntity userEntity) {
+    public UserDTO convertToDTO(UserEntity userEntity) {
+        //Este sera el objeto para retornar
         UserDTO dto = new UserDTO();
         dto.setId(userEntity.getId());
         dto.setNombreUsuario(userEntity.getNombreUsuario());

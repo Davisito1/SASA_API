@@ -14,9 +14,9 @@ import java.util.List;
 @RequestMapping("/apiUsuario")
 public class ControllerUsuario {
     @Autowired
-    private UserService acceso;
-
-    @GetMapping("/usuarios")
+     UserService acceso;
+//localhost:8080/apiUsuario/datosUsuarios
+    @GetMapping("/datosUsuarios")
     public List<UserDTO> datosUsuarios(){
         return acceso.getAllUsers();
     }
