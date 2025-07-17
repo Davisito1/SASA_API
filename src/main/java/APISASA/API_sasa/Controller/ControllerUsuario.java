@@ -1,7 +1,6 @@
 package APISASA.API_sasa.Controller;
 
-import APISASA.API_sasa.Models.UserDTO;
-import APISASA.API_sasa.Models.UserDTO;
+import APISASA.API_sasa.Models.DTO.UserDTO;
 import APISASA.API_sasa.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +13,11 @@ import java.util.List;
 @RequestMapping("/apiUsuario")
 public class ControllerUsuario {
     @Autowired
-    private UserService acceso;
+    private UserService service;
 
+    //Consultar datos
     @GetMapping("/usuarios")
     public List<UserDTO> datosUsuarios(){
-        return acceso.getAllUsers();
+        return service.getAllUsers();
     }
 }

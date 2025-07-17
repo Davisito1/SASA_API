@@ -7,11 +7,8 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "USUARIO")
-@ToString
-@EqualsAndHashCode
-@Getter
-@Setter
+@Table(name = "Usuario")
+@Getter @Setter  @ToString @EqualsAndHashCode
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_usuario")
