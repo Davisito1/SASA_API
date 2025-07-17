@@ -15,6 +15,6 @@ public class VehicleDTO {
     private int anio;
     private String placa;
     private String vin;
-    private int IdCliente;
+    private ClientDTO IdCliente;
     private int idEstado;
 }
