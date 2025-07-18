@@ -3,23 +3,74 @@ package APISASA.API_sasa.Services;
 import APISASA.API_sasa.Entities.UserEntity;
 import APISASA.API_sasa.Models.DTO.UserDTO;
 import APISASA.API_sasa.Repositories.UserRepository;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-
+@Slf4j
 public class UserService {
+
     @Autowired
     private UserRepository repo;
 
-    public List<UserDTO> getAllUsers(){
+    // CONSULTAR TODOS
+    public List<UserDTO> getAllUsers() {
         List<UserEntity> users = repo.findAll();
         return users.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
+    // INSERTAR NUEVO USUARIO
+    public UserDTO insertUser(UserDTO data) {
+        if (data == null || data.getContrasena() == null || data.getContrasena().isEmpty()) {
+            throw new IllegalArgumentException("El usuario o contraseña no pueden ser nulos");
+        }
+
+        try {
+            UserEntity entity = convertToEntity(data);
+            UserEntity guardado = repo.save(entity);
+            return convertToDTO(guardado);
+        } catch (Exception e) {
+            log.error("Error al registrar el usuario: " + e.getMessage());
+            throw new RuntimeException("No se pudo registrar el usuario.");
+        }
+    }
+
+    // ACTUALIZAR USUARIO
+    public UserDTO updateUser(Long id, @Valid UserDTO data) {
+        UserEntity existente = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+
+        existente.setNombreUsuario(data.getNombreUsuario());
+        existente.setContrasena(data.getContrasena());
+        existente.setRol(data.getRol());
+        existente.setEstado(data.getEstado());
+
+        UserEntity actualizado = repo.save(existente);
+        return convertToDTO(actualizado);
+    }
+
+    // ELIMINAR USUARIO
+    public boolean deleteUser(Long id) {
+        try {
+            UserEntity existente = repo.findById(id).orElse(null);
+            if (existente != null) {
+                repo.deleteById(id);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw new RuntimeException("No se encontró usuario con ID: " + id + " para eliminar.");
+        }
+    }
+
+    // CONVERTIR A DTO
     private UserDTO convertToDTO(UserEntity userEntity) {
         UserDTO dto = new UserDTO();
         dto.setId(userEntity.getId());
@@ -27,7 +78,16 @@ public class UserService {
         dto.setContrasena(userEntity.getContrasena());
         dto.setRol(userEntity.getRol());
         dto.setEstado(userEntity.getEstado());
-        //Retorna el objeto DTO
         return dto;
+    }
+
+    // CONVERTIR A ENTITY
+    private UserEntity convertToEntity(UserDTO data) {
+        UserEntity entity = new UserEntity();
+        entity.setNombreUsuario(data.getNombreUsuario());
+        entity.setContrasena(data.getContrasena());
+        entity.setRol(data.getRol());
+        entity.setEstado(data.getEstado());
+        return entity;
     }
 }
