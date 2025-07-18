@@ -8,12 +8,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ApiSasaApplication {
 
 	public static void main(String[] args) {
+		//Cargar variables del archivo .env al sistema
 
-		//Cargar variablesdel archivo .env al sistema
 		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 		dotenv.entries().forEach(entry ->
 				System.setProperty(entry.getKey(), entry.getValue())
 		);
+
 		SpringApplication.run(ApiSasaApplication.class, args);
 
 	}

@@ -1,4 +1,4 @@
-package APISASA.API_sasa.Models;
+package APISASA.API_sasa.Models.DTO;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

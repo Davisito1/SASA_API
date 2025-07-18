@@ -1,14 +1,11 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.EstadoEntity;
-import APISASA.API_sasa.Models.EstadoDTO;
+import APISASA.API_sasa.Models.DTO.EstadoDTO;
 import APISASA.API_sasa.Repositories.EstadoRepository;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 

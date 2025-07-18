@@ -1,6 +1,6 @@
 package APISASA.API_sasa.Controller;
 
-import APISASA.API_sasa.Models.EstadoDTO;
+import APISASA.API_sasa.Models.DTO.EstadoDTO;
 import APISASA.API_sasa.Services.EstadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
