@@ -10,23 +10,27 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "CLIENTE")
-@ToString
-@EqualsAndHashCode
-@Getter @Setter
+@Getter @Setter @ToString @EqualsAndHashCode
 public class ClienteEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_cliente")
     @SequenceGenerator(name = "seq_cliente", sequenceName = "seq_cliente", allocationSize = 1)
     @Column(name = "IDCLIENTE", insertable = false, updatable = false)
-    private long id;
-    @Column(name = "NOMBRE")
+    private Long id;
+
+    @Column(name = "NOMBRE", nullable = false, length = 100)
     private String nombre;
-    @Column(name = "APELLIDO")
+
+    @Column(name = "APELLIDO", nullable = false, length = 100)
     private String apellido;
-    @Column(name = "DUI")
+
+    @Column(name = "DUI", nullable = false, unique = true, length = 10)
     private String dui;
-    @Column(name = "FECHANACIMIENTO")
+
+    @Column(name = "FECHANACIMIENTO", nullable = false)
     private LocalDate fechaNacimiento;
-    @Column(name = "GENERO")
+
+    @Column(name = "GENERO", length = 20)
     private String genero;
 }

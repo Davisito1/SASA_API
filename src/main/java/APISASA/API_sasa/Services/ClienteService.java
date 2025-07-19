@@ -1,9 +1,12 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.ClienteEntity;
+import APISASA.API_sasa.Exceptions.ExceptionClienteNoEncontrado;
 import APISASA.API_sasa.Models.DTO.ClientDTO;
 import APISASA.API_sasa.Repositories.ClientRepository;
+import APISASA.API_sasa.Repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,22 +14,74 @@ import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
+
     @Autowired
     private ClientRepository repo;
 
-    public List<ClientDTO> getAllClients(){
-        List<ClienteEntity> clients = repo.findAll();
-        return clients.stream().map(this::convertToDTO).collect(Collectors.toList());
+    // ✅ Obtener todos los clientes
+    public List<ClientDTO> obtenerClientes() {
+        List<ClienteEntity> lista = repo.findAll();
+        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
     }
 
-    public ClientDTO convertToDTO(ClienteEntity clienteEntity){
+    // ✅ Insertar cliente
+    public ClientDTO insertarCliente(ClientDTO dto) {
+        ClienteEntity entity = convertirAEntity(dto);
+        ClienteEntity guardado = repo.save(entity);
+        return convertirADTO(guardado);
+    }
+
+    // ✅ Actualizar cliente
+    public ClientDTO actualizarCliente(Long id, ClientDTO dto) {
+        ClienteEntity existente = repo.findById(id)
+                .orElseThrow(() -> new ExceptionClienteNoEncontrado("No existe un cliente con ID: " + id));
+
+        existente.setNombre(dto.getNombre());
+        existente.setApellido(dto.getApellido());
+        existente.setDui(dto.getDui());
+        existente.setFechaNacimiento(dto.getFechaNacimiento());
+        existente.setGenero(dto.getGenero());
+
+        ClienteEntity actualizado = repo.save(existente);
+        return convertirADTO(actualizado);
+    }
+
+    // ✅ Eliminar cliente
+    public boolean eliminarCliente(Long id) {
+        try {
+            ClienteEntity existente = repo.findById(id).orElse(null);
+            if (existente != null) {
+                repo.deleteById(id);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (EmptyResultDataAccessException e) {
+            throw new ExceptionClienteNoEncontrado("No se encontró el cliente con ID: " + id + " para eliminar.");
+        }
+    }
+
+    // ✅ Convertir Entity a DTO
+    private ClientDTO convertirADTO(ClienteEntity entity) {
         ClientDTO dto = new ClientDTO();
-        dto.setId(clienteEntity.getId());
-        dto.setNombre(clienteEntity.getNombre());
-        dto.setApellido(clienteEntity.getApellido());
-        dto.setDui(clienteEntity.getDui());
-        dto.setFechaNacimiento(clienteEntity.getFechaNacimiento());
-        dto.setGenero(clienteEntity.getGenero());
+        dto.setId(entity.getId());
+        dto.setNombre(entity.getNombre());
+        dto.setApellido(entity.getApellido());
+        dto.setDui(entity.getDui());
+        dto.setFechaNacimiento(entity.getFechaNacimiento());
+        dto.setGenero(entity.getGenero());
         return dto;
+    }
+
+    // ✅ Convertir DTO a Entity
+    private ClienteEntity convertirAEntity(ClientDTO dto) {
+        ClienteEntity entity = new ClienteEntity();
+        entity.setId(dto.getId()); // omite si es autogenerado
+        entity.setNombre(dto.getNombre());
+        entity.setApellido(dto.getApellido());
+        entity.setDui(dto.getDui());
+        entity.setFechaNacimiento(dto.getFechaNacimiento());
+        entity.setGenero(dto.getGenero());
+        return entity;
     }
 }
