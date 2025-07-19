@@ -32,4 +32,13 @@ public class ClientDTO {
     @NotBlank(message = "El género es obligatorio")
     @Pattern(regexp = "^(Masculino|Femenino|Otro)$", message = "Género inválido (Masculino, Femenino u Otro)")
     private String genero;
+
+    @NotBlank(message = "El correo electrónico es obligatorio")
+    @Email(message = "Formato de correo electrónico inválido")
+    @Size(max = 150, message = "El correo no debe exceder 150 caracteres")
+    private String correoElectronico;
+
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
+    private String contrasena;
 }

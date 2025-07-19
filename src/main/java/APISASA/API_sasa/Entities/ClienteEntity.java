@@ -33,4 +33,11 @@ public class ClienteEntity {
 
     @Column(name = "GENERO", length = 20)
     private String genero;
+
+    // Nuevos campos para autenticación
+    @Column(name = "CORREOELECTRONICO", nullable = false, unique = true, length = 150)
+    private String correoElectronico;
+
+    @Column(name = "CONTRASENA", nullable = false, length = 200)
+    private String contrasena;
 }

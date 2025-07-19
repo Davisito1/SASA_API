@@ -1,7 +1,6 @@
 package APISASA.API_sasa.Controller;
 
 import APISASA.API_sasa.Models.DTO.ClientDTO;
-import APISASA.API_sasa.Models.DTO.ClientDTO;
 import APISASA.API_sasa.Services.ClienteService;
 import APISASA.API_sasa.Exceptions.ExceptionClienteNoEncontrado;
 import jakarta.validation.Valid;
@@ -28,10 +27,14 @@ public class ClienteController {
     }
 
     @PostMapping("/registrar")
-    public ResponseEntity<?> registrar(@Valid @RequestBody ClientDTO dto, BindingResult result) {
+    public ResponseEntity<?> registrar(
+            @Valid @RequestBody ClientDTO dto,
+            BindingResult result
+    ) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
-            result.getFieldErrors().forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
+            result.getFieldErrors()
+                    .forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
             return ResponseEntity.badRequest().body(errores);
         }
 
@@ -50,10 +53,15 @@ public class ClienteController {
     }
 
     @PutMapping("/actualizar/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody ClientDTO dto, BindingResult result) {
+    public ResponseEntity<?> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody ClientDTO dto,
+            BindingResult result
+    ) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
-            result.getFieldErrors().forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
+            result.getFieldErrors()
+                    .forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
             return ResponseEntity.badRequest().body(errores);
         }
 

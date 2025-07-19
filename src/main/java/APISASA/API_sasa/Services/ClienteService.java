@@ -4,7 +4,6 @@ import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Exceptions.ExceptionClienteNoEncontrado;
 import APISASA.API_sasa.Models.DTO.ClientDTO;
 import APISASA.API_sasa.Repositories.ClientRepository;
-import APISASA.API_sasa.Repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,9 @@ public class ClienteService {
     // ✅ Obtener todos los clientes
     public List<ClientDTO> obtenerClientes() {
         List<ClienteEntity> lista = repo.findAll();
-        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
+        return lista.stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     // ✅ Insertar cliente
@@ -41,6 +42,9 @@ public class ClienteService {
         existente.setDui(dto.getDui());
         existente.setFechaNacimiento(dto.getFechaNacimiento());
         existente.setGenero(dto.getGenero());
+        // Agregar campos nuevos
+        existente.setCorreoElectronico(dto.getCorreoElectronico());
+        existente.setContrasena(dto.getContrasena());
 
         ClienteEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -61,7 +65,7 @@ public class ClienteService {
         }
     }
 
-    // ✅ Convertir Entity a DTO
+    // ✅ Convertir Entity a DTO (incluye nuevos campos)
     private ClientDTO convertirADTO(ClienteEntity entity) {
         ClientDTO dto = new ClientDTO();
         dto.setId(entity.getId());
@@ -70,18 +74,22 @@ public class ClienteService {
         dto.setDui(entity.getDui());
         dto.setFechaNacimiento(entity.getFechaNacimiento());
         dto.setGenero(entity.getGenero());
+        dto.setCorreoElectronico(entity.getCorreoElectronico());
+        dto.setContrasena(entity.getContrasena());
         return dto;
     }
 
-    // ✅ Convertir DTO a Entity
+    // ✅ Convertir DTO a Entity (incluye nuevos campos)
     private ClienteEntity convertirAEntity(ClientDTO dto) {
         ClienteEntity entity = new ClienteEntity();
-        entity.setId(dto.getId()); // omite si es autogenerado
+        entity.setId(dto.getId()); // si es null, JPA lo ignora y usa la secuencia
         entity.setNombre(dto.getNombre());
         entity.setApellido(dto.getApellido());
         entity.setDui(dto.getDui());
         entity.setFechaNacimiento(dto.getFechaNacimiento());
         entity.setGenero(dto.getGenero());
+        entity.setCorreoElectronico(dto.getCorreoElectronico());
+        entity.setContrasena(dto.getContrasena());
         return entity;
     }
 }
