@@ -23,12 +23,13 @@ public class CitaDTO {
     @Future(message = "La fecha de la cita no puede ser del pasado")
     private LocalDate fecha;
 
-    @NotBlank(message = "La hora es obligatoria")
-    private LocalTime hora;
+    @NotNull(message = "La hora es obligatoria")
+    private String hora;
 
     @NotNull(message = "El estado de la cita es olbigatorio")
     private String estado;
 
+    @NotNull(message = "El cliente es obligatorio")
     @Min(value = 1, message = "Debe asignarse un cliente válido")
     private Long idCliente;
 }

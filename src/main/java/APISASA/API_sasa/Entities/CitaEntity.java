@@ -27,7 +27,7 @@ public class CitaEntity {
     private LocalDate fecha;
 
     @Column(name = "HORA", nullable = false)
-    private LocalTime hora;
+    private String hora;
 
     @Column(name = "ESTADO", nullable = false)
     private String estado;
