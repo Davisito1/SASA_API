@@ -13,10 +13,12 @@ import lombok.ToString;
 @Getter @Setter
 public class EstadoEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_estadoVehiculo")
-    @SequenceGenerator(name = "seq_estadoVehiculo", sequenceName = "seq_estadoVehiculo", allocationSize = 1)
-    @Column(name = "IDESTADO", insertable = false, updatable = false)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "estado_seq")
+    @SequenceGenerator(name = "estado_seq", sequenceName = "SEQ_ESTADOVEHICULO", allocationSize = 1)
+    @Column(name = "IDESTADO")
+    private Long id;
+
+
     @Column(name = "NOMBREESTADO")
     private String nombreEstado;
 }
