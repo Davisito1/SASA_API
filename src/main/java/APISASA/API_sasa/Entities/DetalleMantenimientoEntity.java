@@ -6,27 +6,33 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDate;
-
 @Entity
 @Table(name = "DETALLEMANTENIMIENTO")
-@Getter @Setter @ToString @EqualsAndHashCode
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class DetalleMantenimientoEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_detalleMantenimiento")
-    @SequenceGenerator(name = "seq_detalleMantenimiento", sequenceName = "seq_detalleMantenimiento", allocationSize = 1)
-    @Column(name = "IDDETALLEMANTENIMIENTO", insertable = false, updatable = false)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "detalleMantenimiento_seq")
+    @SequenceGenerator(
+            name = "detalleMantenimiento_seq",
+            sequenceName = "SEQ_DETALLEMANTENIMIENTO",  // Mayúsculas exactas
+            allocationSize = 1
+    )
+    @Column(name = "IDDETALLEMANTENIMIENTO")
+    private Long idDetalleMantenimiento;
 
     @Column(name = "ESTADO", nullable = false)
     private String estado;
 
-    @Column(name = "IDMANTENIMIENTO")
+    @Column(name = "IDMANTENIMIENTO", nullable = false)
     private Long idMantenimiento;
 
-    @Column(name = "IDSERVICIO")
+    @Column(name = "IDSERVICIO", nullable = false)
     private Long idServicio;
 
-    @Column(name = "IDTIPOMANTENIMIENTO")
+    @Column(name = "IDTIPOMANTENIMIENTO", nullable = false)
     private Long idTipoMantenimiento;
 }

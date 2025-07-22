@@ -6,23 +6,26 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDate;
-
 @ToString
 @EqualsAndHashCode
-@Getter @Setter
+@Getter
+@Setter
 public class DetalleMantenimientoDTO {
+
     private Long id;
 
     @NotBlank(message = "Estado obligatorio")
     private String estado;
 
-    @Min(value = 1, message = "Debe asignarse un mantenimiento valido")
+    @NotNull(message = "Debe asignarse un mantenimiento válido")
+    @Min(value = 1, message = "ID de mantenimiento inválido")
     private Long idMantenimiento;
 
-    @Min(value = 1, message = "Debe asignarse un servicio valido")
+    @NotNull(message = "Debe asignarse un servicio válido")
+    @Min(value = 1, message = "ID de servicio inválido")
     private Long idServicio;
 
-    @Min(value =1, message = "Debe asignarse un tipo de mantenimiento valido")
+    @NotNull(message = "Debe asignarse un tipo de mantenimiento válido")
+    @Min(value = 1, message = "ID de tipo de mantenimiento inválido")
     private Long idTipoMantenimiento;
 }

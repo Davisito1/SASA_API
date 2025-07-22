@@ -1,6 +1,7 @@
 package APISASA.API_sasa.Models.DTO;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class ServicioDTO {
     @NotBlank(message = "Descripción obligatoria")
     private String descripcion;
 
-    @NotBlank(message = "Precio obligatorio")
+    @NotNull (message = "Precio obligatorio")
     @PositiveOrZero(message = "El precio no puede ser negativo")
     private double precio;
 

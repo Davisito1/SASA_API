@@ -17,7 +17,6 @@ public class ClienteService {
     @Autowired
     private ClientRepository repo;
 
-    // ✅ Obtener todos los clientes
     public List<ClientDTO> obtenerClientes() {
         List<ClienteEntity> lista = repo.findAll();
         return lista.stream()
@@ -25,14 +24,12 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ Insertar cliente
     public ClientDTO insertarCliente(ClientDTO dto) {
         ClienteEntity entity = convertirAEntity(dto);
         ClienteEntity guardado = repo.save(entity);
         return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar cliente
     public ClientDTO actualizarCliente(Long id, ClientDTO dto) {
         ClienteEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionClienteNoEncontrado("No existe un cliente con ID: " + id));
@@ -50,7 +47,6 @@ public class ClienteService {
         return convertirADTO(actualizado);
     }
 
-    // ✅ Eliminar cliente
     public boolean eliminarCliente(Long id) {
         try {
             ClienteEntity existente = repo.findById(id).orElse(null);
@@ -65,7 +61,6 @@ public class ClienteService {
         }
     }
 
-    // ✅ Convertir Entity a DTO (incluye nuevos campos)
     private ClientDTO convertirADTO(ClienteEntity entity) {
         ClientDTO dto = new ClientDTO();
         dto.setId(entity.getId());
@@ -79,7 +74,6 @@ public class ClienteService {
         return dto;
     }
 
-    // ✅ Convertir DTO a Entity (incluye nuevos campos)
     private ClienteEntity convertirAEntity(ClientDTO dto) {
         ClienteEntity entity = new ClienteEntity();
         entity.setId(dto.getId()); // si es null, JPA lo ignora y usa la secuencia

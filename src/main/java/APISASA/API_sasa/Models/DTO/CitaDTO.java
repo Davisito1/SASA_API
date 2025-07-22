@@ -17,6 +17,7 @@ import java.time.LocalTime;
 @EqualsAndHashCode
 @Getter @Setter
 public class CitaDTO {
+
     private Long id;
 
     @NotNull(message = "La decha es obligatoria")
