@@ -14,7 +14,11 @@ import java.time.LocalDate;
 public class HistorialEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_historialVehiculo")
-    @SequenceGenerator(name = "seq_historialVehiculo", sequenceName = "seq_historialVehiculo", allocationSize = 1)
+    @SequenceGenerator(
+            name = "seq_historialVehiculo",
+            sequenceName = "SEQ_HISTORIALVEHICULO", // <- Este debe coincidir con Oracle
+            allocationSize = 1
+    )
     @Column(name = "IDHISTORIAL", insertable = false, updatable = false)
     private Long id;
 

@@ -22,8 +22,12 @@ public class EstadoController {
     private EstadoService service;
 
     @GetMapping("/consultar")
-    public List<EstadoDTO> obtenerEstados() {
-        return service.obtenerEstados();
+    public ResponseEntity<?> obtenerEstados() {
+        List<EstadoDTO> estados = service.getAllEstados();
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", estados
+        ));
     }
 
     @PostMapping("/registrar")
@@ -35,10 +39,14 @@ public class EstadoController {
             Map<String, String> errores = new HashMap<>();
             result.getFieldErrors()
                     .forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
-            return ResponseEntity.badRequest().body(errores);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
         }
+
         try {
-            EstadoDTO creado = service.insertarEstado(dto);
+            EstadoDTO creado = service.createEstado(dto);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "data", creado
@@ -46,7 +54,8 @@ public class EstadoController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of(
                     "status", "error",
-                    "message", e.getMessage()
+                    "message", e.getMessage(),
+                    "timestamp", Instant.now().toString()
             ));
         }
     }
@@ -61,10 +70,14 @@ public class EstadoController {
             Map<String, String> errores = new HashMap<>();
             result.getFieldErrors()
                     .forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
-            return ResponseEntity.badRequest().body(errores);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
         }
+
         try {
-            EstadoDTO actualizado = service.actualizarEstado(id, dto);
+            EstadoDTO actualizado = service.updateEstado(id, dto);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "data", actualizado
@@ -74,13 +87,19 @@ public class EstadoController {
                     "status", "error",
                     "message", e.getMessage()
             ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error inesperado al actualizar estado",
+                    "timestamp", Instant.now().toString()
+            ));
         }
     }
 
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
-            if (service.eliminarEstado(id)) {
+            if (service.deleteEstado(id)) {
                 return ResponseEntity.ok(Map.of(
                         "status", "success",
                         "message", "Estado eliminado correctamente"

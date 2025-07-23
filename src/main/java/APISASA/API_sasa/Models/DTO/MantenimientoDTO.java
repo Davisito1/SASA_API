@@ -17,18 +17,18 @@ import java.time.LocalDate;
 public class MantenimientoDTO {
     private Long id;
 
-    @NotBlank(message = "Descripcion obligatoria")
-    @Size(max = 500, message = "La descipción no puede acceder de mas de 500 caracteres")
+    @NotBlank(message = "Descripción obligatoria")
+    @Size(max = 500, message = "La descripción no puede exceder los 500 caracteres")
     private String descripcion;
 
     @NotNull(message = "La fecha es obligatoria")
     private LocalDate fechaRealizacion;
 
-    @NotNull(message = "El codigo es obligatorio")
-    @Size(max = 50)
+    @NotNull(message = "El código es obligatorio")
+    @Size(max = 50, message = "El código no puede exceder los 50 caracteres")
     private String codigoMantenimiento;
 
-    @NotNull(message = "Mantenimiento obligatorio")
+    @NotNull(message = "Vehículo obligatorio")
     @Min(value = 1, message = "Debe asignarse un vehículo válido")
     private Long idVehiculo;
 }

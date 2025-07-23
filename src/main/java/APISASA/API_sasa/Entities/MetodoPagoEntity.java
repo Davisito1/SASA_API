@@ -11,10 +11,15 @@ import lombok.ToString;
 @ToString @EqualsAndHashCode @Getter @Setter
 public class MetodoPagoEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_metodoPago")
-    @SequenceGenerator(name = "seq_metodoPago", sequenceName = "seq_metodoPago", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_metodo_pago")
+    @SequenceGenerator(
+            name = "seq_metodo_pago",
+            sequenceName = "SEQ_METODOPAGO",
+            allocationSize = 1
+    )
     @Column(name = "IDMETODOPAGO", insertable = false, updatable = false)
     private Long id;
+
 
     @Column(name = "METODO")
     private String metodo;

@@ -12,13 +12,14 @@ import java.time.LocalDate;
 @Table(name = "MANTENIMIENTO")
 @ToString @EqualsAndHashCode @Getter @Setter
 public class MantenimientoEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mantenimiento")
     @SequenceGenerator(name = "seq_mantenimiento", sequenceName = "seq_mantenimiento", allocationSize = 1)
     @Column(name = "IDMANTENIMIENTO")
     private Long id;
 
-    @Column(name = "DESCRIPCION", nullable = false)
+    @Column(name = "DESCRIPCIONTRABAJO", nullable = true) // puede ser false si la haces obligatoria luego
     private String descripcion;
 
     @Column(name = "FECHAREALIZACION", nullable = false)

@@ -1,10 +1,7 @@
 package APISASA.API_sasa.Services;
 
-import APISASA.API_sasa.Entities.CitaEntity;
 import APISASA.API_sasa.Entities.MetodoPagoEntity;
-import APISASA.API_sasa.Exceptions.ExceptionCitaNoEncontrada;
 import APISASA.API_sasa.Exceptions.ExceptionMetodoNoEncontrado;
-import APISASA.API_sasa.Models.DTO.CitaDTO;
 import APISASA.API_sasa.Models.DTO.MetodoPagoDTO;
 import APISASA.API_sasa.Repositories.MetodoPagoRepository;
 import jakarta.validation.Valid;
@@ -16,42 +13,52 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
 @Slf4j
+@Service
 public class MetodoPagoService {
+
     @Autowired
     private MetodoPagoRepository repo;
 
+    // ✅ Obtener todos los métodos de pago
     public List<MetodoPagoDTO> obtenerMetodosDePago() {
-        List<MetodoPagoEntity> datos = repo.findAll();
-        return datos.stream().map(this::convertirADTO).collect(Collectors.toList());
+        List<MetodoPagoEntity> lista = repo.findAll();
+        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
     }
 
-    public MetodoPagoDTO insertarMetodo(MetodoPagoDTO data) {
-        if (data == null || data.getMetodo() == null) {
-            throw new IllegalArgumentException("Los datos del método no pueden ser nulos");
+    // ✅ Registrar un nuevo método
+    public MetodoPagoDTO insertarMetodo(MetodoPagoDTO dto) {
+        if (dto == null || dto.getMetodo() == null || dto.getMetodo().isBlank()) {
+            throw new IllegalArgumentException("El nombre del método no puede estar vacío.");
+        }
+
+        // Verifica duplicado si tienes restricción UNIQUE
+        if (repo.existsByMetodoIgnoreCase(dto.getMetodo())) {
+            throw new IllegalArgumentException("Ya existe un método con el nombre: " + dto.getMetodo());
         }
 
         try {
-            MetodoPagoEntity entity = convertirAEntity(data);
-            MetodoPagoEntity guardado = repo.save(entity);
+            MetodoPagoEntity nuevo = new MetodoPagoEntity();
+            nuevo.setMetodo(dto.getMetodo()); // ID lo genera la secuencia en Oracle
+            MetodoPagoEntity guardado = repo.save(nuevo);
             return convertirADTO(guardado);
         } catch (Exception e) {
-            log.error("Error al registrar método: " + e.getMessage());
-            throw new RuntimeException("No se pudo registrar el método.");
+            log.error("Error al registrar método: ", e);
+            throw new RuntimeException("No se pudo registrar el método: " + e.getMessage());
         }
     }
 
-    public MetodoPagoDTO actualizarMetodo(Long id, @Valid MetodoPagoDTO data) {
+    // ✅ Actualizar un método existente
+    public MetodoPagoDTO actualizarMetodo(Long id, @Valid MetodoPagoDTO dto) {
         MetodoPagoEntity existente = repo.findById(id)
-                .orElseThrow(() -> new ExceptionMetodoNoEncontrado("No se encontró método con ID: " + id));
+                .orElseThrow(() -> new ExceptionMetodoNoEncontrado("No se encontró el método con ID: " + id));
 
-        existente.setMetodo(data.getMetodo());
-
+        existente.setMetodo(dto.getMetodo());
         MetodoPagoEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
     }
 
+    // ✅ Eliminar método por ID
     public boolean eliminarMetodo(Long id) {
         try {
             MetodoPagoEntity existente = repo.findById(id).orElse(null);
@@ -62,21 +69,15 @@ public class MetodoPagoService {
                 return false;
             }
         } catch (EmptyResultDataAccessException e) {
-            throw new RuntimeException("No se encontró método con ID: " + id + " para eliminar.");
+            throw new RuntimeException("No se encontró el método con ID: " + id + " para eliminar.");
         }
     }
 
-    private MetodoPagoDTO convertirADTO(MetodoPagoEntity metodoPagoEntity) {
+    // 🔁 Conversor Entity → DTO
+    private MetodoPagoDTO convertirADTO(MetodoPagoEntity entity) {
         MetodoPagoDTO dto = new MetodoPagoDTO();
-        dto.setId(metodoPagoEntity.getId());
-        dto.setMetodo(metodoPagoEntity.getMetodo());
+        dto.setId(entity.getId());
+        dto.setMetodo(entity.getMetodo());
         return dto;
-    }
-
-    private MetodoPagoEntity convertirAEntity(MetodoPagoDTO dto) {
-        MetodoPagoEntity entity = new MetodoPagoEntity();
-        entity.setId(dto.getId());
-        entity.setMetodo(dto.getMetodo());
-        return entity;
     }
 }
