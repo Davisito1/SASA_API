@@ -28,6 +28,7 @@ public class MantenimientoDTO {
     @Size(max = 50)
     private String codigoMantenimiento;
 
+    @NotNull(message = "Mantenimiento obligatorio")
     @Min(value = 1, message = "Debe asignarse un vehículo válido")
     private Long idVehiculo;
 }

@@ -7,7 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table()
+@Table(name = "TIPOMANTENIMIENTO")
 @ToString @EqualsAndHashCode @Getter @Setter
 public class TipoMantenimientoEntity {
     @Id

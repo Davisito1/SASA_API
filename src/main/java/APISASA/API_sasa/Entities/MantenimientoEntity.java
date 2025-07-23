@@ -15,6 +15,7 @@ public class MantenimientoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mantenimiento")
     @SequenceGenerator(name = "seq_mantenimiento", sequenceName = "seq_mantenimiento", allocationSize = 1)
+    @Column(name = "IDMANTENIMIENTO")
     private Long id;
 
     @Column(name = "DESCRIPCION", nullable = false)

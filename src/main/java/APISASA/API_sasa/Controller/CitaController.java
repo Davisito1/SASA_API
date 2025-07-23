@@ -75,7 +75,7 @@ public class CitaController {
             } else {
                 return ResponseEntity.status(404).body(Map.of(
                         "status", "error",
-                        "message", "Cita eliminada"
+                        "message", "Cita no encontrada"
                 ));
             }
         } catch (Exception e) {
