@@ -1,13 +1,8 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.CitaEntity;
-import APISASA.API_sasa.Entities.UserEntity;
-import APISASA.API_sasa.Entities.VehicleEntity;
 import APISASA.API_sasa.Exceptions.ExceptionCitaNoEncontrada;
-import APISASA.API_sasa.Exceptions.ExceptionVehiculoNoEcontrado;
 import APISASA.API_sasa.Models.DTO.CitaDTO;
-import APISASA.API_sasa.Models.DTO.UserDTO;
-import APISASA.API_sasa.Models.DTO.VehicleDTO;
 import APISASA.API_sasa.Repositories.CitaRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +16,26 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class CitaService {
+
     @Autowired
     private CitaRepository repo;
 
+    // ✅ Listar todas
     public List<CitaDTO> obtenerCitas() {
         List<CitaEntity> lista = repo.findAll();
         return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
     }
 
+    // ✅ Obtener por ID
+    public CitaDTO obtenerCitaPorId(Long id) {
+        return repo.findById(id)
+                .map(this::convertirADTO)
+                 .orElseThrow(() -> new ExceptionCitaNoEncontrada(
+                        "No se encontró cita con ID: " + id
+                ));
+    }
+
+    // ✅ Crear
     public CitaDTO insertarCita(CitaDTO data) {
         if (data == null || data.getFecha() == null || data.getHora() == null) {
             throw new IllegalArgumentException("Los datos de la cita no pueden ser nulos");
@@ -44,6 +51,7 @@ public class CitaService {
         }
     }
 
+    // ✅ Actualizar
     public CitaDTO actualizarCita(Long id, @Valid CitaDTO data) {
         CitaEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionCitaNoEncontrada("No se encontró cita con ID: " + id));
@@ -57,6 +65,7 @@ public class CitaService {
         return convertirADTO(actualizado);
     }
 
+    // ✅ Eliminar
     public boolean eliminarCita(Long id) {
         try {
             CitaEntity existente = repo.findById(id).orElse(null);
@@ -71,6 +80,7 @@ public class CitaService {
         }
     }
 
+    // 🔹 Conversión DTO -> Entity
     private CitaEntity convertirAEntity(CitaDTO dto) {
         CitaEntity entity = new CitaEntity();
         entity.setId(dto.getId());
@@ -81,6 +91,7 @@ public class CitaService {
         return entity;
     }
 
+    // 🔹 Conversión Entity -> DTO
     private CitaDTO convertirADTO(CitaEntity citaEntity) {
         CitaDTO dto = new CitaDTO();
         dto.setId(citaEntity.getId());

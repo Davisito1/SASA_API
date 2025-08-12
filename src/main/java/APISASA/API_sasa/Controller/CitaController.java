@@ -5,7 +5,6 @@ import APISASA.API_sasa.Services.CitaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,14 +16,40 @@ import java.util.Map;
 @RestController
 @RequestMapping("/apiCitas")
 public class CitaController {
+
     @Autowired
     private CitaService service;
 
+    // LISTAR TODAS
     @GetMapping("/consultar")
     public List<CitaDTO> obtenerCitas() {
         return service.obtenerCitas();
     }
 
+    // ✅ OBTENER POR ID
+    @GetMapping("/consultar/{id}")
+    public ResponseEntity<?> obtenerCitaPorId(@PathVariable Long id) {
+        try {
+            CitaDTO dto = service.obtenerCitaPorId(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", dto
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error al consultar la cita",
+                    "timestamp", Instant.now().toString()
+            ));
+        }
+    }
+
+    // CREAR
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarCita(@Valid @RequestBody CitaDTO dto, BindingResult result) {
         if (result.hasErrors()) {
@@ -46,6 +71,7 @@ public class CitaController {
         }
     }
 
+    // ACTUALIZAR
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizarCita(@PathVariable Long id, @Valid @RequestBody CitaDTO dto, BindingResult result) {
         if (result.hasErrors()) {
@@ -64,6 +90,7 @@ public class CitaController {
         }
     }
 
+    // ELIMINAR
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarCita(@PathVariable Long id) {
         try {
