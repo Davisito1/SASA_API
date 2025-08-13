@@ -8,6 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+// 🔽 imports para paginación
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +27,21 @@ public class EmpleadoService {
         return lista.stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
+    }
+
+    // 🔹 NUEVO: Obtener empleados paginados + búsqueda opcional
+    // Si 'q' viene vacío/null -> lista paginada completa
+    // Si 'q' trae valor -> busca por nombres, apellidos, dui o correo (contains, ignore case)
+    public Page<EmpleadoDTO> obtenerEmpleadosPaginado(String q, Pageable pageable) {
+        if (q == null || q.isBlank()) {
+            return repo.findAll(pageable).map(this::convertirADTO);
+        }
+        String term = q.trim();
+        return repo
+                .findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrDuiContainingIgnoreCaseOrCorreoContainingIgnoreCase(
+                        term, term, term, term, pageable
+                )
+                .map(this::convertirADTO);
     }
 
     // Insertar nuevo empleado
