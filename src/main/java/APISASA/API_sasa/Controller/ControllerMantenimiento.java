@@ -1,19 +1,17 @@
 package APISASA.API_sasa.Controller;
 
-import APISASA.API_sasa.Entities.CitaEntity;
-import APISASA.API_sasa.Entities.MantenimientoEntity;
-import APISASA.API_sasa.Exceptions.ExceptionCitaNoEncontrada;
-import APISASA.API_sasa.Models.DTO.CitaDTO;
 import APISASA.API_sasa.Models.DTO.MantenimientoDTO;
-import APISASA.API_sasa.Repositories.CitaRepository;
-import APISASA.API_sasa.Repositories.MantenimientoRepository;
 import APISASA.API_sasa.Services.MantenimientoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -29,6 +27,43 @@ public class ControllerMantenimiento {
     @GetMapping("/consultar")
     public List<MantenimientoDTO> obtenerMantenimientos() {
         return service.obtenerMantenimientos();
+    }
+
+    // 🔹 NUEVO: paginado + búsqueda opcional
+    // Ejemplos:
+    //  GET /apiMantenimiento/page?page=0&size=10
+    //  GET /apiMantenimiento/page?sort=id,desc
+    //  GET /apiMantenimiento/page?q=pendiente
+    //  GET /apiMantenimiento/page?q=25  (busca por ID exacto; si no existe, intenta idVehiculo=25 si lo habilitas en repo)
+    @GetMapping("/page")
+    public ResponseEntity<?> listarPaginado(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            // ⚠️ Si tu PK no se llama "id", cambia el default a tu campo real (p. ej., "idMantenimiento")
+            @RequestParam(defaultValue = "id,asc") String sort,
+            @RequestParam(required = false) String q
+    ) {
+        if (page < 0) page = 0;
+        if (size <= 0) size = 10;
+
+        String[] parts = sort.split(",");
+        String sortField = parts[0].trim().isEmpty() ? "id" : parts[0].trim();
+        Sort.Direction direction = (parts.length > 1 && "desc".equalsIgnoreCase(parts[1].trim()))
+                ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
+        Page<MantenimientoDTO> result = service.obtenerMantenimientosPaginado(q, pageable);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("status", "success");
+        body.put("page", result.getNumber());
+        body.put("size", result.getSize());
+        body.put("totalPages", result.getTotalPages());
+        body.put("totalElements", result.getTotalElements());
+        body.put("sort", sort);
+        body.put("query", q);
+        body.put("data", result.getContent());
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping("/registrar")
