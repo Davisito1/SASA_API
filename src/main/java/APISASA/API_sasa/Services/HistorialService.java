@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Services;
 
+import APISASA.API_sasa.Entities.FacturaEntity;
 import APISASA.API_sasa.Entities.HistorialEntity;
 import APISASA.API_sasa.Exceptions.ExceptionHistorialNoEncontrado;
 import APISASA.API_sasa.Models.DTO.HistorialDTO;
@@ -8,6 +9,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +24,10 @@ public class HistorialService {
     @Autowired
     private HistorialRepository repo;
 
-    public List<HistorialDTO> obtenerHistoriales() {
-        List<HistorialEntity> datos = repo.findAll();
-        return datos.stream().map(this::convertirADTO).collect(Collectors.toList());
+    public Page<HistorialDTO> obtenerHistorial(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<HistorialEntity> pageEntity = repo.findAll(pageable);
+        return pageEntity.map(this::convertirADTO);
     }
 
     public HistorialDTO insertarHistorial(HistorialDTO dto) {

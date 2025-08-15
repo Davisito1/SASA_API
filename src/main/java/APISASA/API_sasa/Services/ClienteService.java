@@ -3,9 +3,13 @@ package APISASA.API_sasa.Services;
 import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Exceptions.ExceptionClienteNoEncontrado;
 import APISASA.API_sasa.Models.DTO.ClientDTO;
+import APISASA.API_sasa.Models.DTO.EmpleadoDTO;
 import APISASA.API_sasa.Repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +21,10 @@ public class ClienteService {
     @Autowired
     private ClientRepository repo;
 
-    public List<ClientDTO> obtenerClientes() {
-        List<ClienteEntity> lista = repo.findAll();
-        return lista.stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
+    public Page<ClientDTO> obtenerClientes(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<ClienteEntity> pageEntity = repo.findAll(pageable);
+        return pageEntity.map(this::convertirADTO);
     }
 
     public ClientDTO insertarCliente(ClientDTO dto) {

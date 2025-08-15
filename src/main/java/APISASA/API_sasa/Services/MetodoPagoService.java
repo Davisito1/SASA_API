@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Services;
 
+import APISASA.API_sasa.Entities.FacturaEntity;
 import APISASA.API_sasa.Entities.MetodoPagoEntity;
 import APISASA.API_sasa.Exceptions.ExceptionMetodoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.MetodoPagoDTO;
@@ -8,6 +9,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,9 +25,10 @@ public class MetodoPagoService {
     private MetodoPagoRepository repo;
 
     // ✅ Obtener todos los métodos de pago
-    public List<MetodoPagoDTO> obtenerMetodosDePago() {
-        List<MetodoPagoEntity> lista = repo.findAll();
-        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
+    public Page<MetodoPagoDTO> obtenerMetodosDePago(int page, int size  ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<MetodoPagoEntity> pageEntity = repo.findAll(pageable);
+        return pageEntity.map(this::convertirADTO);
     }
 
     // ✅ Registrar un nuevo método

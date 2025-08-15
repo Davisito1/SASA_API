@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Services;
 
+import APISASA.API_sasa.Entities.FacturaEntity;
 import APISASA.API_sasa.Entities.UserEntity;
 import APISASA.API_sasa.Models.DTO.UserDTO;
 import APISASA.API_sasa.Repositories.UserRepository;
@@ -7,6 +8,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,9 +24,10 @@ public class UserService {
     private UserRepository repo;
 
     // CONSULTAR TODOS
-    public List<UserDTO> getAllUsers() {
-        List<UserEntity> users = repo.findAll();
-        return users.stream().map(this::convertToDTO).collect(Collectors.toList());
+    public Page<UserDTO> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<UserEntity> pageEntity = repo.findAll(pageable);
+        return pageEntity.map(this::convertToDTO);
     }
 
     // INSERTAR NUEVO USUARIO

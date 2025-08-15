@@ -1,10 +1,12 @@
 package APISASA.API_sasa.Controller;
 
 import APISASA.API_sasa.Exceptions.ExceptionHistorialNoEncontrado;
+import APISASA.API_sasa.Models.DTO.FacturaDTO;
 import APISASA.API_sasa.Models.DTO.HistorialDTO;
 import APISASA.API_sasa.Services.HistorialService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +24,23 @@ public class ControllerHistorial {
     private HistorialService service;
 
     @GetMapping("/consultar")
-    public ResponseEntity<?> obtenerTodos() {
-        List<HistorialDTO> lista = service.obtenerHistoriales();
-        return ResponseEntity.ok(Map.of("status", "success", "data", lista));
+    private ResponseEntity<Page<HistorialDTO>> obtenerHistorial(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ){
+        if (size <= 0 || size > 50){
+            ResponseEntity.badRequest().body(Map.of(
+                    "status", "El tamaño de la página debe estar entre 1 y 50"
+            ));
+            return ResponseEntity.ok(null);
+        }
+        Page<HistorialDTO> categories = service.obtenerHistorial(page, size);
+        if (categories == null){
+            ResponseEntity.badRequest().body(Map.of(
+                    "status", "No hay historial registrado"
+            ));
+        }
+        return ResponseEntity.ok(categories);
     }
 
     @PostMapping("/registrar")

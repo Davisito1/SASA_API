@@ -1,11 +1,15 @@
 package APISASA.API_sasa.Services;
 
+import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Entities.FacturaEntity;
 import APISASA.API_sasa.Exceptions.ExceptionFacturaNoEncontrada;
 import APISASA.API_sasa.Models.DTO.FacturaDTO;
 import APISASA.API_sasa.Repositories.FacturaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,9 +21,10 @@ public class FacturaService {
     @Autowired
     private FacturaRepository repo;
 
-    public List<FacturaDTO> obtenerFacturas() {
-        List<FacturaEntity> lista = repo.findAll();
-        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
+    public Page<FacturaDTO> obtenerFacturas(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FacturaEntity> pageEntity = repo.findAll(pageable);
+        return pageEntity.map(this::convertirADTO);
     }
 
     public FacturaDTO insertarFactura(FacturaDTO dto) {

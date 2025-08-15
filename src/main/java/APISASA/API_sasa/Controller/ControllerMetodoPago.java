@@ -1,10 +1,12 @@
 package APISASA.API_sasa.Controller;
 
 import APISASA.API_sasa.Models.DTO.CitaDTO;
+import APISASA.API_sasa.Models.DTO.ClientDTO;
 import APISASA.API_sasa.Models.DTO.MetodoPagoDTO;
 import APISASA.API_sasa.Services.MetodoPagoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -21,8 +23,23 @@ public class ControllerMetodoPago {
     private MetodoPagoService service;
 
     @GetMapping("/consultar")
-    public List<MetodoPagoDTO> obtenerMetodosDePago() {
-        return service.obtenerMetodosDePago();
+    private ResponseEntity<Page<MetodoPagoDTO>> obtenerMetodosDePago(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ){
+        if (size <= 0 || size > 50){
+            ResponseEntity.badRequest().body(Map.of(
+                    "status", "El tamaño de la página debe estar entre 1 y 50"
+            ));
+            return ResponseEntity.ok(null);
+        }
+        Page<MetodoPagoDTO> categories = service.obtenerMetodosDePago(page, size);
+        if (categories == null){
+            ResponseEntity.badRequest().body(Map.of(
+                    "status", "No hay métodos de pago registrados"
+            ));
+        }
+        return ResponseEntity.ok(categories);
     }
 
     @PostMapping("/registrar")

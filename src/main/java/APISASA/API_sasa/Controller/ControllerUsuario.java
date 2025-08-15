@@ -1,10 +1,12 @@
 package APISASA.API_sasa.Controller;
 
+import APISASA.API_sasa.Models.DTO.ClientDTO;
 import APISASA.API_sasa.Models.DTO.UserDTO;
 import APISASA.API_sasa.Services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,9 +25,24 @@ public class ControllerUsuario {
     private UserService service;
 
     // CONSULTAR TODOS
-    @GetMapping("/usuarios")
-    public List<UserDTO> datosUsuarios() {
-        return service.getAllUsers();
+    @GetMapping("/consultar")
+    private ResponseEntity<Page<UserDTO>> datosUsuario(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ){
+        if (size <= 0 || size > 50){
+            ResponseEntity.badRequest().body(Map.of(
+                    "status", "El tamaño de la página debe estar entre 1 y 50"
+            ));
+            return ResponseEntity.ok(null);
+        }
+        Page<UserDTO> categories = service.getAllUsers(page, size);
+        if (categories == null){
+            ResponseEntity.badRequest().body(Map.of(
+                    "status", "No hay usuarios registrados"
+            ));
+        }
+        return ResponseEntity.ok(categories);
     }
 
     // REGISTRAR USUARIO

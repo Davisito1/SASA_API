@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Services;
 
+import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Entities.EstadoEntity;
 import APISASA.API_sasa.Exceptions.ExceptionEstadoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.EstadoDTO;
@@ -7,6 +8,9 @@ import APISASA.API_sasa.Repositories.EstadoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,11 +23,10 @@ public class EstadoService {
     @Autowired
     private EstadoRepository repo;
 
-    public List<EstadoDTO> getAllEstados() {
-        List<EstadoEntity> estados = repo.findAll();
-        return estados.stream()
-                .map(this::convertirAEstadoDTO)
-                .collect(Collectors.toList());
+    public Page<EstadoDTO> getAllEstados(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EstadoEntity> pageEntity = repo.findAll(pageable);
+        return pageEntity.map(this::convertirAEstadoDTO);
     }
 
     public EstadoDTO createEstado(EstadoDTO estadoDTO) {
