@@ -10,7 +10,10 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "CLIENTE")
-@Getter @Setter @ToString @EqualsAndHashCode
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class ClienteEntity {
 
     @Id
@@ -34,10 +37,10 @@ public class ClienteEntity {
     @Column(name = "GENERO", length = 20)
     private String genero;
 
-    // Nuevos campos para autenticación
-    @Column(name = "CORREOELECTRONICO", nullable = false, unique = true, length = 150)
-    private String correoElectronico;
+    // 🔹 Nuevos campos agregados con ALTER TABLE
+    @Column(name = "CORREO", nullable = false, unique = true, length = 150)
+    private String correo;
 
-    @Column(name = "CONTRASENA", nullable = false, length = 200)
+    @Column(name = "CONTRASENA", nullable = false, length = 150)
     private String contrasena;
 }

@@ -29,7 +29,7 @@ public class VehicleDTO {
     private String vin;
 
     @Min(value = 1, message = "Debe asignarse un cliente válido")
-    private int IdCliente;
+    private int idCliente;
 
     @Min(value = 1, message = "Debe asignarse un estado válido")
     private int idEstado;

@@ -2,7 +2,6 @@ package APISASA.API_sasa.Controller;
 
 import APISASA.API_sasa.Exceptions.ExceptionEstadoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.EstadoDTO;
-import APISASA.API_sasa.Models.DTO.MetodoPagoDTO;
 import APISASA.API_sasa.Services.EstadoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,26 +21,29 @@ public class EstadoController {
     @Autowired
     private EstadoService service;
 
+    // 🔹 Consultar con paginación
     @GetMapping("/consultar")
-    private ResponseEntity<Page<EstadoDTO>> obtenerEstados(
+    public ResponseEntity<?> obtenerEstados(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
-    ){
-        if (size <= 0 || size > 50){
-            ResponseEntity.badRequest().body(Map.of(
+    ) {
+        if (size <= 0 || size > 50) {
+            return ResponseEntity.badRequest().body(Map.of(
                     "status", "El tamaño de la página debe estar entre 1 y 50"
             ));
-            return ResponseEntity.ok(null);
         }
-        Page<EstadoDTO> categories = service.getAllEstados(page, size);
-        if (categories == null){
-            ResponseEntity.badRequest().body(Map.of(
+
+        Page<EstadoDTO> estados = service.getAllEstados(page, size);
+        if (estados == null || estados.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of(
                     "status", "No hay estados registrados"
             ));
         }
-        return ResponseEntity.ok(categories);
+
+        return ResponseEntity.ok(estados);
     }
 
+    // 🔹 Registrar estado
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody EstadoDTO dto,
@@ -73,6 +74,7 @@ public class EstadoController {
         }
     }
 
+    // 🔹 Actualizar estado
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
@@ -109,6 +111,7 @@ public class EstadoController {
         }
     }
 
+    // 🔹 Eliminar estado
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

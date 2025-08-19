@@ -14,20 +14,21 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/apiVehiculo")
+@RequestMapping("/apiVehiculo") // 🔹 Esto alinea con tu frontend
+@CrossOrigin(origins = "*")
 public class ControllerVehiculo {
 
     @Autowired
     private VehicleService service;
 
     // CONSULTAR DATOS
-    @GetMapping("/consultar")
+    @GetMapping
     public List<VehicleDTO> obtenerVehiculos() {
         return service.obtenerVehiculos();
     }
 
     // REGISTRAR
-    @PostMapping("/registrar")
+    @PostMapping
     public ResponseEntity<?> nuevoVehiculo(@Valid @RequestBody VehicleDTO dto, BindingResult result) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
@@ -49,8 +50,10 @@ public class ControllerVehiculo {
     }
 
     // ACTUALIZAR
-    @PutMapping("/actualizar/{id}")
-    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody VehicleDTO dto, BindingResult result) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizar(@PathVariable Long id,
+                                        @Valid @RequestBody VehicleDTO dto,
+                                        BindingResult result) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
             result.getFieldErrors().forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
@@ -68,7 +71,7 @@ public class ControllerVehiculo {
     }
 
     // ELIMINAR
-    @DeleteMapping("/eliminar/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
             if (service.eliminarVehiculo(id)) {

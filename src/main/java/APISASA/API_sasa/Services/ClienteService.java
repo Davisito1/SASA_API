@@ -43,7 +43,7 @@ public class ClienteService {
         existente.setFechaNacimiento(dto.getFechaNacimiento());
         existente.setGenero(dto.getGenero());
         // Agregar campos nuevos
-        existente.setCorreoElectronico(dto.getCorreoElectronico());
+        existente.setCorreo(dto.getCorreo());
         existente.setContrasena(dto.getContrasena());
 
         ClienteEntity actualizado = repo.save(existente);
@@ -72,7 +72,7 @@ public class ClienteService {
         dto.setDui(entity.getDui());
         dto.setFechaNacimiento(entity.getFechaNacimiento());
         dto.setGenero(entity.getGenero());
-        dto.setCorreoElectronico(entity.getCorreoElectronico());
+        dto.setCorreo(entity.getCorreo());
         dto.setContrasena(entity.getContrasena());
         return dto;
     }
@@ -85,7 +85,7 @@ public class ClienteService {
         entity.setDui(dto.getDui());
         entity.setFechaNacimiento(dto.getFechaNacimiento());
         entity.setGenero(dto.getGenero());
-        entity.setCorreoElectronico(dto.getCorreoElectronico());
+        entity.setCorreo(dto.getCorreo());
         entity.setContrasena(dto.getContrasena());
         return entity;
     }
