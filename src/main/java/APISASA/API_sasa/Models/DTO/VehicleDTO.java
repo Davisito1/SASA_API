@@ -1,5 +1,7 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.ClienteEntity;
+import APISASA.API_sasa.Entities.EstadoEntity;
 import jakarta.validation.constraints.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -29,8 +31,8 @@ public class VehicleDTO {
     private String vin;
 
     @Min(value = 1, message = "Debe asignarse un cliente válido")
-    private int IdCliente;
+    private ClienteEntity IdCliente;
 
     @Min(value = 1, message = "Debe asignarse un estado válido")
-    private int idEstado;
+    private EstadoEntity idEstado;
 }

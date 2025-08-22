@@ -24,9 +24,11 @@ public class FacturaEntity {
     @Column(name = "MONTOTOTAL", nullable = false)
     private double montoTotal;
 
-    @Column(name = "IDEMPLEADO", nullable = false)
-    private Long idEmpleado;
+    @ManyToOne
+    @JoinColumn(name = "IDEMPLEADO", nullable = false)
+    private EmpleadoEntity idEmpleado;
 
-    @Column(name = "IDMANTENIMIENTO", nullable = false)
-    private Long idMantenimiento;
+    @OneToOne
+    @JoinColumn(name = "IDMANTENIMIENTO", nullable = false)
+    private MantenimientoEntity idMantenimiento;
 }

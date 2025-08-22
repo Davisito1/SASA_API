@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.VehicleEntity;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,5 +31,5 @@ public class MantenimientoDTO {
 
     @NotNull(message = "Vehículo obligatorio")
     @Min(value = 1, message = "Debe asignarse un vehículo válido")
-    private Long idVehiculo;
+    private VehicleEntity idVehiculo;
 }

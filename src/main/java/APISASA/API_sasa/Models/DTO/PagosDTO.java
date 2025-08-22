@@ -1,5 +1,7 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.FacturaEntity;
+import APISASA.API_sasa.Entities.MetodoPagoEntity;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,8 +27,8 @@ public class PagosDTO {
     private double monto;
 
     @Min(value = 1, message = "Debe asignarse un método de pago valido")
-    private Long metodoPago;
+    private MetodoPagoEntity metodoPago;
 
     @Min(value = 1, message = "Debe asignarse una factura valida")
-    private Long idFactura;
+    private FacturaEntity idFactura;
 }

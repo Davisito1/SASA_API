@@ -34,6 +34,7 @@ public class HistorialEntity {
     @Column(name = "OBSERVACIONES")
     private String observaciones;
 
-    @Column(name = "IDVEHICULO", nullable = false)
-    private Long idVehiculo;
+    @ManyToOne
+    @JoinColumn(name = "IDVEHICULO", nullable = false)
+    private VehicleEntity idVehiculo;
 }

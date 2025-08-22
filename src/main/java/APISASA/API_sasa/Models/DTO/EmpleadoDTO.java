@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.UserEntity;
 import jakarta.validation.constraints.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -45,5 +46,5 @@ public class EmpleadoDTO {
     private String correo;
 
     @Min(value = 1, message = "Debe asignarse un usuario válido")
-    private Long idUsuario;
+    private UserEntity idUsuario;
 }

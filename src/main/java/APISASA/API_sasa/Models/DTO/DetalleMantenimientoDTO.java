@@ -1,5 +1,8 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.MantenimientoEntity;
+import APISASA.API_sasa.Entities.ServicioEntity;
+import APISASA.API_sasa.Entities.TipoMantenimientoEntity;
 import jakarta.validation.constraints.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,13 +22,13 @@ public class DetalleMantenimientoDTO {
 
     @NotNull(message = "Debe asignarse un mantenimiento válido")
     @Min(value = 1, message = "ID de mantenimiento inválido")
-    private Long idMantenimiento;
+    private MantenimientoEntity idMantenimiento;
 
     @NotNull(message = "Debe asignarse un servicio válido")
     @Min(value = 1, message = "ID de servicio inválido")
-    private Long idServicio;
+    private ServicioEntity idServicio;
 
     @NotNull(message = "Debe asignarse un tipo de mantenimiento válido")
     @Min(value = 1, message = "ID de tipo de mantenimiento inválido")
-    private Long idTipoMantenimiento;
+    private TipoMantenimientoEntity idTipoMantenimiento;
 }

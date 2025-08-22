@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "TIPOMANTENIMIENTO")
 @ToString @EqualsAndHashCode @Getter @Setter
@@ -18,4 +21,7 @@ public class TipoMantenimientoEntity {
 
     @Column(name = "TIPOMANTENIMIENTO", nullable = false)
     private String tipoMantenimiento;
+
+    @OneToMany(mappedBy = "idTipoMantenimiento")
+    private List<DetalleMantenimientoEntity> detalles = new ArrayList<>();
 }

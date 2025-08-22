@@ -42,6 +42,7 @@ public class EmpleadoEntity {
     @Column(name = "CORREOELECTRONICO", nullable = false, unique = true)
     private String correo;
 
-    @Column(name = "IDUSUARIO")
-    private Long idUsuario;
+    @OneToOne
+    @JoinColumn(name = "IDUSUARIO", nullable = false)
+    private UserEntity idUsuario;
 }

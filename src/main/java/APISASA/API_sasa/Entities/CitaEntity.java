@@ -32,6 +32,7 @@ public class CitaEntity {
     @Column(name = "ESTADO", nullable = false)
     private String estado;
 
-    @Column(name = "IDCLIENTE", nullable = false)
-    private Long idCliente;
+    @ManyToOne
+    @JoinColumn(name = "IDCLIENTE", nullable = false)
+    private ClienteEntity idCliente;
 }

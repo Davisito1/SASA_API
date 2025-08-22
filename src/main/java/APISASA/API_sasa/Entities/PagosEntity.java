@@ -24,9 +24,11 @@ public class PagosEntity {
     @Column(name = "MONTO", nullable = false)
     private double monto;
 
-    @Column(name = "IDMETODOPAGO", nullable = false)
-    private Long idMetodoPago;
+    @ManyToOne
+    @JoinColumn(name = "IDMETODOPAGO", nullable = false)
+    private MetodoPagoEntity idMetodoPago;
 
-    @Column(name = "IDFACTURA", nullable = false)
-    private Long idFactura;
+    @ManyToOne
+    @JoinColumn(name = "IDFACTURA", nullable = false)
+    private FacturaEntity idFactura;
 }

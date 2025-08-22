@@ -32,9 +32,11 @@ public class VehicleEntity {
     @Column(name = "VIN")
     private String vin;
 
-    @Column(name = "IDCLIENTE")
-    private int idCliente;
+    @ManyToOne
+    @JoinColumn(name = "IDCLIENTE", nullable = false)
+    private ClienteEntity idCliente;
 
-    @Column(name = "IDESTADO")
-    private int idEstado;
+    @OneToOne
+    @JoinColumn(name = "IDESTADO", nullable = false)
+    private EstadoEntity idEstado;
 }

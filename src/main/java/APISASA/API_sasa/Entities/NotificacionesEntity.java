@@ -33,6 +33,7 @@ public class NotificacionesEntity {
     @Column(name = "PRIORIDAD")
     private String prioridad;
 
-    @Column(name = "IDUSUARIO", nullable = false)
-    private Long idUsuario;
+    @ManyToOne
+    @JoinColumn(name = "IDUSUARIO", nullable = false)
+    private UserEntity idUsuario;
 }

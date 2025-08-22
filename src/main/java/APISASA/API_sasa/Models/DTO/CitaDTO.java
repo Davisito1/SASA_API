@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.ClienteEntity;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -32,5 +33,5 @@ public class CitaDTO {
 
     @NotNull(message = "El cliente es obligatorio")
     @Min(value = 1, message = "Debe asignarse un cliente válido")
-    private Long idCliente;
+    private ClienteEntity idCliente;
 }

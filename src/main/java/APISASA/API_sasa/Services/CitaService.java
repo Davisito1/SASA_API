@@ -1,6 +1,7 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.CitaEntity;
+import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Exceptions.ExceptionCitaNoEncontrada;
 import APISASA.API_sasa.Models.DTO.CitaDTO;
 import APISASA.API_sasa.Repositories.CitaRepository;

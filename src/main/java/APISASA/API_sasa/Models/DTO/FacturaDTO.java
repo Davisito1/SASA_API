@@ -1,5 +1,7 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.EmpleadoEntity;
+import APISASA.API_sasa.Entities.MantenimientoEntity;
 import jakarta.validation.constraints.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -25,8 +27,8 @@ public class FacturaDTO {
     private double montoTotal;
 
     @Min(value = 1, message = "Debe asignarse un empleado valido")
-    private Long idEmpleado;
+    private EmpleadoEntity idEmpleado;
 
     @Min(value = 1, message = "Debe asignarse un mantenimiento valido")
-    private Long idMantenimiento;
+    private MantenimientoEntity idMantenimiento;
 }

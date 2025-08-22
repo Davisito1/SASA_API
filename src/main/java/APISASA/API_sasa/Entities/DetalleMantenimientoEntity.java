@@ -27,12 +27,15 @@ public class DetalleMantenimientoEntity {
     @Column(name = "ESTADO", nullable = false)
     private String estado;
 
-    @Column(name = "IDMANTENIMIENTO", nullable = false)
-    private Long idMantenimiento;
+    @ManyToOne
+    @JoinColumn(name = "IDMANTENIMIENTO", nullable = false)
+    private MantenimientoEntity idMantenimiento;
 
-    @Column(name = "IDSERVICIO", nullable = false)
-    private Long idServicio;
+    @ManyToOne
+    @JoinColumn(name = "IDSERVICIO", nullable = false)
+    private ServicioEntity idServicio;
 
-    @Column(name = "IDTIPOMANTENIMIENTO", nullable = false)
-    private Long idTipoMantenimiento;
+    @ManyToOne
+    @JoinColumn(name = "IDTIPOMANTENIMIENTO", nullable = false)
+    private TipoMantenimientoEntity idTipoMantenimiento;
 }

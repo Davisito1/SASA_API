@@ -22,7 +22,7 @@ public interface DetalleMantenimientoRepository extends JpaRepository<DetalleMan
 
     // (Opcional) Ayudas rápidas
     long countByEstadoIgnoreCase(String estado);
-    boolean existsByIdMantenimiento(Long idMantenimiento);
-    boolean existsByIdServicio(Long idServicio);
-    boolean existsByIdTipoMantenimiento(Long idTipoMantenimiento);
+    boolean existsByIdMantenimiento_Id(Long idMantenimiento);
+    boolean existsByIdServicio_Id(Long idServicio);
+    boolean existsByIdTipoMantenimiento_Id(Long idTipoMantenimiento);
 }

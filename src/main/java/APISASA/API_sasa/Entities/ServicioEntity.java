@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "SERVICIO")
 @ToString @EqualsAndHashCode @Getter @Setter
@@ -27,4 +30,7 @@ public class ServicioEntity {
 
     @Column(name = "DURACIONESTIMADA", nullable = false)
     private String duracion;
+
+    @OneToMany(mappedBy = "idServicio")
+    private List<DetalleMantenimientoEntity> detalles = new ArrayList<>();
 }

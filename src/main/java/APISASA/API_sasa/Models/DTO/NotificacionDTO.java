@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Models.DTO;
 
+import APISASA.API_sasa.Entities.UserEntity;
 import jakarta.validation.constraints.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,5 +32,5 @@ public class NotificacionDTO {
     private String prioridad;
 
     @Min(value = 1, message = "Debe asignarse un usuario valido")
-    private Long idUsuario;
+    private UserEntity idUsuario;
 }
