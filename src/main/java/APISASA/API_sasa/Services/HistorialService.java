@@ -1,14 +1,10 @@
 package APISASA.API_sasa.Services;
 
-import APISASA.API_sasa.Entities.FacturaEntity;
 import APISASA.API_sasa.Entities.HistorialEntity;
-import APISASA.API_sasa.Exceptions.ExceptionHistorialNoEncontrado;
 import APISASA.API_sasa.Models.DTO.HistorialDTO;
 import APISASA.API_sasa.Repositories.HistorialRepository;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,12 +20,22 @@ public class HistorialService {
     @Autowired
     private HistorialRepository repo;
 
+    // ✅ Consultar historial con paginación
     public Page<HistorialDTO> obtenerHistorial(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<HistorialEntity> pageEntity = repo.findAll(pageable);
         return pageEntity.map(this::convertirADTO);
     }
 
+    // ✅ Consultar historial por vehículo
+    public List<HistorialDTO> obtenerPorVehiculo(Long idVehiculo) {
+        return repo.findByIdVehiculo(idVehiculo)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    // ✅ Registrar un nuevo historial (manual o desde un mantenimiento)
     public HistorialDTO insertarHistorial(HistorialDTO dto) {
         try {
             HistorialEntity entity = convertirAEntity(dto);
@@ -41,32 +47,7 @@ public class HistorialService {
         }
     }
 
-    public HistorialDTO actualizarHistorial(Long id, @Valid HistorialDTO dto) {
-        HistorialEntity existente = repo.findById(id)
-                .orElseThrow(() -> new ExceptionHistorialNoEncontrado("No se encontró historial con ID: " + id));
-
-        existente.setFechaIngreso(dto.getFechaIngreso());
-        existente.setFechaSalida(dto.getFechaSalida());
-        existente.setTrabajoRealizado(dto.getTrabajoRealizado());
-        existente.setObservaciones(dto.getObservaciones());
-        existente.setIdVehiculo(dto.getIdVehiculo());
-
-        HistorialEntity actualizado = repo.save(existente);
-        return convertirADTO(actualizado);
-    }
-
-    public boolean eliminarHistorial(Long id) {
-        try {
-            if (repo.existsById(id)) {
-                repo.deleteById(id);
-                return true;
-            }
-            return false;
-        } catch (EmptyResultDataAccessException e) {
-            throw new RuntimeException("No se encontró historial con ID: " + id + " para eliminar.");
-        }
-    }
-
+    // 🔁 Conversores
     private HistorialEntity convertirAEntity(HistorialDTO dto) {
         HistorialEntity entity = new HistorialEntity();
         entity.setId(dto.getId());

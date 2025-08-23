@@ -1,137 +1,54 @@
 package APISASA.API_sasa.Controller;
 
-import APISASA.API_sasa.Exceptions.ExceptionEstadoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.EstadoDTO;
 import APISASA.API_sasa.Services.EstadoService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/apiEstadoVehiculo")
+@RequestMapping("/api/estadoVehiculo")
 public class EstadoController {
 
     @Autowired
     private EstadoService service;
 
-    // 🔹 Consultar con paginación
+    // 🔹 Consultar con paginación (opcional)
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerEstados(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "10") int size
     ) {
         if (size <= 0 || size > 50) {
             return ResponseEntity.badRequest().body(Map.of(
-                    "status", "El tamaño de la página debe estar entre 1 y 50"
+                    "status", "error",
+                    "message", "El tamaño de página debe estar entre 1 y 50"
             ));
         }
 
         Page<EstadoDTO> estados = service.getAllEstados(page, size);
         if (estados == null || estados.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "No hay estados registrados"
-            ));
-        }
-
-        return ResponseEntity.ok(estados);
-    }
-
-    // 🔹 Registrar estado
-    @PostMapping("/registrar")
-    public ResponseEntity<?> registrar(
-            @Valid @RequestBody EstadoDTO dto,
-            BindingResult result
-    ) {
-        if (result.hasErrors()) {
-            Map<String, String> errores = new HashMap<>();
-            result.getFieldErrors()
-                    .forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "errors", errores
-            ));
-        }
-
-        try {
-            EstadoDTO creado = service.createEstado(dto);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", creado
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "status", "error",
-                    "message", e.getMessage(),
-                    "timestamp", Instant.now().toString()
+                    "data", "No hay estados registrados"
             ));
         }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", estados
+        ));
     }
 
-    // 🔹 Actualizar estado
-    @PutMapping("/actualizar/{id}")
-    public ResponseEntity<?> actualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody EstadoDTO dto,
-            BindingResult result
-    ) {
-        if (result.hasErrors()) {
-            Map<String, String> errores = new HashMap<>();
-            result.getFieldErrors()
-                    .forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
-            return ResponseEntity.badRequest().body(Map.of(
-                    "status", "error",
-                    "errors", errores
-            ));
-        }
-
-        try {
-            EstadoDTO actualizado = service.updateEstado(id, dto);
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "data", actualizado
-            ));
-        } catch (ExceptionEstadoNoEncontrado e) {
-            return ResponseEntity.status(404).body(Map.of(
-                    "status", "error",
-                    "message", e.getMessage()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "status", "error",
-                    "message", "Error inesperado al actualizar estado",
-                    "timestamp", Instant.now().toString()
-            ));
-        }
-    }
-
-    // 🔹 Eliminar estado
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        try {
-            if (service.deleteEstado(id)) {
-                return ResponseEntity.ok(Map.of(
-                        "status", "success",
-                        "message", "Estado eliminado correctamente"
-                ));
-            } else {
-                return ResponseEntity.status(404).body(Map.of(
-                        "status", "error",
-                        "message", "Estado no encontrado"
-                ));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "status", "error",
-                    "message", "Error al eliminar estado",
-                    "timestamp", Instant.now().toString()
-            ));
-        }
+    // 🔹 Consultar todos sin paginación (para catálogos)
+    @GetMapping("/listar")
+    public ResponseEntity<?> listarTodos() {
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", service.getAllEstadosSinPaginacion()
+        ));
     }
 }

@@ -2,78 +2,38 @@ package APISASA.API_sasa.Controller;
 
 import APISASA.API_sasa.Models.DTO.NotificacionDTO;
 import APISASA.API_sasa.Services.NotificacionesService;
-import APISASA.API_sasa.Exceptions.ExceptionNotificacionNoEncontrada;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/apiNotificacion")
+@RequestMapping("/api/notificaciones")
 public class ControllerNotificaciones {
 
     @Autowired
     private NotificacionesService service;
 
-    @GetMapping("/consultar")
-    public List<NotificacionDTO> obtenerNotificaciones() {
-        return service.obtenerNotificaciones();
+    // 🔹 Consultar todas las notificaciones de un usuario
+    @GetMapping("/listar/{idUsuario}")
+    public ResponseEntity<?> obtenerPorUsuario(@PathVariable Long idUsuario) {
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", service.obtenerPorUsuario(idUsuario)
+        ));
     }
 
-    @PostMapping("/registrar")
-    public ResponseEntity<?> registrar(
-            @Valid @RequestBody NotificacionDTO dto,
-            BindingResult result
-    ) {
-        if (result.hasErrors()) {
-            Map<String, String> errores = new HashMap<>();
-            result.getFieldErrors().forEach(err ->
-                    errores.put(err.getField(), err.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest().body(errores);
-        }
-
+    // 🔹 Marcar como leída
+    @PutMapping("/marcarLeida/{id}")
+    public ResponseEntity<?> marcarLeida(@PathVariable Long id) {
         try {
-            NotificacionDTO creado = service.insertarNotificacion(dto);
+            NotificacionDTO actualizada = service.marcarLeida(id);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", creado
+                    "data", actualizada
             ));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "status", "error",
-                    "message", e.getMessage()
-            ));
-        }
-    }
-
-    @PutMapping("/actualizar/{id}")
-    public ResponseEntity<?> actualizar(
-            @PathVariable Long id,
-            @Valid @RequestBody NotificacionDTO dto,
-            BindingResult result
-    ) {
-        if (result.hasErrors()) {
-            Map<String, String> errores = new HashMap<>();
-            result.getFieldErrors().forEach(err ->
-                    errores.put(err.getField(), err.getDefaultMessage())
-            );
-            return ResponseEntity.badRequest().body(errores);
-        }
-
-        try {
-            NotificacionDTO actualizado = service.actualizarNotificacion(id, dto);
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "data", actualizado
-            ));
-        } catch (ExceptionNotificacionNoEncontrada e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(Map.of(
                     "status", "error",
                     "message", e.getMessage()
@@ -81,25 +41,18 @@ public class ControllerNotificaciones {
         }
     }
 
+    // 🔹 Eliminar notificación
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
-        try {
-            if (service.eliminarNotificacion(id)) {
-                return ResponseEntity.ok(Map.of(
-                        "status", "success",
-                        "message", "Notificación eliminada correctamente"
-                ));
-            } else {
-                return ResponseEntity.status(404).body(Map.of(
-                        "status", "error",
-                        "message", "Notificación no encontrada"
-                ));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
+        if (service.eliminarNotificacion(id)) {
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Notificación eliminada correctamente"
+            ));
+        } else {
+            return ResponseEntity.status(404).body(Map.of(
                     "status", "error",
-                    "message", "Error al eliminar notificación",
-                    "timestamp", Instant.now().toString()
+                    "message", "Notificación no encontrada"
             ));
         }
     }

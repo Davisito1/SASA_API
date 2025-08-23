@@ -1,7 +1,6 @@
 package APISASA.API_sasa.Controller;
 
-import APISASA.API_sasa.Models.DTO.MetodoPagoDTO;
-import APISASA.API_sasa.Services.MetodoPagoService;
+import APISASA.API_sasa.Services.TipoMantenimientoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,18 +8,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/metodoPago")
-public class ControllerMetodoPago {
+@RequestMapping("/api/tipoMantenimiento")
+public class ControllerTipoMantenimiento {
 
     @Autowired
-    private MetodoPagoService service;
+    private TipoMantenimientoService service;
 
-    // 🔹 Consultar todos los métodos de pago (sin paginación)
+    // 🔹 Consultar todos los tipos (catálogo)
     @GetMapping("/listar")
-    public ResponseEntity<?> listarMetodos() {
+    public ResponseEntity<?> obtenerTipos() {
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "data", service.obtenerTodos()
+                "data", service.obtenerTipos()
         ));
     }
 }

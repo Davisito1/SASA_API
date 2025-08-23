@@ -1,13 +1,10 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.NotificacionesEntity;
-import APISASA.API_sasa.Entities.NotificacionesEntity;
 import APISASA.API_sasa.Exceptions.ExceptionNotificacionNoEncontrada;
 import APISASA.API_sasa.Models.DTO.NotificacionDTO;
 import APISASA.API_sasa.Repositories.NotificacionesRepository;
-import APISASA.API_sasa.Repositories.NotificacionesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,51 +16,34 @@ public class NotificacionesService {
     @Autowired
     private NotificacionesRepository repo;
 
-    // Obtener todas las notificaciones
-    public List<NotificacionDTO> obtenerNotificaciones() {
-        List<NotificacionesEntity> lista = repo.findAll();
-        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
+    // ✅ Obtener todas las notificaciones de un usuario
+    public List<NotificacionDTO> obtenerPorUsuario(Long idUsuario) {
+        return repo.findByIdUsuario(idUsuario)
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
-    // Insertar nueva notificación
-    public NotificacionDTO insertarNotificacion(NotificacionDTO dto) {
-        NotificacionesEntity entity = convertirAEntity(dto);
-        NotificacionesEntity guardado = repo.save(entity);
-        return convertirADTO(guardado);
+    // ✅ Marcar notificación como leída
+    public NotificacionDTO marcarLeida(Long id) {
+        NotificacionesEntity entity = repo.findById(id)
+                .orElseThrow(() -> new ExceptionNotificacionNoEncontrada("No existe notificación con ID: " + id));
+
+        entity.setLectura(1); // marcar como leída
+        NotificacionesEntity actualizada = repo.save(entity);
+        return convertirADTO(actualizada);
     }
 
-    // Actualizar notificación
-    public NotificacionDTO actualizarNotificacion(Long id, NotificacionDTO dto) {
-        NotificacionesEntity existente = repo.findById(id)
-                .orElseThrow(() -> new ExceptionNotificacionNoEncontrada("No existe una notificación con ID: " + id));
-
-        existente.setMensaje(dto.getMensaje());
-        existente.setFecha(dto.getFecha());
-        existente.setTipoNotificacion(dto.getTipoNotificacion());
-        existente.setLectura(dto.getLectura());
-        existente.setPrioridad(dto.getPrioridad());
-        existente.setIdUsuario(dto.getIdUsuario());
-
-        NotificacionesEntity actualizado = repo.save(existente);
-        return convertirADTO(actualizado);
-    }
-
-    // Eliminar notificación
+    // ✅ Eliminar notificación
     public boolean eliminarNotificacion(Long id) {
-        try {
-            NotificacionesEntity existente = repo.findById(id).orElse(null);
-            if (existente != null) {
-                repo.deleteById(id);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new ExceptionNotificacionNoEncontrada("No se encontró la notificación con ID: " + id + " para eliminar.");
+        if (repo.existsById(id)) {
+            repo.deleteById(id);
+            return true;
         }
+        throw new ExceptionNotificacionNoEncontrada("No se encontró notificación con ID: " + id);
     }
 
-    // Convertir entidad a DTO
+    // 🔁 Conversores
     private NotificacionDTO convertirADTO(NotificacionesEntity entity) {
         NotificacionDTO dto = new NotificacionDTO();
         dto.setId(entity.getId());
@@ -74,17 +54,5 @@ public class NotificacionesService {
         dto.setPrioridad(entity.getPrioridad());
         dto.setIdUsuario(entity.getIdUsuario());
         return dto;
-    }
-
-    // Convertir DTO a entidad
-    private NotificacionesEntity convertirAEntity(NotificacionDTO dto) {
-        NotificacionesEntity entity = new NotificacionesEntity();
-        entity.setMensaje(dto.getMensaje());
-        entity.setFecha(dto.getFecha());
-        entity.setTipoNotificacion(dto.getTipoNotificacion());
-        entity.setLectura(dto.getLectura());
-        entity.setPrioridad(dto.getPrioridad());
-        entity.setIdUsuario(dto.getIdUsuario());
-        return entity;
     }
 }

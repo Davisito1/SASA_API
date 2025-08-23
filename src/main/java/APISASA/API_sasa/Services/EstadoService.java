@@ -1,13 +1,10 @@
 package APISASA.API_sasa.Services;
 
-import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Entities.EstadoEntity;
-import APISASA.API_sasa.Exceptions.ExceptionEstadoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.EstadoDTO;
 import APISASA.API_sasa.Repositories.EstadoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,54 +20,24 @@ public class EstadoService {
     @Autowired
     private EstadoRepository repo;
 
+    // 🔹 Consultar con paginación
     public Page<EstadoDTO> getAllEstados(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<EstadoEntity> pageEntity = repo.findAll(pageable);
         return pageEntity.map(this::convertirAEstadoDTO);
     }
 
-    public EstadoDTO createEstado(EstadoDTO estadoDTO) {
-        if (estadoDTO == null || estadoDTO.getNombreEstado() == null || estadoDTO.getNombreEstado().isEmpty()) {
-            throw new IllegalArgumentException("El nombre del estado no puede ser nulo ni vacío.");
-        }
-        try {
-            EstadoEntity entity = convertirAEstadoEntity(estadoDTO);
-            EstadoEntity guardado = repo.save(entity);
-            return convertirAEstadoDTO(guardado);
-        } catch (Exception e) {
-            log.error("Error al registrar estado: {}", e.getMessage());
-            throw new ExceptionEstadoNoEncontrado("Error al registrar el estado: " + e.getMessage());
-        }
+    // 🔹 Consultar todos sin paginación (para catálogos)
+    public List<EstadoDTO> getAllEstadosSinPaginacion() {
+        return repo.findAll().stream()
+                .map(this::convertirAEstadoDTO)
+                .collect(Collectors.toList());
     }
 
-    public EstadoDTO updateEstado(Long id, EstadoDTO estadoDTO) {
-        EstadoEntity existente = repo.findById(id)
-                .orElseThrow(() -> new ExceptionEstadoNoEncontrado("Estado no encontrado con ID: " + id));
-
-        existente.setNombreEstado(estadoDTO.getNombreEstado());
-        EstadoEntity actualizado = repo.save(existente);
-        return convertirAEstadoDTO(actualizado);
-    }
-
-    public boolean deleteEstado(Long id) {
-        try {
-            EstadoEntity existente = repo.findById(id).orElse(null);
-            if (existente != null) {
-                repo.deleteById(id);
-                return true;
-            } else {
-                log.warn("Estado con ID {} no encontrado para eliminar.", id);
-                return false;
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new EmptyResultDataAccessException("No se encontró el estado con ID: " + id + " para eliminar.", 1);
-        }
-    }
-
-    // Conversores
+    // 🔹 Conversores
     public EstadoEntity convertirAEstadoEntity(EstadoDTO dto) {
         EstadoEntity entity = new EstadoEntity();
-        entity.setId(dto.getId()); // opcional, depende de la lógica
+        entity.setId(dto.getId());
         entity.setNombreEstado(dto.getNombreEstado());
         return entity;
     }

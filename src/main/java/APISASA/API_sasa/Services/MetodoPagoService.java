@@ -1,17 +1,10 @@
 package APISASA.API_sasa.Services;
 
-import APISASA.API_sasa.Entities.FacturaEntity;
 import APISASA.API_sasa.Entities.MetodoPagoEntity;
-import APISASA.API_sasa.Exceptions.ExceptionMetodoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.MetodoPagoDTO;
 import APISASA.API_sasa.Repositories.MetodoPagoRepository;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,58 +17,11 @@ public class MetodoPagoService {
     @Autowired
     private MetodoPagoRepository repo;
 
-    // ✅ Obtener todos los métodos de pago
-    public Page<MetodoPagoDTO> obtenerMetodosDePago(int page, int size  ) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<MetodoPagoEntity> pageEntity = repo.findAll(pageable);
-        return pageEntity.map(this::convertirADTO);
-    }
-
-    // ✅ Registrar un nuevo método
-    public MetodoPagoDTO insertarMetodo(MetodoPagoDTO dto) {
-        if (dto == null || dto.getMetodo() == null || dto.getMetodo().isBlank()) {
-            throw new IllegalArgumentException("El nombre del método no puede estar vacío.");
-        }
-
-        // Verifica duplicado si tienes restricción UNIQUE
-        if (repo.existsByMetodoIgnoreCase(dto.getMetodo())) {
-            throw new IllegalArgumentException("Ya existe un método con el nombre: " + dto.getMetodo());
-        }
-
-        try {
-            MetodoPagoEntity nuevo = new MetodoPagoEntity();
-            nuevo.setMetodo(dto.getMetodo()); // ID lo genera la secuencia en Oracle
-            MetodoPagoEntity guardado = repo.save(nuevo);
-            return convertirADTO(guardado);
-        } catch (Exception e) {
-            log.error("Error al registrar método: ", e);
-            throw new RuntimeException("No se pudo registrar el método: " + e.getMessage());
-        }
-    }
-
-    // ✅ Actualizar un método existente
-    public MetodoPagoDTO actualizarMetodo(Long id, @Valid MetodoPagoDTO dto) {
-        MetodoPagoEntity existente = repo.findById(id)
-                .orElseThrow(() -> new ExceptionMetodoNoEncontrado("No se encontró el método con ID: " + id));
-
-        existente.setMetodo(dto.getMetodo());
-        MetodoPagoEntity actualizado = repo.save(existente);
-        return convertirADTO(actualizado);
-    }
-
-    // ✅ Eliminar método por ID
-    public boolean eliminarMetodo(Long id) {
-        try {
-            MetodoPagoEntity existente = repo.findById(id).orElse(null);
-            if (existente != null) {
-                repo.deleteById(id);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (EmptyResultDataAccessException e) {
-            throw new RuntimeException("No se encontró el método con ID: " + id + " para eliminar.");
-        }
+    // ✅ Obtener todos los métodos de pago (catálogo fijo)
+    public List<MetodoPagoDTO> obtenerTodos() {
+        return repo.findAll().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
     // 🔁 Conversor Entity → DTO

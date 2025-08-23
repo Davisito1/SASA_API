@@ -6,13 +6,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface DetalleMantenimientoRepository extends JpaRepository<DetalleMantenimientoEntity, Long> {
 
-    // Paginado por estado (LIKE, sin sensibilidad a mayúsculas)
+    // ✅ Consultar todos los detalles de un mantenimiento específico
+    List<DetalleMantenimientoEntity> findByIdMantenimiento(Long idMantenimiento);
+
+    // 🔹 Paginado por estado (LIKE, sin sensibilidad a mayúsculas)
     Page<DetalleMantenimientoEntity> findByEstadoContainingIgnoreCase(String estado, Pageable pageable);
 
-    // Paginado por coincidencia exacta de cualquiera de los 3 IDs
+    // 🔹 Paginado por coincidencia exacta de cualquiera de los 3 IDs
     Page<DetalleMantenimientoEntity> findByIdMantenimientoOrIdServicioOrIdTipoMantenimiento(
             Long idMantenimiento,
             Long idServicio,

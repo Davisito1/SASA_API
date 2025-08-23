@@ -12,11 +12,12 @@ import java.time.LocalDate;
 @Table(name = "NOTIFICACION")
 @ToString @EqualsAndHashCode @Getter @Setter
 public class NotificacionesEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_notificacion")
     @SequenceGenerator(name = "seq_notificacion", sequenceName = "seq_notificacion", allocationSize = 1)
     @Column(name = "IDNOTIFICACION", insertable = false, updatable = false)
-    private long id;
+    private Long id;
 
     @Column(name = "MENSAJE", nullable = false, length = 500)
     private String mensaje;
@@ -24,13 +25,14 @@ public class NotificacionesEntity {
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
 
-    @Column(name = "TIPONOTIFICACION", nullable = false)
+    @Column(name = "TIPONOTIFICACION", nullable = false, length = 50)
     private String tipoNotificacion;
 
-    @Column(name = "LECTURA")
-    private Long lectura;
+    // 👇 Correcto para NUMBER(1)
+    @Column(name = "LECTURA", nullable = false)
+    private Integer lectura = 0;
 
-    @Column(name = "PRIORIDAD")
+    @Column(name = "PRIORIDAD", length = 20)
     private String prioridad;
 
     @Column(name = "IDUSUARIO", nullable = false)
