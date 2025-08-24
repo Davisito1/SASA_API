@@ -1,9 +1,11 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.CitaEntity;
+import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Exceptions.ExceptionCitaNoEncontrada;
 import APISASA.API_sasa.Models.DTO.CitaDTO;
 import APISASA.API_sasa.Repositories.CitaRepository;
+import APISASA.API_sasa.Repositories.ClientRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,30 +24,33 @@ public class CitaService {
     @Autowired
     private CitaRepository repo;
 
-    // ======= EXISTENTES (los dejo intactos) =======
+    @Autowired
+    private ClientRepository repoClient;
 
     // ✅ Listar todas (no paginado)
     public List<CitaDTO> obtenerCitas() {
-        List<CitaEntity> lista = repo.findAll();
-        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
+        return repo.findAll().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
+    // ✅ Listar paginado
+    public Page<CitaDTO> obtenerCitas(Pageable pageable) {
+        return repo.findAll(pageable).map(this::convertirADTO);
     }
 
     // ✅ Obtener por ID
     public CitaDTO obtenerCitaPorId(Long id) {
         return repo.findById(id)
                 .map(this::convertirADTO)
-                .orElseThrow(() -> new ExceptionCitaNoEncontrada(
-                        "No se encontró cita con ID: " + id
-                ));
+                .orElseThrow(() -> new ExceptionCitaNoEncontrada("No se encontró cita con ID: " + id));
     }
 
     // ✅ Crear
-    public CitaDTO insertarCita(@Valid CitaDTO data) {
-        if (data == null || data.getFecha() == null || data.getHora() == null) {
-            throw new IllegalArgumentException("Los datos de la cita no pueden ser nulos");
-        }
+    public CitaDTO insertarCita(@Valid CitaDTO dto) {
         try {
-            CitaEntity entity = convertirAEntity(data);
+            CitaEntity entity = convertirAEntity(dto);
+            entity.setId(null); // dejar que la secuencia maneje el ID
             CitaEntity guardado = repo.save(entity);
             return convertirADTO(guardado);
         } catch (Exception e) {
@@ -55,14 +60,18 @@ public class CitaService {
     }
 
     // ✅ Actualizar
-    public CitaDTO actualizarCita(Long id, @Valid CitaDTO data) {
+    public CitaDTO actualizarCita(Long id, @Valid CitaDTO dto) {
         CitaEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionCitaNoEncontrada("No se encontró cita con ID: " + id));
 
-        existente.setFecha(data.getFecha());
-        existente.setHora(data.getHora());
-        existente.setEstado(data.getEstado());
-        existente.setIdCliente(data.getIdCliente());
+        existente.setFecha(dto.getFecha());
+        existente.setHora(dto.getHora());
+        existente.setEstado(dto.getEstado());
+
+        if (dto.getIdCliente() != null) {
+            ClienteEntity cliente = repoClient.getReferenceById(dto.getIdCliente());
+            existente.setCliente(cliente);
+        }
 
         CitaEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -71,54 +80,43 @@ public class CitaService {
     // ✅ Eliminar
     public boolean eliminarCita(Long id) {
         try {
-            if (repo.existsById(id)) {
-                repo.deleteById(id);
-                return true;
-            }
-            return false;
+            repo.deleteById(id);
+            return true;
         } catch (EmptyResultDataAccessException e) {
-            throw new RuntimeException("No se encontró cita con ID: " + id + " para eliminar.");
+            throw new ExceptionCitaNoEncontrada("No se encontró cita con ID: " + id + " para eliminar.");
         }
     }
 
-    // ======= NUEVOS (paginado + búsqueda) =======
-
-    // ✅ Listar paginado
-    public Page<CitaDTO> obtenerCitas(Pageable pageable) {
-        return repo.findAll(pageable).map(this::convertirADTO);
-    }
-
-    // ✅ Búsqueda paginada: si 'q' es número -> idCliente; si no -> estado LIKE
-    public Page<CitaDTO> buscarCitas(String q, Pageable pageable) {
-        if (q == null || q.isBlank()) {
-            return obtenerCitas(pageable);
-        }
-        try {
-            long idCliente = Long.parseLong(q.trim());
-            return repo.findByIdCliente(idCliente, pageable).map(this::convertirADTO);
-        } catch (NumberFormatException ignore) {
-            return repo.findByEstadoContainingIgnoreCase(q.trim(), pageable).map(this::convertirADTO);
-        }
-    }
-
-    // ======= Mappers =======
+    // ==========================
+    // 🔹 Mappers
+    // ==========================
     private CitaEntity convertirAEntity(CitaDTO dto) {
         CitaEntity entity = new CitaEntity();
+        // ⚠️ Para insertar no hace falta asignar el ID
         entity.setId(dto.getId());
         entity.setFecha(dto.getFecha());
         entity.setHora(dto.getHora());
         entity.setEstado(dto.getEstado());
-        entity.setIdCliente(dto.getIdCliente());
+
+        if (dto.getIdCliente() != null) {
+            ClienteEntity cliente = repoClient.getReferenceById(dto.getIdCliente());
+            entity.setCliente(cliente);
+        }
+
         return entity;
     }
 
-    private CitaDTO convertirADTO(CitaEntity citaEntity) {
+    private CitaDTO convertirADTO(CitaEntity entity) {
         CitaDTO dto = new CitaDTO();
-        dto.setId(citaEntity.getId());
-        dto.setFecha(citaEntity.getFecha());
-        dto.setHora(citaEntity.getHora());
-        dto.setEstado(citaEntity.getEstado());
-        dto.setIdCliente(citaEntity.getIdCliente());
+        dto.setId(entity.getId());
+        dto.setFecha(entity.getFecha());
+        dto.setHora(entity.getHora());
+        dto.setEstado(entity.getEstado());
+
+        if (entity.getCliente() != null) {
+            dto.setIdCliente(entity.getCliente().getId());
+        }
+
         return dto;
     }
 }

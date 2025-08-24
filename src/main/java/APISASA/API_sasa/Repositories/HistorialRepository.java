@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface HistorialRepository extends JpaRepository<HistorialEntity, Long> {
 
-    // ✅ Consultar historial de un vehículo
-    List<HistorialEntity> findByIdVehiculo(Long idVehiculo);
-
+    // Buscar historial por vehículo (usando la relación vehiculo en la Entity)
+    List<HistorialEntity> findByVehiculo_IdVehiculo(Long idVehiculo);
 }
+

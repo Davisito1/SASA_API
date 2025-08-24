@@ -1,6 +1,6 @@
 package APISASA.API_sasa.Services;
 
-import APISASA.API_sasa.Entities.EstadoEntity;
+import APISASA.API_sasa.Entities.EstadoVehiculoEntity;
 import APISASA.API_sasa.Models.DTO.EstadoDTO;
 import APISASA.API_sasa.Repositories.EstadoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ public class EstadoService {
     // 🔹 Consultar con paginación
     public Page<EstadoDTO> getAllEstados(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<EstadoEntity> pageEntity = repo.findAll(pageable);
+        Page<EstadoVehiculoEntity> pageEntity = repo.findAll(pageable);
         return pageEntity.map(this::convertirAEstadoDTO);
     }
 
@@ -34,17 +34,19 @@ public class EstadoService {
                 .collect(Collectors.toList());
     }
 
+    // ==========================
     // 🔹 Conversores
-    public EstadoEntity convertirAEstadoEntity(EstadoDTO dto) {
-        EstadoEntity entity = new EstadoEntity();
-        entity.setId(dto.getId());
+    // ==========================
+    public EstadoVehiculoEntity convertirAEstadoEntity(EstadoDTO dto) {
+        EstadoVehiculoEntity entity = new EstadoVehiculoEntity();
+        entity.setId(dto.getId());   // 👈 si tu Entity lo tiene como idEstado
         entity.setNombreEstado(dto.getNombreEstado());
         return entity;
     }
 
-    public EstadoDTO convertirAEstadoDTO(EstadoEntity entity) {
+    public EstadoDTO convertirAEstadoDTO(EstadoVehiculoEntity entity) {
         EstadoDTO dto = new EstadoDTO();
-        dto.setId(entity.getId());
+        dto.setId(entity.getId());   // 👈 si tu Entity lo tiene como idEstado
         dto.setNombreEstado(entity.getNombreEstado());
         return dto;
     }

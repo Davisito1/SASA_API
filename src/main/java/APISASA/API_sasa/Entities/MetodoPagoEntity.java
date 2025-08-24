@@ -1,26 +1,29 @@
 package APISASA.API_sasa.Entities;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "METODOPAGO")
-@ToString @EqualsAndHashCode @Getter @Setter
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MetodoPagoEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_metodo_pago")
-    @SequenceGenerator(
-            name = "seq_metodo_pago",
-            sequenceName = "SEQ_METODOPAGO",
-            allocationSize = 1
-    )
-    @Column(name = "IDMETODOPAGO", insertable = false, updatable = false)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "metodoPago_seq")
+    @SequenceGenerator(name = "metodoPago_seq", sequenceName = "SEQ_METODOPAGO", allocationSize = 1)
+    @Column(name = "IDMETODOPAGO")
+    private Long idMetodoPago;
 
-
-    @Column(name = "METODO")
+    @Column(name = "METODO", nullable = false, length = 100)
     private String metodo;
+
+    @OneToMany(mappedBy = "metodoPago", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PagosEntity> pagos = new ArrayList<>();
 }

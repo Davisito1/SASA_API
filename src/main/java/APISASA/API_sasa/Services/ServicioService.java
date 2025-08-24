@@ -17,17 +17,23 @@ public class ServicioService {
     @Autowired
     private ServicioRepository repo;
 
+    // ✅ Consultar todos
     public List<ServicioDTO> obtenerServicios() {
-        List<ServicioEntity> lista = repo.findAll();
-        return lista.stream().map(this::convertirADTO).collect(Collectors.toList());
+        return repo.findAll()
+                .stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
+    // ✅ Insertar
     public ServicioDTO insertarServicio(ServicioDTO dto) {
         ServicioEntity entity = convertirAEntity(dto);
+        entity.setIdServicio(null); // que Oracle maneje el ID
         ServicioEntity guardado = repo.save(entity);
         return convertirADTO(guardado);
     }
 
+    // ✅ Actualizar
     public ServicioDTO actualizarServicio(Long id, ServicioDTO dto) {
         ServicioEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionServicioNoEncontrado("No existe un servicio con ID: " + id));
@@ -35,16 +41,16 @@ public class ServicioService {
         existente.setNombreServicio(dto.getNombre());
         existente.setDescripcion(dto.getDescripcion());
         existente.setPrecio(dto.getPrecio());
-        existente.setDuracion(dto.getDuracion());
+        existente.setDuracionEstimada(dto.getDuracion());
 
         ServicioEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
     }
 
+    // ✅ Eliminar
     public boolean eliminarServicio(Long id) {
         try {
-            ServicioEntity existente = repo.findById(id).orElse(null);
-            if (existente != null) {
+            if (repo.existsById(id)) {
                 repo.deleteById(id);
                 return true;
             } else {
@@ -55,13 +61,16 @@ public class ServicioService {
         }
     }
 
+    // =======================
+    // 🔹 Mappers
+    // =======================
     private ServicioDTO convertirADTO(ServicioEntity entity) {
         ServicioDTO dto = new ServicioDTO();
-        dto.setId(entity.getId());
+        dto.setId(entity.getIdServicio());  // ⚠️ si en tu entity es idServicio, cámbialo a getIdServicio()
         dto.setNombre(entity.getNombreServicio());
         dto.setDescripcion(entity.getDescripcion());
         dto.setPrecio(entity.getPrecio());
-        dto.setDuracion(entity.getDuracion());
+        dto.setDuracion(entity.getDuracionEstimada()); // ⚠️ si tu entity lo llamaste duracion
         return dto;
     }
 
@@ -70,7 +79,7 @@ public class ServicioService {
         entity.setNombreServicio(dto.getNombre());
         entity.setDescripcion(dto.getDescripcion());
         entity.setPrecio(dto.getPrecio());
-        entity.setDuracion(dto.getDuracion());
+        entity.setDuracionEstimada(dto.getDuracion()); // ⚠️ si tu entity lo llamaste duracion
         return entity;
     }
 }

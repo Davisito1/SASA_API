@@ -9,16 +9,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MantenimientoRepository extends JpaRepository<MantenimientoEntity, Long> {
 
-    // Búsqueda por descripción o código (contains, case-insensitive) + paginación
-    Page<MantenimientoEntity> findByDescripcionContainingIgnoreCaseOrCodigoMantenimientoContainingIgnoreCase(
-            String descripcion,
-            String codigoMantenimiento,
-            Pageable pageable
+    // 🔹 Buscar por vehículo (usando idVehiculo correcto)
+    Page<MantenimientoEntity> findByVehiculo_IdVehiculo(Long idVehiculo, Pageable pageable);
+
+    // 🔹 Buscar por descripción o código de mantenimiento (texto, case-insensitive)
+    Page<MantenimientoEntity> findByDescripcionTrabajoContainingIgnoreCaseOrCodigoMantenimientoContainingIgnoreCase(
+            String descripcion, String codigo, Pageable pageable
     );
-
-    // Búsqueda por idVehiculo (si lo tienes como campo simple en la entidad) + paginación
-    Page<MantenimientoEntity> findByIdVehiculo(Long idVehiculo, Pageable pageable);
-
-    // (Opcional) Helper de unicidad si lo necesitas
-    boolean existsByCodigoMantenimiento(String codigoMantenimiento);
 }

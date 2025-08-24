@@ -10,30 +10,36 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "HISTORIALVEHICULO")
-@ToString @EqualsAndHashCode @Getter @Setter
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 public class HistorialEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_historialVehiculo")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "historial_seq")
     @SequenceGenerator(
-            name = "seq_historialVehiculo",
-            sequenceName = "SEQ_HISTORIALVEHICULO", // <- Este debe coincidir con Oracle
+            name = "historial_seq",
+            sequenceName = "SEQ_HISTORIALVEHICULO", // 👈 usa el nombre de la secuencia real
             allocationSize = 1
     )
     @Column(name = "IDHISTORIAL", insertable = false, updatable = false)
-    private Long id;
+    private Long idHistorial;
 
     @Column(name = "FECHAINGRESO", nullable = false)
     private LocalDate fechaIngreso;
 
-    @Column(name = "FECHASALIDA", nullable = false)
+    @Column(name = "FECHASALIDA")
     private LocalDate fechaSalida;
 
-    @Column(name = "TRABAJOREALIZADO", nullable = false)
+    @Column(name = "TRABAJOREALIZADO", length = 500)
     private String trabajoRealizado;
 
-    @Column(name = "OBSERVACIONES")
+    @Column(name = "OBSERVACIONES", length = 500)
     private String observaciones;
 
-    @Column(name = "IDVEHICULO", nullable = false)
-    private Long idVehiculo;
+    // 🔹 Relación con Vehículo
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDVEHICULO", nullable = false)
+    private VehicleEntity vehiculo; // 👈 debe coincidir con VehicleEntity real
 }

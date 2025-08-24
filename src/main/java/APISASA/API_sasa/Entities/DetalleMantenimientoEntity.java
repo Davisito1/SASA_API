@@ -1,38 +1,39 @@
 package APISASA.API_sasa.Entities;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Table(name = "DETALLEMANTENIMIENTO")
 @Getter
 @Setter
-@ToString
-@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class DetalleMantenimientoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "detalleMantenimiento_seq")
     @SequenceGenerator(
             name = "detalleMantenimiento_seq",
-            sequenceName = "SEQ_DETALLEMANTENIMIENTO",  // Mayúsculas exactas
+            sequenceName = "SEQ_DETALLEMANTENIMIENTO",
             allocationSize = 1
     )
     @Column(name = "IDDETALLEMANTENIMIENTO")
     private Long idDetalleMantenimiento;
 
-    @Column(name = "ESTADO", nullable = false)
+    @Column(name = "ESTADO", nullable = false, length = 20)
     private String estado;
 
-    @Column(name = "IDMANTENIMIENTO", nullable = false)
-    private Long idMantenimiento;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDMANTENIMIENTO", nullable = false)
+    private MantenimientoEntity mantenimiento;
 
-    @Column(name = "IDSERVICIO", nullable = false)
-    private Long idServicio;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDSERVICIO", nullable = false)
+    private ServicioEntity servicio;
 
-    @Column(name = "IDTIPOMANTENIMIENTO", nullable = false)
-    private Long idTipoMantenimiento;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDTIPOMANTENIMIENTO", nullable = false)
+    private TipoMantenimientoEntity tipoMantenimiento;
 }

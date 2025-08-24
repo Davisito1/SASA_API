@@ -1,26 +1,42 @@
 package APISASA.API_sasa.Entities;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "Usuario")
-@Getter @Setter  @ToString @EqualsAndHashCode
+@Table(name = "USUARIO")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_usuario")
-    @SequenceGenerator(name = "seq_usuario", sequenceName = "seq_usuario", allocationSize = 1)
-    @Column(name = "IDUSUARIO", insertable= false, updatable = false)
-    private long id;
-    @Column(name = "NOMBREUSUARIO")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "usuario_seq")
+    @SequenceGenerator(name = "usuario_seq", sequenceName = "SEQ_USUARIO", allocationSize = 1)
+    @Column(name = "IDUSUARIO")
+    private Long idUsuario;
+
+    @Column(name = "NOMBREUSUARIO", nullable = false, unique = true, length = 100)
     private String nombreUsuario;
-    @Column(name = "CONTRASENA")
+
+    @Column(name = "CONTRASENA", nullable = false, length = 100)
     private String contrasena;
-    @Column(name = "ROL")
+
+    @Column(name = "ROL", nullable = false, length = 50)
     private String rol;
-    @Column(name = "ESTADO")
+
+    @Column(name = "ESTADO", length = 100)
     private String estado;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EmpleadoEntity> empleados = new ArrayList<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NotificacionesEntity> notificaciones = new ArrayList<>();
 }
+

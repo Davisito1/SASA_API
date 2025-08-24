@@ -12,22 +12,22 @@ import java.util.List;
 public interface DetalleMantenimientoRepository extends JpaRepository<DetalleMantenimientoEntity, Long> {
 
     // ✅ Consultar todos los detalles de un mantenimiento específico
-    List<DetalleMantenimientoEntity> findByIdMantenimiento(Long idMantenimiento);
+    List<DetalleMantenimientoEntity> findByMantenimiento_Id(Long idMantenimiento);
 
-    // 🔹 Paginado por estado (LIKE, sin sensibilidad a mayúsculas)
+    // ✅ Paginado por estado (LIKE, insensible a mayúsculas)
     Page<DetalleMantenimientoEntity> findByEstadoContainingIgnoreCase(String estado, Pageable pageable);
 
-    // 🔹 Paginado por coincidencia exacta de cualquiera de los 3 IDs
-    Page<DetalleMantenimientoEntity> findByIdMantenimientoOrIdServicioOrIdTipoMantenimiento(
+    // ✅ Paginado por coincidencia exacta de cualquiera de los 3 IDs
+    Page<DetalleMantenimientoEntity> findByMantenimiento_IdOrServicio_IdServicioOrTipoMantenimiento_IdTipoMantenimiento(
             Long idMantenimiento,
             Long idServicio,
             Long idTipoMantenimiento,
             Pageable pageable
     );
 
-    // (Opcional) Ayudas rápidas
+    // ✅ Helpers
     long countByEstadoIgnoreCase(String estado);
-    boolean existsByIdMantenimiento(Long idMantenimiento);
-    boolean existsByIdServicio(Long idServicio);
-    boolean existsByIdTipoMantenimiento(Long idTipoMantenimiento);
+    boolean existsByMantenimiento_Id(Long idMantenimiento);
+    boolean existsByServicio_IdServicio(Long idServicio);
+    boolean existsByTipoMantenimiento_IdTipoMantenimiento(Long idTipoMantenimiento);
 }

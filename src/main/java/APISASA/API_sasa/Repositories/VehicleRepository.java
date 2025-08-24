@@ -5,5 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VehicleRepository  extends JpaRepository<VehicleEntity, Long> {
+public interface VehicleRepository extends JpaRepository<VehicleEntity, Long> {
+
+    // 🔹 Validar unicidad de placa
+    boolean existsByPlaca(String placa);
+
+    // 🔹 Validar unicidad de VIN
+    boolean existsByVin(String vin);
 }

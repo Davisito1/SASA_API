@@ -1,32 +1,41 @@
 package APISASA.API_sasa.Entities;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "FACTURA")
-@ToString @EqualsAndHashCode @Getter @Setter
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class FacturaEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_factura")
-    @SequenceGenerator(name = "seq_factura", sequenceName = "seq_factura", allocationSize = 1)
-    @Column(name = "IDFACTURA", insertable = false, updatable = false)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "factura_seq")
+    @SequenceGenerator(name = "factura_seq", sequenceName = "SEQ_FACTURA", allocationSize = 1)
+    @Column(name = "IDFACTURA")
+    private Long idFactura;
 
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
 
     @Column(name = "MONTOTOTAL", nullable = false)
-    private double montoTotal;
+    private Double montoTotal;
 
-    @Column(name = "IDEMPLEADO", nullable = false)
-    private Long idEmpleado;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDEMPLEADO", nullable = false)
+    private EmpleadoEntity empleado;
 
-    @Column(name = "IDMANTENIMIENTO", nullable = false)
-    private Long idMantenimiento;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDMANTENIMIENTO", nullable = false)
+    private MantenimientoEntity mantenimiento;
+
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PagosEntity> pagos = new ArrayList<>();
 }

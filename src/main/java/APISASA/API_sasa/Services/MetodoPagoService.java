@@ -24,10 +24,28 @@ public class MetodoPagoService {
                 .collect(Collectors.toList());
     }
 
+    // ✅ Insertar nuevo método de pago
+    public MetodoPagoDTO insertarMetodo(MetodoPagoDTO dto) {
+        MetodoPagoEntity entity = new MetodoPagoEntity();
+        entity.setMetodo(dto.getMetodo());
+
+        MetodoPagoEntity guardado = repo.save(entity);
+        return convertirADTO(guardado);
+    }
+
+    // ✅ Eliminar método de pago
+    public boolean eliminarMetodo(Long id) {
+        if (repo.existsById(id)) {
+            repo.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
     // 🔁 Conversor Entity → DTO
     private MetodoPagoDTO convertirADTO(MetodoPagoEntity entity) {
         MetodoPagoDTO dto = new MetodoPagoDTO();
-        dto.setId(entity.getId());
+        dto.setId(entity.getIdMetodoPago()); // 👈 corregido
         dto.setMetodo(entity.getMetodo());
         return dto;
     }

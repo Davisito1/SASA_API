@@ -1,8 +1,10 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.HistorialEntity;
+import APISASA.API_sasa.Entities.VehicleEntity;
 import APISASA.API_sasa.Models.DTO.HistorialDTO;
 import APISASA.API_sasa.Repositories.HistorialRepository;
+import APISASA.API_sasa.Repositories.VehicleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,9 @@ public class HistorialService {
     @Autowired
     private HistorialRepository repo;
 
+    @Autowired
+    private VehicleRepository vehicleRepo;
+
     // ✅ Consultar historial con paginación
     public Page<HistorialDTO> obtenerHistorial(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -29,13 +34,13 @@ public class HistorialService {
 
     // ✅ Consultar historial por vehículo
     public List<HistorialDTO> obtenerPorVehiculo(Long idVehiculo) {
-        return repo.findByIdVehiculo(idVehiculo)
+        return repo.findByVehiculo_IdVehiculo(idVehiculo)  // 👈 buscar por FK
                 .stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Registrar un nuevo historial (manual o desde un mantenimiento)
+    // ✅ Registrar un nuevo historial
     public HistorialDTO insertarHistorial(HistorialDTO dto) {
         try {
             HistorialEntity entity = convertirAEntity(dto);
@@ -50,23 +55,33 @@ public class HistorialService {
     // 🔁 Conversores
     private HistorialEntity convertirAEntity(HistorialDTO dto) {
         HistorialEntity entity = new HistorialEntity();
-        entity.setId(dto.getId());
+        entity.setIdHistorial(dto.getId());
         entity.setFechaIngreso(dto.getFechaIngreso());
         entity.setFechaSalida(dto.getFechaSalida());
         entity.setTrabajoRealizado(dto.getTrabajoRealizado());
         entity.setObservaciones(dto.getObservaciones());
-        entity.setIdVehiculo(dto.getIdVehiculo());
+
+        if (dto.getIdVehiculo() != null) {
+            VehicleEntity vehiculo = vehicleRepo.findById(dto.getIdVehiculo())
+                    .orElseThrow(() -> new RuntimeException("Vehículo no encontrado con ID: " + dto.getIdVehiculo()));
+            entity.setVehiculo(vehiculo);
+        }
+
         return entity;
     }
 
     private HistorialDTO convertirADTO(HistorialEntity entity) {
         HistorialDTO dto = new HistorialDTO();
-        dto.setId(entity.getId());
+        dto.setId(entity.getIdHistorial());
         dto.setFechaIngreso(entity.getFechaIngreso());
         dto.setFechaSalida(entity.getFechaSalida());
         dto.setTrabajoRealizado(entity.getTrabajoRealizado());
         dto.setObservaciones(entity.getObservaciones());
-        dto.setIdVehiculo(entity.getIdVehiculo());
+
+        if (entity.getVehiculo() != null) {
+            dto.setIdVehiculo(entity.getVehiculo().getIdVehiculo()); // 👈 devolvemos el id en el DTO
+        }
+
         return dto;
     }
 }

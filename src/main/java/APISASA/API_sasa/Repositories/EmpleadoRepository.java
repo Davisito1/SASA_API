@@ -9,8 +9,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmpleadoRepository extends JpaRepository<EmpleadoEntity, Long> {
 
-    // Busca por nombres, apellidos, DUI o correo (case-insensitive) y devuelve paginado
-    Page<EmpleadoEntity> findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrDuiContainingIgnoreCaseOrCorreoContainingIgnoreCase(
-            String nombres, String apellidos, String dui, String correo, Pageable pageable
+    // ✅ Usamos correoElectronico (el nombre real del atributo en la entidad)
+    Page<EmpleadoEntity> findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrDuiContainingIgnoreCaseOrCorreoElectronicoContainingIgnoreCase(
+            String nombres,
+            String apellidos,
+            String dui,
+            String correoElectronico,
+            Pageable pageable
     );
 }

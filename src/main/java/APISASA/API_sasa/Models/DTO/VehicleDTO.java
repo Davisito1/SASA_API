@@ -8,17 +8,18 @@ import lombok.ToString;
 
 @Getter @Setter @ToString @EqualsAndHashCode
 public class VehicleDTO {
-    private long id;
+
+    private Long id;
 
     @NotBlank(message = "La marca no puede estar vacía")
     private String marca;
 
-    @NotBlank(message = "El modelo no puede estar vacío")
+    @NotBlank(message = "El modelo no puede estar vacíoa")
     private String modelo;
 
     @Min(value = 1900, message = "El año no puede ser menor a 1900")
     @Max(value = 2100, message = "El año no puede ser mayor a 2100")
-    private int anio;
+    private Integer anio;
 
     @NotBlank(message = "La placa no puede estar vacía")
     @Pattern(regexp = "^[A-Z0-9-]{5,10}$", message = "La placa debe tener entre 5 y 10 caracteres alfanuméricos")
@@ -28,9 +29,11 @@ public class VehicleDTO {
     @Size(min = 17, max = 17, message = "El VIN debe tener exactamente 17 caracteres")
     private String vin;
 
+    @NotNull(message = "Debe asignarse un cliente válido")
     @Min(value = 1, message = "Debe asignarse un cliente válido")
-    private int idCliente;
+    private Long idCliente;
 
+    @NotNull(message = "Debe asignarse un estado válido")
     @Min(value = 1, message = "Debe asignarse un estado válido")
-    private int idEstado;
+    private Long idEstado;
 }

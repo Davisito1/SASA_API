@@ -1,30 +1,38 @@
 package APISASA.API_sasa.Entities;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "SERVICIO")
-@ToString @EqualsAndHashCode @Getter @Setter
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ServicioEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_servicio")
-    @SequenceGenerator(name = "seq_servicio", sequenceName = "seq_servicio", allocationSize = 1)
-    @Column(name = "IDSERVICIO", insertable = false, updatable = false)
-    private Long id;
 
-    @Column(name = "NOMBRESERVICIO", nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "servicio_seq")
+    @SequenceGenerator(name = "servicio_seq", sequenceName = "SEQ_SERVICIO", allocationSize = 1)
+    @Column(name = "IDSERVICIO")
+    private Long idServicio;
+
+    @Column(name = "NOMBRESERVICIO", nullable = false, length = 100)
     private String nombreServicio;
 
-    @Column(name = "DESCRIPCION", nullable = false)
+    @Column(name = "DESCRIPCION", nullable = false, length = 500)
     private String descripcion;
 
     @Column(name = "PRECIO", nullable = false)
-    private double precio;
+    private Double precio;
 
-    @Column(name = "DURACIONESTIMADA", nullable = false)
-    private String duracion;
+    @Column(name = "DURACIONESTIMADA", length = 50)
+    private String duracionEstimada;
+
+    @OneToMany(mappedBy = "servicio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DetalleMantenimientoEntity> detalles = new ArrayList<>();
 }

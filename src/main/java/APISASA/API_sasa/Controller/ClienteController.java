@@ -50,6 +50,23 @@ public class ClienteController {
         ));
     }
 
+    // 🔹 Consultar cliente por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
+        try {
+            ClientDTO cliente = service.obtenerClientePorId(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", cliente
+            ));
+        } catch (ExceptionClienteNoEncontrado e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
     // 🔹 Registrar cliente
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
@@ -80,7 +97,7 @@ public class ClienteController {
         }
     }
 
-    // 🔹 Actualizar cliente
+    //  Actualizar cliente
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,

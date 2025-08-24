@@ -16,18 +16,20 @@ public class MantenimientoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mantenimiento")
     @SequenceGenerator(name = "seq_mantenimiento", sequenceName = "seq_mantenimiento", allocationSize = 1)
-    @Column(name = "IDMANTENIMIENTO")
+    @Column(name = "IDMANTENIMIENTO", insertable = false, updatable = false)
     private Long id;
 
-    @Column(name = "DESCRIPCIONTRABAJO", nullable = true) // puede ser false si la haces obligatoria luego
-    private String descripcion;
+    @Column(name = "DESCRIPCIONTRABAJO", length = 500)
+    private String descripcionTrabajo;
 
     @Column(name = "FECHAREALIZACION", nullable = false)
     private LocalDate fechaRealizacion;
 
-    @Column(name = "CODIGOMANTENIMIENTO", nullable = false)
+    @Column(name = "CODIGOMANTENIMIENTO", unique = true, nullable = false, length = 50)
     private String codigoMantenimiento;
 
-    @Column(name = "IDVEHICULO", nullable = false)
-    private Long idVehiculo;
+    // 🔹 Relación con Vehículo (FK)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDVEHICULO", nullable = false)
+    private VehicleEntity vehiculo;
 }

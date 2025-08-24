@@ -1,12 +1,13 @@
 package APISASA.API_sasa.Services;
 
-import APISASA.API_sasa.Entities.EmpleadoEntity;
 import APISASA.API_sasa.Entities.PagosEntity;
-import APISASA.API_sasa.Exceptions.ExceptionEmpleadoNoEncontrado;
+import APISASA.API_sasa.Entities.FacturaEntity;
+import APISASA.API_sasa.Entities.MetodoPagoEntity;
 import APISASA.API_sasa.Exceptions.ExceptionPagoNoEncontrado;
-import APISASA.API_sasa.Models.DTO.EmpleadoDTO;
 import APISASA.API_sasa.Models.DTO.PagosDTO;
 import APISASA.API_sasa.Repositories.PagosRepository;
+import APISASA.API_sasa.Repositories.FacturaRepository;
+import APISASA.API_sasa.Repositories.MetodoPagoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -18,64 +19,106 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class PagosServices {
+
     @Autowired
     private PagosRepository repo;
 
+    @Autowired
+    private FacturaRepository facturaRepo;
+
+    @Autowired
+    private MetodoPagoRepository metodoPagoRepo;
+
+    // ✅ Obtener todos los pagos
     public List<PagosDTO> obtenerPagos() {
-        List<PagosEntity> datos = repo.findAll();
-        return datos.stream().map(this::convertirADTO).collect(Collectors.toList());
+        return repo.findAll().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
     }
 
-    public PagosDTO insertarPago(PagosDTO data) {
-        PagosEntity entity = convertirAEntity(data);
+    // ✅ Insertar nuevo pago
+    public PagosDTO insertarPago(PagosDTO dto) {
+        PagosEntity entity = convertirAEntity(dto);
+        entity.setIdPago(null); // Oracle maneja el ID con la secuencia
         PagosEntity guardado = repo.save(entity);
         return convertirADTO(guardado);
     }
 
-    public PagosDTO actualizarPago(Long id, PagosDTO data) {
+    // ✅ Actualizar pago
+    public PagosDTO actualizarPago(Long id, PagosDTO dto) {
         PagosEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionPagoNoEncontrado("No se encontró pago con ID: " + id));
 
-        existente.setFecha(data.getFecha());
-        existente.setMonto(data.getMonto());
-        existente.setIdMetodoPago(data.getMetodoPago());
-        existente.setIdFactura(data.getIdFactura());
+        existente.setFecha(dto.getFecha());
+        existente.setMonto(dto.getMonto());
+
+        // Relación con factura
+        if (dto.getIdFactura() != null) {
+            FacturaEntity factura = facturaRepo.findById(dto.getIdFactura())
+                    .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + dto.getIdFactura()));
+            existente.setFactura(factura);
+        }
+
+        // Relación con método de pago
+        if (dto.getMetodoPago() != null) {
+            MetodoPagoEntity metodo = metodoPagoRepo.findById(dto.getMetodoPago())
+                    .orElseThrow(() -> new RuntimeException("Método de pago no encontrado con ID: " + dto.getMetodoPago()));
+            existente.setMetodoPago(metodo);
+        }
 
         PagosEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
     }
 
+    // ✅ Eliminar pago
     public boolean eliminarPago(Long id) {
         try {
-            PagosEntity existente = repo.findById(id).orElse(null);
-            if (existente != null) {
+            if (repo.existsById(id)) {
                 repo.deleteById(id);
                 return true;
-            } else {
-                return false;
             }
+            return false;
         } catch (EmptyResultDataAccessException e) {
-            throw new ExceptionEmpleadoNoEncontrado("No se encontró pago con ID: " + id + " para eliminar.");
+            throw new ExceptionPagoNoEncontrado("No se encontró pago con ID: " + id + " para eliminar.");
         }
     }
 
+    // ==========================
+    // 🔹 Conversores
+    // ==========================
     private PagosDTO convertirADTO(PagosEntity entity) {
         PagosDTO dto = new PagosDTO();
-        dto.setId(entity.getId());
+        dto.setId(entity.getIdPago());
         dto.setFecha(entity.getFecha());
         dto.setMonto(entity.getMonto());
-        dto.setMetodoPago(entity.getIdMetodoPago());
-        dto.setIdFactura(entity.getIdFactura());
+
+        if (entity.getFactura() != null) {
+            dto.setIdFactura(entity.getFactura().getIdFactura());
+        }
+        if (entity.getMetodoPago() != null) {
+            dto.setMetodoPago(entity.getMetodoPago().getIdMetodoPago()); // 👈 ahora coincide con tu DTO
+        }
+
         return dto;
     }
 
     private PagosEntity convertirAEntity(PagosDTO dto) {
         PagosEntity entity = new PagosEntity();
-        entity.setId(dto.getId());
         entity.setFecha(dto.getFecha());
         entity.setMonto(dto.getMonto());
-        entity.setIdMetodoPago(dto.getMetodoPago());
-        entity.setIdFactura(dto.getIdFactura());
+
+        if (dto.getIdFactura() != null) {
+            FacturaEntity factura = facturaRepo.findById(dto.getIdFactura())
+                    .orElseThrow(() -> new RuntimeException("Factura no encontrada con ID: " + dto.getIdFactura()));
+            entity.setFactura(factura);
+        }
+
+        if (dto.getMetodoPago() != null) {
+            MetodoPagoEntity metodo = metodoPagoRepo.findById(dto.getMetodoPago())
+                    .orElseThrow(() -> new RuntimeException("Método de pago no encontrado con ID: " + dto.getMetodoPago()));
+            entity.setMetodoPago(metodo);
+        }
+
         return entity;
     }
 }

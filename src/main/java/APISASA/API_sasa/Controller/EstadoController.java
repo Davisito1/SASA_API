@@ -16,7 +16,7 @@ public class EstadoController {
     @Autowired
     private EstadoService service;
 
-    // 🔹 Consultar con paginación (opcional)
+    // 🔹 Consultar con paginación
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerEstados(
             @RequestParam(defaultValue = "0") int page,
@@ -30,10 +30,11 @@ public class EstadoController {
         }
 
         Page<EstadoDTO> estados = service.getAllEstados(page, size);
+
         if (estados == null || estados.isEmpty()) {
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "data", "No hay estados registrados"
+                    "message", "No hay estados registrados"
             ));
         }
 

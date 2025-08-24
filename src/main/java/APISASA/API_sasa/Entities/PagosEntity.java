@@ -1,32 +1,36 @@
 package APISASA.API_sasa.Entities;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "PAGO")
-@ToString @EqualsAndHashCode @Getter @Setter
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PagosEntity {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_pago")
-    @SequenceGenerator(name = "seq_pago", sequenceName = "seq_pago", allocationSize = 1)
-    @Column(name = "IDPAGO", insertable = false, updatable = false)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "pago_seq")
+    @SequenceGenerator(name = "pago_seq", sequenceName = "SEQ_PAGO", allocationSize = 1)
+    @Column(name = "IDPAGO")
+    private Long idPago;
 
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
 
     @Column(name = "MONTO", nullable = false)
-    private double monto;
+    private Double monto;
 
-    @Column(name = "IDMETODOPAGO", nullable = false)
-    private Long idMetodoPago;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDFACTURA", nullable = false)
+    private FacturaEntity factura;
 
-    @Column(name = "IDFACTURA", nullable = false)
-    private Long idFactura;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDMETODOPAGO", nullable = false)
+    private MetodoPagoEntity metodoPago;
 }

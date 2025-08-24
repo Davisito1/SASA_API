@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "CLIENTE")
@@ -37,10 +39,19 @@ public class ClienteEntity {
     @Column(name = "GENERO", length = 20)
     private String genero;
 
-    // 🔹 Nuevos campos agregados con ALTER TABLE
     @Column(name = "CORREO", nullable = false, unique = true, length = 150)
     private String correo;
 
     @Column(name = "CONTRASENA", nullable = false, length = 150)
     private String contrasena;
+
+    // 🔹 Relación con Vehiculo
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<VehicleEntity> vehiculos;
+
+    // 🔹 Relación con Cita
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<CitaEntity> citas;
 }
