@@ -33,7 +33,7 @@ public class NotificacionesEntity {
     @Column(name = "PRIORIDAD")
     private String prioridad;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDUSUARIO", nullable = false)
     private UserEntity idUsuario;
 }

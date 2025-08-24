@@ -4,7 +4,9 @@ import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Entities.FacturaEntity;
 import APISASA.API_sasa.Exceptions.ExceptionFacturaNoEncontrada;
 import APISASA.API_sasa.Models.DTO.FacturaDTO;
+import APISASA.API_sasa.Repositories.EmpleadoRepository;
 import APISASA.API_sasa.Repositories.FacturaRepository;
+import APISASA.API_sasa.Repositories.MantenimientoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,8 @@ public class FacturaService {
 
     @Autowired
     private FacturaRepository repo;
+    private EmpleadoRepository repoEmpleado;
+    private MantenimientoRepository repoMante;
 
     public Page<FacturaDTO> obtenerFacturas(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -39,8 +43,8 @@ public class FacturaService {
 
         existente.setFecha(dto.getFecha());
         existente.setMontoTotal(dto.getMontoTotal());
-        existente.setIdEmpleado(dto.getIdEmpleado());
-        existente.setIdMantenimiento(dto.getIdMantenimiento());
+        if (dto.getIdEmpleado() != null) existente.setIdEmpleado(repoEmpleado.getReferenceById(dto.getIdEmpleado()));
+        if (dto.getIdMantenimiento() != null) existente.setIdMantenimiento(repoMante.getReferenceById(dto.getIdMantenimiento()));
 
         FacturaEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -65,8 +69,8 @@ public class FacturaService {
         dto.setId(entity.getId());
         dto.setFecha(entity.getFecha());
         dto.setMontoTotal(entity.getMontoTotal());
-        dto.setIdEmpleado(entity.getIdEmpleado());
-        dto.setIdMantenimiento(entity.getIdMantenimiento());
+        if (entity.getIdEmpleado() != null) dto.setIdEmpleado(entity.getIdEmpleado().getId());
+        if (entity.getIdMantenimiento() != null) dto.setIdMantenimiento(entity.getIdMantenimiento().getId());
         return dto;
     }
 
@@ -74,8 +78,8 @@ public class FacturaService {
         FacturaEntity entity = new FacturaEntity();
         entity.setFecha(dto.getFecha());
         entity.setMontoTotal(dto.getMontoTotal());
-        entity.setIdEmpleado(dto.getIdEmpleado());
-        entity.setIdMantenimiento(dto.getIdMantenimiento());
+        if (dto.getIdEmpleado() != null) entity.setIdEmpleado(repoEmpleado.getReferenceById(dto.getIdEmpleado()));
+        if (dto.getIdMantenimiento() != null) entity.setIdMantenimiento(repoMante.getReferenceById(dto.getIdMantenimiento()));
         return entity;
     }
 }

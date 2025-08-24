@@ -24,11 +24,11 @@ public class PagosEntity {
     @Column(name = "MONTO", nullable = false)
     private double monto;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDMETODOPAGO", nullable = false)
     private MetodoPagoEntity idMetodoPago;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDFACTURA", nullable = false)
     private FacturaEntity idFactura;
 }

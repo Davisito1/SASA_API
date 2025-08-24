@@ -31,8 +31,8 @@ public class VehicleDTO {
     private String vin;
 
     @Min(value = 1, message = "Debe asignarse un cliente válido")
-    private ClienteEntity IdCliente;
+    private Long IdCliente;
 
     @Min(value = 1, message = "Debe asignarse un estado válido")
-    private EstadoEntity idEstado;
+    private Long idEstado;
 }

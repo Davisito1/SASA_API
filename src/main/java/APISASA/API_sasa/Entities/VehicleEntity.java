@@ -32,7 +32,7 @@ public class VehicleEntity {
     @Column(name = "VIN")
     private String vin;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDCLIENTE", nullable = false)
     private ClienteEntity idCliente;
 

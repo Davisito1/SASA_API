@@ -46,5 +46,5 @@ public class EmpleadoDTO {
     private String correo;
 
     @Min(value = 1, message = "Debe asignarse un usuario válido")
-    private UserEntity idUsuario;
+    private Long idUsuario;
 }

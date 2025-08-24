@@ -42,7 +42,7 @@ public class EmpleadoEntity {
     @Column(name = "CORREOELECTRONICO", nullable = false, unique = true)
     private String correo;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDUSUARIO", nullable = false)
     private UserEntity idUsuario;
 }

@@ -4,6 +4,7 @@ import APISASA.API_sasa.Entities.MantenimientoEntity;
 import APISASA.API_sasa.Exceptions.ExceptionMantenimientoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.MantenimientoDTO;
 import APISASA.API_sasa.Repositories.MantenimientoRepository;
+import APISASA.API_sasa.Repositories.VehicleRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ public class MantenimientoService {
 
     @Autowired
     private MantenimientoRepository repo;
+    private VehicleRepository repoVehiculo;
 
     // =========================
     // LISTAR (todos)
@@ -99,7 +101,7 @@ public class MantenimientoService {
         existente.setDescripcion(data.getDescripcion());
         existente.setFechaRealizacion(data.getFechaRealizacion());
         existente.setCodigoMantenimiento(data.getCodigoMantenimiento());
-        existente.setIdVehiculo(data.getIdVehiculo());
+        if (data.getIdVehiculo() !=  null) existente.setIdVehiculo(repoVehiculo.getReferenceById(data.getIdVehiculo()));
 
         MantenimientoEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -131,7 +133,7 @@ public class MantenimientoService {
         entity.setDescripcion(dto.getDescripcion());
         entity.setFechaRealizacion(dto.getFechaRealizacion());
         entity.setCodigoMantenimiento(dto.getCodigoMantenimiento());
-        entity.setIdVehiculo(dto.getIdVehiculo());
+        if (dto.getIdVehiculo() != null) entity.setIdVehiculo(repoVehiculo.getReferenceById(dto.getIdVehiculo()));
         return entity;
     }
 
@@ -141,7 +143,7 @@ public class MantenimientoService {
         dto.setDescripcion(entity.getDescripcion());
         dto.setFechaRealizacion(entity.getFechaRealizacion());
         dto.setCodigoMantenimiento(entity.getCodigoMantenimiento());
-        dto.setIdVehiculo(entity.getIdVehiculo());
+        if (entity.getIdVehiculo() != null) dto.setIdVehiculo(entity.getIdVehiculo().getId());
         return dto;
     }
 }

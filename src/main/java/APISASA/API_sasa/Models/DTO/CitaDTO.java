@@ -33,5 +33,5 @@ public class CitaDTO {
 
     @NotNull(message = "El cliente es obligatorio")
     @Min(value = 1, message = "Debe asignarse un cliente válido")
-    private ClienteEntity idCliente;
+    private Long idCliente;
 }

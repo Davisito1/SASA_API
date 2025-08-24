@@ -1,9 +1,13 @@
 package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.DetalleMantenimientoEntity;
+import APISASA.API_sasa.Entities.MantenimientoEntity;
 import APISASA.API_sasa.Exceptions.ExceptionDetalleNoEncontrado;
 import APISASA.API_sasa.Models.DTO.DetalleMantenimientoDTO;
 import APISASA.API_sasa.Repositories.DetalleMantenimientoRepository;
+import APISASA.API_sasa.Repositories.MantenimientoRepository;
+import APISASA.API_sasa.Repositories.ServicioRepository;
+import APISASA.API_sasa.Repositories.TipoMantenimientoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,9 @@ public class DetalleMantenimientoService {
 
     @Autowired
     private DetalleMantenimientoRepository repo;
+    private MantenimientoRepository repoMante;
+    private ServicioRepository repoServicio;
+    private TipoMantenimientoRepository repoTipo;
 
     // CONSULTAR TODOS
     public List<DetalleMantenimientoDTO> obtenerDetalles() {
@@ -61,9 +68,9 @@ public class DetalleMantenimientoService {
                 .orElseThrow(() -> new ExceptionDetalleNoEncontrado("No existe un detalle con ID: " + id));
 
         existente.setEstado(dto.getEstado());
-        existente.setIdMantenimiento(dto.getIdMantenimiento());
-        existente.setIdServicio(dto.getIdServicio());
-        existente.setIdTipoMantenimiento(dto.getIdTipoMantenimiento());
+        if (dto.getIdMantenimiento() != null) existente.setIdMantenimiento(repoMante.getReferenceById(dto.getIdMantenimiento()));
+        if (dto.getIdServicio() != null) existente.setIdServicio(repoServicio.getReferenceById(dto.getIdServicio()));
+        if (dto.getIdTipoMantenimiento() != null) existente.setIdTipoMantenimiento(repoTipo.getReferenceById(dto.getIdTipoMantenimiento()));
 
         DetalleMantenimientoEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -89,9 +96,9 @@ public class DetalleMantenimientoService {
         DetalleMantenimientoDTO dto = new DetalleMantenimientoDTO();
         dto.setId(entity.getIdDetalleMantenimiento());
         dto.setEstado(entity.getEstado());
-        dto.setIdMantenimiento(entity.getIdMantenimiento());
-        dto.setIdServicio(entity.getIdServicio());
-        dto.setIdTipoMantenimiento(entity.getIdTipoMantenimiento());
+        if (entity.getIdMantenimiento() != null) dto.setIdMantenimiento(entity.getIdMantenimiento().getId());
+        if (entity.getIdServicio() != null) dto.setIdServicio(entity.getIdServicio().getId());
+        if (entity.getIdTipoMantenimiento() != null) dto.setIdTipoMantenimiento(entity.getIdTipoMantenimiento().getId());
         return dto;
     }
 
@@ -99,9 +106,9 @@ public class DetalleMantenimientoService {
     private DetalleMantenimientoEntity convertirAEntity(DetalleMantenimientoDTO dto) {
         DetalleMantenimientoEntity entity = new DetalleMantenimientoEntity();
         entity.setEstado(dto.getEstado());
-        entity.setIdMantenimiento(dto.getIdMantenimiento());
-        entity.setIdServicio(dto.getIdServicio());
-        entity.setIdTipoMantenimiento(dto.getIdTipoMantenimiento());
+        if (dto.getIdMantenimiento() != null) entity.setIdMantenimiento(repoMante.getReferenceById(dto.getIdMantenimiento()));
+        if (dto.getIdServicio() != null) entity.setIdServicio(repoServicio.getReferenceById(dto.getIdServicio()));
+        if (dto.getIdTipoMantenimiento() != null) entity.setIdTipoMantenimiento(repoTipo.getReferenceById(dto.getIdTipoMantenimiento()));
         return entity;
     }
 }

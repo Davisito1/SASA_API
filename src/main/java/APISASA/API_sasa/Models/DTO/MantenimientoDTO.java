@@ -31,5 +31,5 @@ public class MantenimientoDTO {
 
     @NotNull(message = "Vehículo obligatorio")
     @Min(value = 1, message = "Debe asignarse un vehículo válido")
-    private VehicleEntity idVehiculo;
+    private Long idVehiculo;
 }

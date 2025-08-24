@@ -5,6 +5,7 @@ import APISASA.API_sasa.Entities.HistorialEntity;
 import APISASA.API_sasa.Exceptions.ExceptionHistorialNoEncontrado;
 import APISASA.API_sasa.Models.DTO.HistorialDTO;
 import APISASA.API_sasa.Repositories.HistorialRepository;
+import APISASA.API_sasa.Repositories.VehicleRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ public class HistorialService {
 
     @Autowired
     private HistorialRepository repo;
+    private VehicleRepository repoVehiculo;
 
     public Page<HistorialDTO> obtenerHistorial(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -49,7 +51,7 @@ public class HistorialService {
         existente.setFechaSalida(dto.getFechaSalida());
         existente.setTrabajoRealizado(dto.getTrabajoRealizado());
         existente.setObservaciones(dto.getObservaciones());
-        existente.setIdVehiculo(dto.getIdVehiculo());
+        if (dto.getIdVehiculo() != null) existente.setIdVehiculo(repoVehiculo.getReferenceById(dto.getIdVehiculo()));
 
         HistorialEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -74,7 +76,7 @@ public class HistorialService {
         entity.setFechaSalida(dto.getFechaSalida());
         entity.setTrabajoRealizado(dto.getTrabajoRealizado());
         entity.setObservaciones(dto.getObservaciones());
-        entity.setIdVehiculo(dto.getIdVehiculo());
+        if (dto.getIdVehiculo() != null) entity.setIdVehiculo(repoVehiculo.getReferenceById(dto.getIdVehiculo()));
         return entity;
     }
 
@@ -85,7 +87,7 @@ public class HistorialService {
         dto.setFechaSalida(entity.getFechaSalida());
         dto.setTrabajoRealizado(entity.getTrabajoRealizado());
         dto.setObservaciones(entity.getObservaciones());
-        dto.setIdVehiculo(entity.getIdVehiculo());
+        if (entity.getIdVehiculo() != null) dto.setIdVehiculo(entity.getIdVehiculo().getId());
         return dto;
     }
 }

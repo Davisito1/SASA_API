@@ -3,6 +3,8 @@ package APISASA.API_sasa.Services;
 import APISASA.API_sasa.Entities.VehicleEntity;
 import APISASA.API_sasa.Exceptions.ExceptionVehiculoNoEcontrado;
 import APISASA.API_sasa.Models.DTO.VehicleDTO;
+import APISASA.API_sasa.Repositories.ClientRepository;
+import APISASA.API_sasa.Repositories.EstadoRepository;
 import APISASA.API_sasa.Repositories.VehicleRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,8 @@ public class VehicleService {
 
     @Autowired
     private VehicleRepository repo;
+    private ClientRepository repoClient;
+    private EstadoRepository repoEstado;
 
     // CONSULTAR TODOS
     public List<VehicleDTO> obtenerVehiculos() {
@@ -54,8 +58,8 @@ public class VehicleService {
         existente.setAnio(data.getAnio());
         existente.setPlaca(data.getPlaca());
         existente.setVin(data.getVin());
-        existente.setIdCliente(data.getIdCliente());
-        existente.setIdEstado(data.getIdEstado());
+        if (data.getIdCliente() != null) existente.setIdCliente(repoClient.getReferenceById(data.getIdCliente()));
+        if (data.getIdEstado() != null) existente.setIdEstado(repoEstado.getReferenceById(data.getIdEstado()));
 
         VehicleEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -85,8 +89,8 @@ public class VehicleService {
         dto.setAnio(entity.getAnio());
         dto.setPlaca(entity.getPlaca());
         dto.setVin(entity.getVin());
-        dto.setIdCliente(entity.getIdCliente());
-        dto.setIdEstado(entity.getIdEstado());
+        if (entity.getIdCliente() != null) dto.setIdCliente(entity.getIdCliente().getId());
+        if (entity.getIdEstado() != null) dto.setIdEstado(entity.getIdEstado().getId());
         return dto;
     }
 
@@ -98,8 +102,8 @@ public class VehicleService {
         entity.setAnio(dto.getAnio());
         entity.setPlaca(dto.getPlaca());
         entity.setVin(dto.getVin());
-        entity.setIdCliente(dto.getIdCliente());
-        entity.setIdEstado(dto.getIdEstado());
+        if (dto.getIdCliente() != null) entity.setIdCliente(repoClient.getReferenceById(dto.getIdCliente()));
+        if (dto.getIdEstado() != null) entity.setIdEstado(repoEstado.getReferenceById(dto.getIdEstado()));
         return entity;
     }
 }

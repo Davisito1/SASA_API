@@ -22,13 +22,13 @@ public class DetalleMantenimientoDTO {
 
     @NotNull(message = "Debe asignarse un mantenimiento válido")
     @Min(value = 1, message = "ID de mantenimiento inválido")
-    private MantenimientoEntity idMantenimiento;
+    private Long idMantenimiento;
 
     @NotNull(message = "Debe asignarse un servicio válido")
     @Min(value = 1, message = "ID de servicio inválido")
-    private ServicioEntity idServicio;
+    private Long idServicio;
 
     @NotNull(message = "Debe asignarse un tipo de mantenimiento válido")
     @Min(value = 1, message = "ID de tipo de mantenimiento inválido")
-    private TipoMantenimientoEntity idTipoMantenimiento;
+    private Long idTipoMantenimiento;
 }

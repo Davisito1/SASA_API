@@ -30,10 +30,10 @@ public class MantenimientoEntity {
     @Column(name = "CODIGOMANTENIMIENTO", nullable = false)
     private String codigoMantenimiento;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDVEHICULO", nullable = false)
     private VehicleEntity idVehiculo;
 
-    @OneToMany(mappedBy = "idMantenimiento", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "idMantenimiento", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DetalleMantenimientoEntity> detalles = new ArrayList<>();
 }

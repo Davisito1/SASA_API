@@ -27,8 +27,8 @@ public class FacturaDTO {
     private double montoTotal;
 
     @Min(value = 1, message = "Debe asignarse un empleado valido")
-    private EmpleadoEntity idEmpleado;
+    private Long idEmpleado;
 
     @Min(value = 1, message = "Debe asignarse un mantenimiento valido")
-    private MantenimientoEntity idMantenimiento;
+    private Long idMantenimiento;
 }

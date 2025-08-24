@@ -32,5 +32,5 @@ public class NotificacionDTO {
     private String prioridad;
 
     @Min(value = 1, message = "Debe asignarse un usuario valido")
-    private UserEntity idUsuario;
+    private Long idUsuario;
 }

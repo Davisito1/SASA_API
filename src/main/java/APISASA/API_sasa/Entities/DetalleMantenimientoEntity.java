@@ -27,15 +27,15 @@ public class DetalleMantenimientoEntity {
     @Column(name = "ESTADO", nullable = false)
     private String estado;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDMANTENIMIENTO", nullable = false)
     private MantenimientoEntity idMantenimiento;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDSERVICIO", nullable = false)
     private ServicioEntity idServicio;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDTIPOMANTENIMIENTO", nullable = false)
     private TipoMantenimientoEntity idTipoMantenimiento;
 }

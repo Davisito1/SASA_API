@@ -4,6 +4,7 @@ import APISASA.API_sasa.Entities.EmpleadoEntity;
 import APISASA.API_sasa.Exceptions.ExceptionEmpleadoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.EmpleadoDTO;
 import APISASA.API_sasa.Repositories.EmpleadoRepository;
+import APISASA.API_sasa.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class EmpleadoService {
 
     @Autowired
     private EmpleadoRepository repo;
+    private UserRepository repoUser;
 
     // Obtener todos los empleados
     public List<EmpleadoDTO> obtenerEmpleados() {
@@ -64,7 +66,7 @@ public class EmpleadoService {
         existente.setDireccion(dto.getDireccion());
         existente.setFechaContratacion(dto.getFechaContratacion());
         existente.setCorreo(dto.getCorreo());
-        existente.setIdUsuario(dto.getIdUsuario());
+        if (dto.getIdUsuario() != null) existente.setIdUsuario(repoUser.getReferenceById(dto.getIdUsuario()));
 
         EmpleadoEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -97,7 +99,7 @@ public class EmpleadoService {
         dto.setDireccion(entity.getDireccion());
         dto.setFechaContratacion(entity.getFechaContratacion());
         dto.setCorreo(entity.getCorreo());
-        dto.setIdUsuario(entity.getIdUsuario());
+        if (entity.getIdUsuario() != null) dto.setIdUsuario(entity.getIdUsuario().getId());
         return dto;
     }
 
@@ -112,7 +114,7 @@ public class EmpleadoService {
         entity.setDireccion(dto.getDireccion());
         entity.setFechaContratacion(dto.getFechaContratacion());
         entity.setCorreo(dto.getCorreo());
-        entity.setIdUsuario(dto.getIdUsuario());
+        if (dto.getIdUsuario() != null) entity.setIdUsuario(repoUser.getReferenceById(dto.getIdUsuario()));
         return entity;
     }
 }

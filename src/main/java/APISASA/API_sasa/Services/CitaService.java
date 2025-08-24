@@ -5,6 +5,7 @@ import APISASA.API_sasa.Entities.ClienteEntity;
 import APISASA.API_sasa.Exceptions.ExceptionCitaNoEncontrada;
 import APISASA.API_sasa.Models.DTO.CitaDTO;
 import APISASA.API_sasa.Repositories.CitaRepository;
+import APISASA.API_sasa.Repositories.ClientRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ public class CitaService {
 
     @Autowired
     private CitaRepository repo;
+    private ClientRepository repoClient;
 
     // ======= EXISTENTES (los dejo intactos) =======
 
@@ -63,7 +65,7 @@ public class CitaService {
         existente.setFecha(data.getFecha());
         existente.setHora(data.getHora());
         existente.setEstado(data.getEstado());
-        existente.setIdCliente(data.getIdCliente());
+        if (data.getIdCliente() != null) existente.setIdCliente(repoClient.getReferenceById(data.getIdCliente()));
 
         CitaEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -109,7 +111,7 @@ public class CitaService {
         entity.setFecha(dto.getFecha());
         entity.setHora(dto.getHora());
         entity.setEstado(dto.getEstado());
-        entity.setIdCliente(dto.getIdCliente());
+        if (dto.getIdCliente() != null) entity.setIdCliente(repoClient.getReferenceById(dto.getIdCliente()));
         return entity;
     }
 
@@ -119,7 +121,7 @@ public class CitaService {
         dto.setFecha(citaEntity.getFecha());
         dto.setHora(citaEntity.getHora());
         dto.setEstado(citaEntity.getEstado());
-        dto.setIdCliente(citaEntity.getIdCliente());
+        if (citaEntity.getIdCliente() != null) dto.setIdCliente(citaEntity.getIdCliente().getId());
         return dto;
     }
 }

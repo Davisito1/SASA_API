@@ -27,5 +27,5 @@ public class HistorialDTO {
     private String observaciones;
 
     @Min(value = 1, message = "Debe asignarse un vehiculo valido")
-    private VehicleEntity idVehiculo;
+    private Long idVehiculo;
 }

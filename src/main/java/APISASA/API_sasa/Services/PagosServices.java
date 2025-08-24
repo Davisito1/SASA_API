@@ -6,6 +6,8 @@ import APISASA.API_sasa.Exceptions.ExceptionEmpleadoNoEncontrado;
 import APISASA.API_sasa.Exceptions.ExceptionPagoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.EmpleadoDTO;
 import APISASA.API_sasa.Models.DTO.PagosDTO;
+import APISASA.API_sasa.Repositories.FacturaRepository;
+import APISASA.API_sasa.Repositories.MetodoPagoRepository;
 import APISASA.API_sasa.Repositories.PagosRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 public class PagosServices {
     @Autowired
     private PagosRepository repo;
+    private MetodoPagoRepository repoMetodo;
+    private FacturaRepository repoFactura;
 
     public List<PagosDTO> obtenerPagos() {
         List<PagosEntity> datos = repo.findAll();
@@ -38,8 +42,8 @@ public class PagosServices {
 
         existente.setFecha(data.getFecha());
         existente.setMonto(data.getMonto());
-        existente.setIdMetodoPago(data.getMetodoPago());
-        existente.setIdFactura(data.getIdFactura());
+        if (data.getMetodoPago() != null) existente.setIdMetodoPago(repoMetodo.getReferenceById(data.getMetodoPago()));
+        if (data.getIdFactura() != null) existente.setIdFactura(repoFactura.getReferenceById(data.getIdFactura()));
 
         PagosEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -64,8 +68,8 @@ public class PagosServices {
         dto.setId(entity.getId());
         dto.setFecha(entity.getFecha());
         dto.setMonto(entity.getMonto());
-        dto.setMetodoPago(entity.getIdMetodoPago());
-        dto.setIdFactura(entity.getIdFactura());
+        if (entity.getIdMetodoPago() != null) dto.setMetodoPago(entity.getIdMetodoPago().getId());
+        if (entity.getIdFactura() != null) dto.setIdFactura(entity.getIdFactura().getId());
         return dto;
     }
 
@@ -74,8 +78,8 @@ public class PagosServices {
         entity.setId(dto.getId());
         entity.setFecha(dto.getFecha());
         entity.setMonto(dto.getMonto());
-        entity.setIdMetodoPago(dto.getMetodoPago());
-        entity.setIdFactura(dto.getIdFactura());
+        if (dto.getMetodoPago() != null) entity.setIdMetodoPago(repoMetodo.getReferenceById(dto.getMetodoPago()));
+        if (dto.getIdFactura() != null) entity.setIdFactura(repoFactura.getReferenceById(dto.getIdFactura()));
         return entity;
     }
 }

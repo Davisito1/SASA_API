@@ -27,8 +27,8 @@ public class PagosDTO {
     private double monto;
 
     @Min(value = 1, message = "Debe asignarse un método de pago valido")
-    private MetodoPagoEntity metodoPago;
+    private Long metodoPago;
 
     @Min(value = 1, message = "Debe asignarse una factura valida")
-    private FacturaEntity idFactura;
+    private Long idFactura;
 }

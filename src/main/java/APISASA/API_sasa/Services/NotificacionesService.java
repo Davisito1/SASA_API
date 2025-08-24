@@ -2,10 +2,12 @@ package APISASA.API_sasa.Services;
 
 import APISASA.API_sasa.Entities.NotificacionesEntity;
 import APISASA.API_sasa.Entities.NotificacionesEntity;
+import APISASA.API_sasa.Entities.UserEntity;
 import APISASA.API_sasa.Exceptions.ExceptionNotificacionNoEncontrada;
 import APISASA.API_sasa.Models.DTO.NotificacionDTO;
 import APISASA.API_sasa.Repositories.NotificacionesRepository;
 import APISASA.API_sasa.Repositories.NotificacionesRepository;
+import APISASA.API_sasa.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ public class NotificacionesService {
 
     @Autowired
     private NotificacionesRepository repo;
+    private UserRepository repoUser;
 
     // Obtener todas las notificaciones
     public List<NotificacionDTO> obtenerNotificaciones() {
@@ -42,7 +45,7 @@ public class NotificacionesService {
         existente.setTipoNotificacion(dto.getTipoNotificacion());
         existente.setLectura(dto.getLectura());
         existente.setPrioridad(dto.getPrioridad());
-        existente.setIdUsuario(dto.getIdUsuario());
+        if (dto.getIdUsuario() != null) existente.setIdUsuario(repoUser.getReferenceById(dto.getIdUsuario()));
 
         NotificacionesEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
@@ -72,7 +75,7 @@ public class NotificacionesService {
         dto.setTipoNotificacion(entity.getTipoNotificacion());
         dto.setLectura(entity.getLectura());
         dto.setPrioridad(entity.getPrioridad());
-        dto.setIdUsuario(entity.getIdUsuario());
+        if (entity.getIdUsuario() != null) dto.setIdUsuario(entity.getIdUsuario().getId());
         return dto;
     }
 
@@ -84,7 +87,7 @@ public class NotificacionesService {
         entity.setTipoNotificacion(dto.getTipoNotificacion());
         entity.setLectura(dto.getLectura());
         entity.setPrioridad(dto.getPrioridad());
-        entity.setIdUsuario(dto.getIdUsuario());
+        if (dto.getIdUsuario() != null) entity.setIdUsuario(repoUser.getReferenceById(dto.getIdUsuario()));
         return entity;
     }
 }
