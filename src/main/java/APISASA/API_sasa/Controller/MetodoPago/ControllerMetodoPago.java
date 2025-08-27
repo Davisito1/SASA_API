@@ -9,6 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/metodoPago")
+@CrossOrigin
 public class ControllerMetodoPago {
 
     @Autowired

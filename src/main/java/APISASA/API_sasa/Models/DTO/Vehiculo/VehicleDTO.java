@@ -25,7 +25,6 @@ public class VehicleDTO {
     @Pattern(regexp = "^[A-Z0-9-]{5,10}$", message = "La placa debe tener entre 5 y 10 caracteres alfanuméricos")
     private String placa;
 
-    @NotBlank(message = "El VIN no puede estar vacío")
     @Size(min = 17, max = 17, message = "El VIN debe tener exactamente 17 caracteres")
     private String vin;
 

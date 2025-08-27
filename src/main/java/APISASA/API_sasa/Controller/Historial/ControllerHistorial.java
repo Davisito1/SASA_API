@@ -11,6 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/historial")
+@CrossOrigin
 public class ControllerHistorial {
 
     @Autowired

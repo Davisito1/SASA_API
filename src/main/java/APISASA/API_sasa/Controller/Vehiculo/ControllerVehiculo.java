@@ -4,13 +4,16 @@ import APISASA.API_sasa.Models.DTO.Vehiculo.VehicleDTO;
 import APISASA.API_sasa.Services.Vehiculo.VehicleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,14 +24,39 @@ public class ControllerVehiculo {
     @Autowired
     private VehicleService service;
 
-    // CONSULTAR DATOS
-    @GetMapping ("consultar")
-    public List<VehicleDTO> obtenerVehiculos() {
-        return service.obtenerVehiculos();
+    // ✅ CONSULTAR DATOS PAGINADOS Y ORDENADOS
+    @GetMapping("/consultar")
+    public ResponseEntity<?> obtenerVehiculos(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "idVehiculo") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        if (size < 1 || size > 100) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "El tamaño de página debe estar entre 1 y 100"
+            ));
+        }
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                sortDir.equalsIgnoreCase("desc")
+                        ? Sort.by(sortBy).descending()
+                        : Sort.by(sortBy).ascending()
+        );
+
+        Page<VehicleDTO> result = service.obtenerVehiculosPaginado(pageable);
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", result
+        ));
     }
 
-    // REGISTRAR
-    @PostMapping ("registrar")
+    // ✅ REGISTRAR
+    @PostMapping("/registrar")
     public ResponseEntity<?> nuevoVehiculo(@Valid @RequestBody VehicleDTO dto, BindingResult result) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
@@ -49,7 +77,7 @@ public class ControllerVehiculo {
         }
     }
 
-    // ACTUALIZAR
+    // ✅ ACTUALIZAR
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id,
                                         @Valid @RequestBody VehicleDTO dto,
@@ -61,7 +89,10 @@ public class ControllerVehiculo {
         }
 
         try {
-            return ResponseEntity.ok(service.actualizarVehiculo(id, dto));
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", service.actualizarVehiculo(id, dto)
+            ));
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body(Map.of(
                     "status", "error",
@@ -70,8 +101,8 @@ public class ControllerVehiculo {
         }
     }
 
-    // ELIMINAR
-    @DeleteMapping("eliminar/{id}")
+    // ✅ ELIMINAR
+    @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
             if (service.eliminarVehiculo(id)) {

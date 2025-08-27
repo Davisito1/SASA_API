@@ -21,7 +21,7 @@ public class HistorialEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "historial_seq")
     @SequenceGenerator(
             name = "historial_seq",
-            sequenceName = "SEQ_HISTORIALVEHICULO", // 👈 usa el nombre de la secuencia real
+            sequenceName = "SEQ_HISTORIALVEHICULO",
             allocationSize = 1
     )
     @Column(name = "IDHISTORIAL", insertable = false, updatable = false)
@@ -42,5 +42,5 @@ public class HistorialEntity {
     // 🔹 Relación con Vehículo
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDVEHICULO", nullable = false)
-    private VehicleEntity vehiculo; // 👈 debe coincidir con VehicleEntity real
+    private VehicleEntity vehiculo;
 }

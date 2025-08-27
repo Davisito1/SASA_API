@@ -24,11 +24,12 @@ public class ControllerEmpleado {
     @Autowired
     private EmpleadoService service;
 
-    // 🔹 Consultar con paginación
+    // 🔹 Consultar con paginación y búsqueda opcional
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerEmpleados(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String q
     ) {
         if (page < 0) page = 0;
         if (size < 1 || size > 50) {
@@ -38,7 +39,7 @@ public class ControllerEmpleado {
             ));
         }
 
-        Page<EmpleadoDTO> pageResult = service.obtenerEmpleados(PageRequest.of(page, size));
+        Page<EmpleadoDTO> pageResult = service.obtenerEmpleadosPaginado(q, PageRequest.of(page, size));
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -46,6 +47,7 @@ public class ControllerEmpleado {
         ));
     }
 
+    // 🔹 Registrar
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody EmpleadoDTO dto,
@@ -76,6 +78,7 @@ public class ControllerEmpleado {
         }
     }
 
+    // 🔹 Actualizar
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
@@ -107,6 +110,7 @@ public class ControllerEmpleado {
         }
     }
 
+    // 🔹 Eliminar
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

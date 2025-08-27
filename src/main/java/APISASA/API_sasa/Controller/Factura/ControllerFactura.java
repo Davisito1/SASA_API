@@ -16,32 +16,41 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/apiFactura")
+@CrossOrigin
 public class ControllerFactura {
 
     @Autowired
     private FacturaService service;
 
+    // 🔹 Consultar facturas con paginación
     @GetMapping("/consultar")
-    private ResponseEntity<Page<FacturaDTO>> obtenerHistorial(
+    public ResponseEntity<?> obtenerFacturas(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
-    ){
-        if (size <= 0 || size > 50){
-            ResponseEntity.badRequest().body(Map.of(
-                    "status", "El tamaño de la página debe estar entre 1 y 50"
-            ));
-            return ResponseEntity.ok(null);
-        }
-        Page<FacturaDTO> categories = service.obtenerFacturas(page, size);
-        if (categories == null){
-            ResponseEntity.badRequest().body(Map.of(
-                    "status", "No hay facturas registradas"
+    ) {
+        if (size <= 0 || size > 50) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "El tamaño de la página debe estar entre 1 y 50"
             ));
         }
-        return ResponseEntity.ok(categories);
+
+        Page<FacturaDTO> facturas = service.obtenerFacturas(page, size);
+
+        if (facturas == null || facturas.isEmpty()) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", "No hay facturas registradas"
+            ));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", facturas
+        ));
     }
 
-    // 🔹 NUEVO ENDPOINT: Obtener factura por ID
+    // 🔹 Obtener factura por ID
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
         try {
@@ -58,6 +67,7 @@ public class ControllerFactura {
         }
     }
 
+    // 🔹 Registrar
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody FacturaDTO dto,
@@ -68,7 +78,10 @@ public class ControllerFactura {
             result.getFieldErrors().forEach(err ->
                     errores.put(err.getField(), err.getDefaultMessage())
             );
-            return ResponseEntity.badRequest().body(errores);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
         }
 
         try {
@@ -85,6 +98,7 @@ public class ControllerFactura {
         }
     }
 
+    // 🔹 Actualizar
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
@@ -96,7 +110,10 @@ public class ControllerFactura {
             result.getFieldErrors().forEach(err ->
                     errores.put(err.getField(), err.getDefaultMessage())
             );
-            return ResponseEntity.badRequest().body(errores);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
         }
 
         try {
@@ -113,6 +130,7 @@ public class ControllerFactura {
         }
     }
 
+    // 🔹 Eliminar
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

@@ -12,7 +12,10 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,9 +33,9 @@ public class VehicleService {
     @Autowired
     private EstadoRepository estadoRepo;
 
-    // ✅ CONSULTAR TODOS
+    // ✅ CONSULTAR TODOS ORDENADOS POR ID
     public List<VehicleDTO> obtenerVehiculos() {
-        List<VehicleEntity> lista = vehicleRepo.findAll();
+        List<VehicleEntity> lista = vehicleRepo.findAll(Sort.by(Sort.Direction.ASC, "idVehiculo"));
         return lista.stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
@@ -40,8 +43,8 @@ public class VehicleService {
 
     // ✅ INSERTAR VEHÍCULO
     public VehicleDTO insertarVehiculo(@Valid VehicleDTO data) {
-        if (data == null || data.getPlaca() == null || data.getVin() == null) {
-            throw new IllegalArgumentException("Datos del vehículo incompletos");
+        if (data == null || data.getPlaca() == null) {
+            throw new IllegalArgumentException("Datos del vehículo incompletos (placa obligatoria)");
         }
 
         VehicleEntity entity = convertirAEntity(data);
@@ -60,7 +63,7 @@ public class VehicleService {
         existente.setModelo(data.getModelo());
         existente.setAnio(data.getAnio());
         existente.setPlaca(data.getPlaca());
-        existente.setVin(data.getVin());
+        existente.setVin(data.getVin()); // puede ser null o exactamente 17 caracteres
 
         // 🔹 actualizar Cliente
         if (data.getIdCliente() != null) {
@@ -121,7 +124,7 @@ public class VehicleService {
         entity.setModelo(dto.getModelo());
         entity.setAnio(dto.getAnio());
         entity.setPlaca(dto.getPlaca());
-        entity.setVin(dto.getVin());
+        entity.setVin(dto.getVin()); // null permitido
 
         if (dto.getIdCliente() != null) {
             ClienteEntity cliente = clientRepo.findById(dto.getIdCliente())
@@ -137,4 +140,10 @@ public class VehicleService {
 
         return entity;
     }
-}
+
+    public Page<VehicleDTO> obtenerVehiculosPaginado(Pageable pageable) {
+        return vehicleRepo.findAll(pageable)
+                .map(this::convertirADTO);
+    }
+ }
+

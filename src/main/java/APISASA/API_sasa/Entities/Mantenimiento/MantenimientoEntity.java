@@ -29,7 +29,7 @@ public class MantenimientoEntity {
     @Column(name = "CODIGOMANTENIMIENTO", unique = true, nullable = false, length = 50)
     private String codigoMantenimiento;
 
-    // 🔹 Relación con Vehículo (FK)
+    //Relación con Vehículo (FK)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDVEHICULO", nullable = false)
     private VehicleEntity vehiculo;

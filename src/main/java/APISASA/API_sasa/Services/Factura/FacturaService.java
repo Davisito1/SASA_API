@@ -117,4 +117,10 @@ public class FacturaService {
 
         return entity;
     }
+
+    public FacturaDTO obtenerFacturaPorId(Long id) {
+        return repo.findById(id)
+                .map(this::convertirADTO)  // 🔹 convierte la entidad a DTO
+                .orElseThrow(() -> new RuntimeException("No existe una factura con ID: " + id));
+    }
 }
