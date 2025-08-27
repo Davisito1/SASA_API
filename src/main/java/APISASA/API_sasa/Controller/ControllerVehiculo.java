@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/apiVehiculo") // 🔹 Esto alinea con tu frontend
+@RequestMapping("/apiVehiculo")
 @CrossOrigin(origins = "*")
 public class ControllerVehiculo {
 
@@ -22,13 +22,13 @@ public class ControllerVehiculo {
     private VehicleService service;
 
     // CONSULTAR DATOS
-    @GetMapping
+    @GetMapping ("consultar")
     public List<VehicleDTO> obtenerVehiculos() {
         return service.obtenerVehiculos();
     }
 
     // REGISTRAR
-    @PostMapping
+    @PostMapping ("registrar")
     public ResponseEntity<?> nuevoVehiculo(@Valid @RequestBody VehicleDTO dto, BindingResult result) {
         if (result.hasErrors()) {
             Map<String, String> errores = new HashMap<>();
@@ -50,7 +50,7 @@ public class ControllerVehiculo {
     }
 
     // ACTUALIZAR
-    @PutMapping("/{id}")
+    @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id,
                                         @Valid @RequestBody VehicleDTO dto,
                                         BindingResult result) {
@@ -71,7 +71,7 @@ public class ControllerVehiculo {
     }
 
     // ELIMINAR
-    @DeleteMapping("/{id}")
+    @DeleteMapping("eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
             if (service.eliminarVehiculo(id)) {

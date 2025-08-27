@@ -6,53 +6,137 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/apiCitas")
+@CrossOrigin(origins = "*")
 public class CitaController {
 
     @Autowired
     private CitaService service;
 
-    // ✅ Listar todas
+    @GetMapping("/listar")
+    public ResponseEntity<?> listarTodas() {
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", service.obtenerCitas()
+        ));
+    }
+
     @GetMapping("/consultar")
-    public List<CitaDTO> obtenerTodas() {
-        return service.obtenerCitas();
-    }
-
-    // ✅ Listar paginado
-    @GetMapping("/consultarPaginado")
-    public Page<CitaDTO> obtenerPaginado(
+    public ResponseEntity<?> obtenerPaginado(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return service.obtenerCitas(PageRequest.of(page, size));
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        if (page < 0) page = 0;
+        if (size < 1 || size > 50) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "El tamaño de la página debe estar entre 1 y 50"
+            ));
+        }
+        Page<CitaDTO> pageResult = service.obtenerCitas(PageRequest.of(page, size));
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", pageResult
+        ));
     }
 
-    // ✅ Buscar por ID
     @GetMapping("/{id}")
-    public CitaDTO obtenerPorId(@PathVariable Long id) {
-        return service.obtenerCitaPorId(id);
+    public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
+        try {
+            CitaDTO dto = service.obtenerCitaPorId(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", dto
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
     }
 
-    // ✅ Crear nueva
     @PostMapping("/registrar")
-    public CitaDTO crear(@Valid @RequestBody CitaDTO dto) {
-        return service.insertarCita(dto);
+    public ResponseEntity<?> crear(@Valid @RequestBody CitaDTO dto, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, String> errores = new HashMap<>();
+            result.getFieldErrors().forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
+        }
+        try {
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", service.insertarCita(dto)
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
     }
 
-    // ✅ Actualizar
-    @PutMapping("/{id}")
-    public CitaDTO actualizar(@PathVariable Long id, @Valid @RequestBody CitaDTO dto) {
-        return service.actualizarCita(id, dto);
+    @PutMapping("/actualizar/{id}")
+    public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody CitaDTO dto, BindingResult result) {
+        if (result.hasErrors()) {
+            Map<String, String> errores = new HashMap<>();
+            result.getFieldErrors().forEach(err -> errores.put(err.getField(), err.getDefaultMessage()));
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
+        }
+        try {
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", service.actualizarCita(id, dto)
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage(),
+                    "timestamp", Instant.now().toString()
+            ));
+        }
     }
 
-    // ✅ Eliminar
-    @DeleteMapping("/{id}")
-    public String eliminar(@PathVariable Long id) {
-        boolean eliminado = service.eliminarCita(id);
-        return eliminado ? "Cita eliminada con éxito" : "No se encontró la cita para eliminar";
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+        try {
+            if (service.eliminarCita(id)) {
+                return ResponseEntity.ok(Map.of(
+                        "status", "success",
+                        "message", "Cita eliminada con éxito"
+                ));
+            } else {
+                return ResponseEntity.status(404).body(Map.of(
+                        "status", "error",
+                        "message", "No se encontró la cita para eliminar"
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error al eliminar cita",
+                    "timestamp", Instant.now().toString()
+            ));
+        }
     }
 }

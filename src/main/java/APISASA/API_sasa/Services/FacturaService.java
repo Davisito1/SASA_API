@@ -117,4 +117,11 @@ public class FacturaService {
 
         return entity;
     }
+
+    public FacturaDTO obtenerFacturaPorId(Long id) {
+        FacturaEntity entity = repo.findById(id)
+                .orElseThrow(() -> new ExceptionFacturaNoEncontrada("Factura con ID " + id + " no encontrada"));
+
+        return convertirADTO(entity);
+    }
 }

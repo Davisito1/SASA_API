@@ -25,14 +25,14 @@ public class EmpleadoService {
     @PersistenceContext
     private EntityManager em;
 
-    // ✅ Obtener todos los empleados
+    // ✅ Listar todos
     public List<EmpleadoDTO> obtenerEmpleados() {
         return repo.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Obtener empleados paginados + búsqueda opcional
+    // ✅ Listar con paginación + búsqueda
     public Page<EmpleadoDTO> obtenerEmpleadosPaginado(String q, Pageable pageable) {
         if (q == null || q.isBlank()) {
             return repo.findAll(pageable).map(this::convertirADTO);
@@ -44,14 +44,19 @@ public class EmpleadoService {
                 .map(this::convertirADTO);
     }
 
-    // ✅ Insertar nuevo empleado
+    // ✅ Paginación simple (sin búsqueda extra)
+    public Page<EmpleadoDTO> obtenerEmpleados(Pageable pageable) {
+        return repo.findAll(pageable).map(this::convertirADTO);
+    }
+
+    // ✅ Insertar
     public EmpleadoDTO insertarEmpleado(EmpleadoDTO dto) {
         EmpleadoEntity entity = convertirAEntity(dto);
         EmpleadoEntity guardado = repo.save(entity);
         return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar empleado existente
+    // ✅ Actualizar
     public EmpleadoDTO actualizarEmpleado(Long id, EmpleadoDTO dto) {
         EmpleadoEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionEmpleadoNoEncontrado("No existe un empleado con ID: " + id));
@@ -63,15 +68,16 @@ public class EmpleadoService {
         existente.setTelefono(dto.getTelefono());
         existente.setDireccion(dto.getDireccion());
         existente.setFechaContratacion(dto.getFechaContratacion());
-        existente.setCorreoElectronico(dto.getCorreo()); // usa dto.getCorreo()
+        existente.setCorreoElectronico(dto.getCorreo());
 
-        // Relación con usuario
-        existente.setUsuario(em.getReference(UserEntity.class, dto.getIdUsuario()));
+        if (dto.getIdUsuario() != null) {
+            existente.setUsuario(em.getReference(UserEntity.class, dto.getIdUsuario()));
+        }
 
         return convertirADTO(repo.save(existente));
     }
 
-    // ✅ Eliminar empleado por ID
+    // ✅ Eliminar
     public boolean eliminarEmpleado(Long id) {
         try {
             if (repo.existsById(id)) {
@@ -96,7 +102,7 @@ public class EmpleadoService {
         dto.setTelefono(entity.getTelefono());
         dto.setDireccion(entity.getDireccion());
         dto.setFechaContratacion(entity.getFechaContratacion());
-        dto.setCorreo(entity.getCorreoElectronico()); // aquí se usa correoElectronico
+        dto.setCorreo(entity.getCorreoElectronico());
 
         if (entity.getUsuario() != null) {
             dto.setIdUsuario(entity.getUsuario().getIdUsuario());
@@ -115,7 +121,9 @@ public class EmpleadoService {
         entity.setFechaContratacion(dto.getFechaContratacion());
         entity.setCorreoElectronico(dto.getCorreo());
 
-        entity.setUsuario(em.getReference(UserEntity.class, dto.getIdUsuario()));
+        if (dto.getIdUsuario() != null) {
+            entity.setUsuario(em.getReference(UserEntity.class, dto.getIdUsuario()));
+        }
         return entity;
     }
 }

@@ -24,7 +24,6 @@ public class MantenimientoDTO {
     @NotNull(message = "La fecha es obligatoria")
     private LocalDate fechaRealizacion;
 
-    @NotNull(message = "El código es obligatorio")
     @Size(max = 50, message = "El código no puede exceder los 50 caracteres")
     private String codigoMantenimiento;
 

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageImpl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +29,6 @@ public class MantenimientoService {
     @Autowired
     private VehicleRepository vehicleRepo;
 
-    // =========================
-    // LISTAR (todos)
-    // =========================
     public List<MantenimientoDTO> obtenerMantenimientos() {
         return repo.findAll()
                 .stream()
@@ -38,9 +36,6 @@ public class MantenimientoService {
                 .collect(Collectors.toList());
     }
 
-    // =========================
-    // LISTAR (paginado + búsqueda)
-    // =========================
     public Page<MantenimientoDTO> obtenerMantenimientosPaginado(String q, Pageable pageable) {
         if (q == null || q.isBlank()) {
             return repo.findAll(pageable).map(this::convertirADTO);
@@ -51,46 +46,43 @@ public class MantenimientoService {
         try {
             Long id = Long.parseLong(term);
 
-            // 🔹 Buscar por ID mantenimiento
             var opt = repo.findById(id);
             if (opt.isPresent()) {
                 return new PageImpl<>(List.of(convertirADTO(opt.get())), pageable, 1);
             }
 
-            // 🔹 Buscar por vehículo usando idVehiculo (NO id)
             return repo.findByVehiculo_IdVehiculo(id, pageable).map(this::convertirADTO);
 
         } catch (NumberFormatException ignore) {
-            // 🔹 Buscar por descripcion o código
             return repo.findByDescripcionTrabajoContainingIgnoreCaseOrCodigoMantenimientoContainingIgnoreCase(
                     term, term, pageable
             ).map(this::convertirADTO);
         }
     }
 
-    // =========================
-    // INSERTAR
-    // =========================
     public MantenimientoDTO insertarMantenimiento(MantenimientoDTO data) {
         if (data == null) throw new IllegalArgumentException("Los datos del mantenimiento no pueden ser nulos");
 
         MantenimientoEntity entity = convertirAEntity(data);
-        entity.setId(null); // dejar que la secuencia lo maneje en Oracle
+        entity.setId(null);
+
+        String codigo = generarCodigo();
+        entity.setCodigoMantenimiento(codigo);
 
         MantenimientoEntity guardado = repo.save(entity);
         return convertirADTO(guardado);
     }
 
-    // =========================
-    // ACTUALIZAR
-    // =========================
     public MantenimientoDTO actualizarMantenimiento(Long id, @Valid MantenimientoDTO data) {
         MantenimientoEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionMantenimientoNoEncontrado("No se encontró mantenimiento con ID: " + id));
 
         existente.setDescripcionTrabajo(data.getDescripcion());
         existente.setFechaRealizacion(data.getFechaRealizacion());
-        existente.setCodigoMantenimiento(data.getCodigoMantenimiento());
+
+        if (data.getCodigoMantenimiento() != null && !data.getCodigoMantenimiento().isBlank()) {
+            existente.setCodigoMantenimiento(data.getCodigoMantenimiento());
+        }
 
         if (data.getIdVehiculo() != null) {
             VehicleEntity vehiculo = vehicleRepo.findById(data.getIdVehiculo())
@@ -101,9 +93,6 @@ public class MantenimientoService {
         return convertirADTO(repo.save(existente));
     }
 
-    // =========================
-    // ELIMINAR
-    // =========================
     public boolean eliminarMantenimiento(Long id) {
         try {
             repo.deleteById(id);
@@ -113,9 +102,13 @@ public class MantenimientoService {
         }
     }
 
-    // =========================
-    // MAPEOS
-    // =========================
+    private String generarCodigo() {
+        int year = LocalDate.now().getYear();
+        Integer ultimo = repo.findUltimoCorrelativo(year);
+        int siguiente = (ultimo != null ? ultimo + 1 : 1);
+        return String.format("MTN-%d-%03d", year, siguiente);
+    }
+
     private MantenimientoEntity convertirAEntity(MantenimientoDTO dto) {
         MantenimientoEntity entity = new MantenimientoEntity();
         entity.setId(dto.getId());
@@ -140,7 +133,7 @@ public class MantenimientoService {
         dto.setCodigoMantenimiento(entity.getCodigoMantenimiento());
 
         if (entity.getVehiculo() != null) {
-            dto.setIdVehiculo(entity.getVehiculo().getIdVehiculo()); // ✅ corregido
+            dto.setIdVehiculo(entity.getVehiculo().getIdVehiculo());
         }
 
         return dto;

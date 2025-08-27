@@ -12,60 +12,39 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/apiEmpleados")
+@CrossOrigin
 public class ControllerEmpleado {
+
     @Autowired
     private EmpleadoService service;
 
+    // 🔹 Consultar con paginación
     @GetMapping("/consultar")
-    public List<EmpleadoDTO> obtenerEmpleados() {
-        return service.obtenerEmpleados();
-    }
-
-    // 🔹 NUEVO: paginado + búsqueda + ordenamiento
-    // Ejemplos:
-    //  GET /apiEmpleados/page?page=0&size=10&sort=apellido,desc&q=perez
-    //  GET /apiEmpleados/page?size=5
-    @GetMapping("/page")
-    public ResponseEntity<?> listarPaginado(
+    public ResponseEntity<?> obtenerEmpleados(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            // formato: campo,direccion  (ej: "nombre,asc" o "apellido,desc")
-            @RequestParam(defaultValue = "id,asc") String sort,
-            // búsqueda opcional en nombre/apellido
-            @RequestParam(required = false) String q
+            @RequestParam(defaultValue = "10") int size
     ) {
         if (page < 0) page = 0;
-        if (size <= 0) size = 10;
+        if (size < 1 || size > 50) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", "El tamaño de la página debe estar entre 1 y 50"
+            ));
+        }
 
-        String[] sortParts = sort.split(",");
-        String sortField = sortParts[0].trim().isEmpty() ? "id" : sortParts[0].trim();
-        Sort.Direction direction = (sortParts.length > 1 && "desc".equalsIgnoreCase(sortParts[1].trim()))
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
+        Page<EmpleadoDTO> pageResult = service.obtenerEmpleados(PageRequest.of(page, size));
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortField));
-        Page<EmpleadoDTO> result = service.obtenerEmpleadosPaginado(q, pageable);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("status", "success");
-        body.put("page", result.getNumber());
-        body.put("size", result.getSize());
-        body.put("totalPages", result.getTotalPages());
-        body.put("totalElements", result.getTotalElements());
-        body.put("sort", sort);
-        body.put("query", q);
-        body.put("data", result.getContent());
-
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", pageResult
+        ));
     }
 
     @PostMapping("/registrar")
@@ -78,7 +57,10 @@ public class ControllerEmpleado {
             result.getFieldErrors().forEach(err ->
                     errores.put(err.getField(), err.getDefaultMessage())
             );
-            return ResponseEntity.badRequest().body(errores);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
         }
 
         try {
@@ -106,7 +88,10 @@ public class ControllerEmpleado {
             result.getFieldErrors().forEach(err ->
                     errores.put(err.getField(), err.getDefaultMessage())
             );
-            return ResponseEntity.badRequest().body(errores);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "errors", errores
+            ));
         }
 
         try {

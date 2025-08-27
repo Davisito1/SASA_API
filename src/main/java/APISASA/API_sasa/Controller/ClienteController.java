@@ -27,10 +27,10 @@ public class ClienteController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ) {
-        if (size <= 0 || size > 50) {
+        if (size <= 0 || size > 100) {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", "error",
-                    "message", "El tamaño de la página debe estar entre 1 y 50"
+                    "message", "El tamaño de la página debe estar entre 1 y 100"
             ));
         }
 

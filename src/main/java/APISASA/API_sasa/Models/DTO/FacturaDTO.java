@@ -15,11 +15,8 @@ public class FacturaDTO {
     private Long id;
 
     @NotNull(message = "La fecha es obligatoria")
-    @NotNull(message = "La fecha es obligatoria")
     @PastOrPresent(message = "La fecha no puede ser posterior al día de hoy")
-    @FutureOrPresent(message = "La fecha no puede ser anterior al día de hoy")
     private LocalDate fecha;
-
     @NotNull(message = "El monto es obligatorio")
     @PositiveOrZero(message = "El precio no puede ser negativo")
     private double montoTotal;

@@ -22,10 +22,10 @@ public class EstadoController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        if (size <= 0 || size > 50) {
+        if (size <= 0 || size > 100) {
             return ResponseEntity.badRequest().body(Map.of(
                     "status", "error",
-                    "message", "El tamaño de página debe estar entre 1 y 50"
+                    "message", "El tamaño de página debe estar entre 1 y 100"
             ));
         }
 

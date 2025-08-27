@@ -40,7 +40,7 @@ public class ClientDTO {
     @Size(max = 150, message = "El correo no debe exceder 150 caracteres")
     private String correo;
 
-    @NotBlank(message = "La contraseña es obligatoria")
+
     @Size(min = 8, max = 150, message = "La contraseña debe tener entre 8 y 150 caracteres")
     private String contrasena;
 }

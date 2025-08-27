@@ -1,6 +1,5 @@
 package APISASA.API_sasa.Controller;
 
-import APISASA.API_sasa.Models.DTO.ClientDTO;
 import APISASA.API_sasa.Models.DTO.FacturaDTO;
 import APISASA.API_sasa.Services.FacturaService;
 import APISASA.API_sasa.Exceptions.ExceptionFacturaNoEncontrada;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -41,6 +39,23 @@ public class ControllerFactura {
             ));
         }
         return ResponseEntity.ok(categories);
+    }
+
+    // 🔹 NUEVO ENDPOINT: Obtener factura por ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
+        try {
+            FacturaDTO dto = service.obtenerFacturaPorId(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", dto
+            ));
+        } catch (ExceptionFacturaNoEncontrada e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
     }
 
     @PostMapping("/registrar")
