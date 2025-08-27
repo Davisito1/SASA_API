@@ -15,7 +15,7 @@ public class ControllerMetodoPago {
     @Autowired
     private MetodoPagoService service;
 
-    // 🔹 Consultar todos los métodos de pago (sin paginación)
+    //Consultar todos los métodos de pago (sin paginación)
     @GetMapping("/listar")
     public ResponseEntity<?> listarMetodos() {
         return ResponseEntity.ok(Map.of(

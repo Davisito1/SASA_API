@@ -14,7 +14,7 @@ public class ControllerTipoMantenimiento {
     @Autowired
     private TipoMantenimientoService service;
 
-    // 🔹 Consultar todos los tipos (catálogo)
+    //Consultar todos los tipos (catálogo)
     @GetMapping("/listar")
     public ResponseEntity<?> obtenerTipos() {
         return ResponseEntity.ok(Map.of(

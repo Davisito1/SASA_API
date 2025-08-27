@@ -22,7 +22,7 @@ public class ControllerFactura {
     @Autowired
     private FacturaService service;
 
-    // 🔹 Consultar facturas con paginación
+    //Consultar facturas con paginación
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerFacturas(
             @RequestParam(defaultValue = "0") int page,

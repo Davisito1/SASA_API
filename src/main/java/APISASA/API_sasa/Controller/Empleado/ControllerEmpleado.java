@@ -24,7 +24,7 @@ public class ControllerEmpleado {
     @Autowired
     private EmpleadoService service;
 
-    // 🔹 Consultar con paginación y búsqueda opcional
+    // Consultar con paginación y búsqueda opcional
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerEmpleados(
             @RequestParam(defaultValue = "0") int page,
@@ -47,7 +47,7 @@ public class ControllerEmpleado {
         ));
     }
 
-    // 🔹 Registrar
+    //  Registrar
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody EmpleadoDTO dto,
@@ -78,7 +78,7 @@ public class ControllerEmpleado {
         }
     }
 
-    // 🔹 Actualizar
+    //  Actualizar
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,

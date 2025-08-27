@@ -31,7 +31,7 @@ public class ControllerPagos {
         ));
     }
 
-    // 🔹 Registrar
+    //Registrar
     @PostMapping("/registrar")
     public ResponseEntity<?> insertarPago(@Valid @RequestBody PagosDTO dto, BindingResult result) {
         if (result.hasErrors()) {
@@ -56,7 +56,7 @@ public class ControllerPagos {
         }
     }
 
-    // 🔹 Actualizar
+    //Actualizar
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizarPago(
             @PathVariable Long id,

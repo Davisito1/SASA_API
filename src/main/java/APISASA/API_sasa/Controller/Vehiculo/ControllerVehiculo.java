@@ -24,7 +24,7 @@ public class ControllerVehiculo {
     @Autowired
     private VehicleService service;
 
-    // ✅ CONSULTAR DATOS PAGINADOS Y ORDENADOS
+    //CONSULTAR DATOS PAGINADOS Y ORDENADOS
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerVehiculos(
             @RequestParam(defaultValue = "0") int page,
@@ -55,7 +55,7 @@ public class ControllerVehiculo {
         ));
     }
 
-    // ✅ REGISTRAR
+    //REGISTRAR
     @PostMapping("/registrar")
     public ResponseEntity<?> nuevoVehiculo(@Valid @RequestBody VehicleDTO dto, BindingResult result) {
         if (result.hasErrors()) {
@@ -77,7 +77,7 @@ public class ControllerVehiculo {
         }
     }
 
-    // ✅ ACTUALIZAR
+    //ACTUALIZAR
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id,
                                         @Valid @RequestBody VehicleDTO dto,

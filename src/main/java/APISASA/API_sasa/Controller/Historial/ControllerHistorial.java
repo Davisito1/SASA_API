@@ -55,4 +55,21 @@ public class ControllerHistorial {
                 "data", service.insertarHistorial(dto)
         ));
     }
+
+    // 🔹 NUEVO: Eliminar historial
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<?> eliminarHistorial(@PathVariable Long id) {
+        try {
+            service.eliminarHistorial(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "message", "Historial eliminado correctamente"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "status", "error",
+                    "message", "Error al eliminar el historial: " + e.getMessage()
+            ));
+        }
+    }
 }

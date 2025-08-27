@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -83,5 +84,12 @@ public class HistorialService {
         }
 
         return dto;
+    }
+
+    public void eliminarHistorial(Long id) {
+        if (!repo.existsById(id)) {
+            throw new RuntimeException("Historial no encontrado con ID: " + id);
+        }
+        repo.deleteById(id);
     }
 }

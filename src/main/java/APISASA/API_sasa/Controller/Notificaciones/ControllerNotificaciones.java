@@ -15,7 +15,7 @@ public class ControllerNotificaciones {
     @Autowired
     private NotificacionesService service;
 
-    // 🔹 Consultar todas las notificaciones de un usuario
+    //Consultar todas las notificaciones de un usuario
     @GetMapping("/listar/{idUsuario}")
     public ResponseEntity<?> obtenerPorUsuario(@PathVariable Long idUsuario) {
         return ResponseEntity.ok(Map.of(
@@ -24,7 +24,7 @@ public class ControllerNotificaciones {
         ));
     }
 
-    // 🔹 Marcar como leída
+    //Marcar como leída
     @PutMapping("/marcarLeida/{id}")
     public ResponseEntity<?> marcarLeida(@PathVariable Long id) {
         try {

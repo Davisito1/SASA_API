@@ -22,7 +22,7 @@ public class ClienteController {
     @Autowired
     private ClienteService service;
 
-    // 🔹 Consultar con paginación
+    // Consultar con paginación
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerClientes(
             @RequestParam(defaultValue = "0") int page,
@@ -51,7 +51,7 @@ public class ClienteController {
         ));
     }
 
-    // 🔹 Consultar cliente por ID
+    //  Consultar cliente por ID
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
         try {
@@ -68,7 +68,7 @@ public class ClienteController {
         }
     }
 
-    // 🔹 Registrar cliente
+    //  Registrar cliente
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody ClientDTO dto,
@@ -129,7 +129,7 @@ public class ClienteController {
         }
     }
 
-    // 🔹 Eliminar cliente
+    // Eliminar cliente
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
