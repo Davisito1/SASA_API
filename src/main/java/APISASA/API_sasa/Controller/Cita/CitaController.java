@@ -16,7 +16,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/apiCitas")
-@CrossOrigin(origins = "*")
+@CrossOrigin
 public class CitaController {
 
     @Autowired

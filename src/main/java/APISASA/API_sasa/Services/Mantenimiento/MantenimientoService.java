@@ -28,9 +28,7 @@ public class MantenimientoService {
     @Autowired
     private VehicleRepository vehicleRepo;
 
-    // =========================
-    // LISTAR (todos)
-    // =========================
+
     public List<MantenimientoDTO> obtenerMantenimientos() {
         return repo.findAll()
                 .stream()
@@ -38,9 +36,7 @@ public class MantenimientoService {
                 .collect(Collectors.toList());
     }
 
-    // =========================
-    // LISTAR (paginado + búsqueda)
-    // =========================
+
     public Page<MantenimientoDTO> obtenerMantenimientosPaginado(String q, Pageable pageable) {
         if (q == null || q.isBlank()) {
             return repo.findAll(pageable).map(this::convertirADTO);
@@ -51,17 +47,17 @@ public class MantenimientoService {
         try {
             Long id = Long.parseLong(term);
 
-            // 🔹 Buscar por ID mantenimiento
+            //  Buscar por ID mantenimiento
             var opt = repo.findById(id);
             if (opt.isPresent()) {
                 return new PageImpl<>(List.of(convertirADTO(opt.get())), pageable, 1);
             }
 
-            // 🔹 Buscar por vehículo usando idVehiculo (NO id)
+            // Buscar por vehículo usando idVehiculo (NO id)
             return repo.findByVehiculo_IdVehiculo(id, pageable).map(this::convertirADTO);
 
         } catch (NumberFormatException ignore) {
-            // 🔹 Buscar por descripcion o código
+            //  Buscar por descripcion o código
             return repo.findByDescripcionTrabajoContainingIgnoreCaseOrCodigoMantenimientoContainingIgnoreCase(
                     term, term, pageable
             ).map(this::convertirADTO);

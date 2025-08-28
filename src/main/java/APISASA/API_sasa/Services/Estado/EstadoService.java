@@ -20,23 +20,21 @@ public class EstadoService {
     @Autowired
     private EstadoRepository repo;
 
-    // 🔹 Consultar con paginación
+    //  Consultar con paginación
     public Page<EstadoDTO> getAllEstados(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<EstadoVehiculoEntity> pageEntity = repo.findAll(pageable);
         return pageEntity.map(this::convertirAEstadoDTO);
     }
 
-    // 🔹 Consultar todos sin paginación (para catálogos)
+    //  Consultar todos sin paginación (para catálogos)
     public List<EstadoDTO> getAllEstadosSinPaginacion() {
         return repo.findAll().stream()
                 .map(this::convertirAEstadoDTO)
                 .collect(Collectors.toList());
     }
 
-    // ==========================
-    // 🔹 Conversores
-    // ==========================
+
     public EstadoVehiculoEntity convertirAEstadoEntity(EstadoDTO dto) {
         EstadoVehiculoEntity entity = new EstadoVehiculoEntity();
         entity.setId(dto.getId());   // 👈 si tu Entity lo tiene como idEstado

@@ -16,32 +16,32 @@ public class ClienteService {
     @Autowired
     private ClientRepository repo;
 
-    // ✅ Consultar clientes con paginación
+    // Consultar clientes con paginación
     public Page<ClientDTO> obtenerClientes(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
         Page<ClienteEntity> pageEntity = repo.findAll(pageable);
         return pageEntity.map(this::convertirADTO);
     }
 
-    // ✅ Consultar cliente por ID
+    //  Consultar cliente por ID
     public ClientDTO obtenerClientePorId(Long id) {
         ClienteEntity entity = repo.findById(id)
                 .orElseThrow(() -> new ExceptionClienteNoEncontrado("No existe un cliente con ID: " + id));
         return convertirADTO(entity);
     }
 
-    // ✅ Insertar nuevo cliente
+    //  Insertar nuevo cliente
     public ClientDTO insertarCliente(ClientDTO dto) {
         ClienteEntity entity = convertirAEntity(dto);
 
-        // ⚠️ Importante: nunca setear ID en inserción → la secuencia/trigger se encarga
+        // ⚠ Importante: nunca setear ID en inserción → la secuencia/trigger se encarga
         entity.setId(null);
 
         ClienteEntity guardado = repo.save(entity);
         return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar cliente
+    // Actualizar cliente
     public ClientDTO actualizarCliente(Long id, ClientDTO dto) {
         ClienteEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionClienteNoEncontrado("No existe un cliente con ID: " + id));
@@ -58,7 +58,7 @@ public class ClienteService {
         return convertirADTO(actualizado);
     }
 
-    // ✅ Eliminar cliente
+    // Eliminar cliente
     public boolean eliminarCliente(Long id) {
         try {
             repo.deleteById(id);
@@ -69,7 +69,7 @@ public class ClienteService {
     }
 
     // ==========================
-    // 🔹 Conversores Entity ⇄ DTO
+    //  Conversores Entity ⇄ DTO
     // ==========================
     private ClientDTO convertirADTO(ClienteEntity entity) {
         ClientDTO dto = new ClientDTO();
@@ -81,7 +81,7 @@ public class ClienteService {
         dto.setGenero(entity.getGenero());
         dto.setCorreo(entity.getCorreo());
         dto.setContrasena(entity.getContrasena());
-        // ⚠️ Nota: NO mapeamos vehículos ni citas aquí para evitar recursión
+        // NO mapeamos vehículos ni citas aquí para evitar recursión
         return dto;
     }
 

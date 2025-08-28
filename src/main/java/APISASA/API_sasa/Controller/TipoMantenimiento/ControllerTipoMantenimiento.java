@@ -9,6 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/tipoMantenimiento")
+@CrossOrigin
 public class ControllerTipoMantenimiento {
 
     @Autowired

@@ -2,7 +2,7 @@ package APISASA.API_sasa.Models.DTO.Pagos;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,12 +20,13 @@ public class PagosDTO {
     private LocalDate fecha;
 
     @NotNull(message = "El monto es obligatorio")
-    @PositiveOrZero(message = "El precio no puede ser negativo")
+    @Positive(message = "El monto debe ser mayor a 0")
     private double monto;
 
-    @Min(value = 1, message = "Debe asignarse un método de pago valido")
-    private Long metodoPago;
+    @NotNull(message = "Debe seleccionar un método de pago")
+    private Long idMetodoPago;
 
-    @Min(value = 1, message = "Debe asignarse una factura valida")
+    @NotNull(message = "Debe seleccionar una factura")
+    @Min(value = 1, message = "Debe asignarse una factura válida")
     private Long idFactura;
 }

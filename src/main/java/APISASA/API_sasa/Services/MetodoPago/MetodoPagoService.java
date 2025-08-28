@@ -17,14 +17,14 @@ public class MetodoPagoService {
     @Autowired
     private MetodoPagoRepository repo;
 
-    // ✅ Obtener todos los métodos de pago (catálogo fijo)
+    //  Obtener todos los métodos de pago (catálogo fijo)
     public List<MetodoPagoDTO> obtenerTodos() {
         return repo.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Insertar nuevo método de pago
+    //  Insertar nuevo
     public MetodoPagoDTO insertarMetodo(MetodoPagoDTO dto) {
         MetodoPagoEntity entity = new MetodoPagoEntity();
         entity.setMetodo(dto.getMetodo());
@@ -33,7 +33,7 @@ public class MetodoPagoService {
         return convertirADTO(guardado);
     }
 
-    // ✅ Eliminar método de pago
+    //  Eliminar método de pago
     public boolean eliminarMetodo(Long id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);
@@ -42,7 +42,7 @@ public class MetodoPagoService {
         return false;
     }
 
-    // 🔁 Conversor Entity → DTO
+
     private MetodoPagoDTO convertirADTO(MetodoPagoEntity entity) {
         MetodoPagoDTO dto = new MetodoPagoDTO();
         dto.setId(entity.getIdMetodoPago()); // 👈 corregido

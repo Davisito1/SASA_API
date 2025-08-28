@@ -1,6 +1,7 @@
 package APISASA.API_sasa.Models.DTO.Cita;
 
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
@@ -18,7 +19,7 @@ public class CitaDTO {
     private Long id;
 
     @NotNull(message = "La decha es obligatoria")
-    @Future(message = "La fecha de la cita no puede ser del pasado")
+    @FutureOrPresent(message = "La fecha de la cita debe ser hoy o en el futuro")
     private LocalDate fecha;
 
     @NotNull(message = "La hora es obligatoria")

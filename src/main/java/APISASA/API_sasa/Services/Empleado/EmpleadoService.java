@@ -25,14 +25,14 @@ public class EmpleadoService {
     @PersistenceContext
     private EntityManager em;
 
-    // ✅ Obtener todos los empleados
+    //  Obtener todos los empleados
     public List<EmpleadoDTO> obtenerEmpleados() {
         return repo.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Obtener empleados paginados + búsqueda opcional
+    //  Obtener empleados paginados + búsqueda opcional
     public Page<EmpleadoDTO> obtenerEmpleadosPaginado(String q, Pageable pageable) {
         if (q == null || q.isBlank()) {
             return repo.findAll(pageable).map(this::convertirADTO);
@@ -44,14 +44,14 @@ public class EmpleadoService {
                 .map(this::convertirADTO);
     }
 
-    // ✅ Insertar nuevo empleado
+    // Insertar nuevo empleado
     public EmpleadoDTO insertarEmpleado(EmpleadoDTO dto) {
         EmpleadoEntity entity = convertirAEntity(dto);
         EmpleadoEntity guardado = repo.save(entity);
         return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar empleado existente
+    // Actualizar empleado existente
     public EmpleadoDTO actualizarEmpleado(Long id, EmpleadoDTO dto) {
         EmpleadoEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionEmpleadoNoEncontrado("No existe un empleado con ID: " + id));
@@ -71,7 +71,7 @@ public class EmpleadoService {
         return convertirADTO(repo.save(existente));
     }
 
-    // ✅ Eliminar empleado por ID
+    // Eliminar empleado por ID
     public boolean eliminarEmpleado(Long id) {
         try {
             if (repo.existsById(id)) {

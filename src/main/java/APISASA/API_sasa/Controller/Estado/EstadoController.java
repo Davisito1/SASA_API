@@ -11,6 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/estadoVehiculo")
+@CrossOrigin
 public class EstadoController {
 
     @Autowired

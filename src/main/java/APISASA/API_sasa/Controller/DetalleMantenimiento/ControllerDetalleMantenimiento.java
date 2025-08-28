@@ -15,6 +15,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/detalles")
+@CrossOrigin
 public class ControllerDetalleMantenimiento {
 
     @Autowired

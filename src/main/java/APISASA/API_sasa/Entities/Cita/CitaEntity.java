@@ -32,7 +32,7 @@ public class CitaEntity {
     @Column(name = "ESTADO", nullable = false, length = 50)
     private String estado;
 
-    // 🔹 Relación con Cliente
+    // Relación con Cliente
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDCLIENTE", nullable = false)
     private ClienteEntity cliente;

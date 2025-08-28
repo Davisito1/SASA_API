@@ -27,14 +27,14 @@ public class FacturaService {
     @Autowired
     private MantenimientoRepository mantenimientoRepo;
 
-    // ✅ Obtener facturas paginadas
+    // Obtener facturas paginadas
     public Page<FacturaDTO> obtenerFacturas(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<FacturaEntity> pageEntity = repo.findAll(pageable);
         return pageEntity.map(this::convertirADTO);
     }
 
-    // ✅ Insertar nueva factura
+    //  Insertar nueva factura
     public FacturaDTO insertarFactura(FacturaDTO dto) {
         FacturaEntity entity = convertirAEntity(dto);
         entity.setIdFactura(null); // dejar que Oracle maneje el ID con la secuencia
@@ -42,7 +42,7 @@ public class FacturaService {
         return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar factura
+    //  Actualizar factura
     public FacturaDTO actualizarFactura(Long id, FacturaDTO dto) {
         FacturaEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionFacturaNoEncontrada("No existe una factura con ID: " + id));
@@ -66,7 +66,7 @@ public class FacturaService {
         return convertirADTO(actualizado);
     }
 
-    // ✅ Eliminar factura
+    // Eliminar factura
     public boolean eliminarFactura(Long id) {
         try {
             if (repo.existsById(id)) {
@@ -79,9 +79,7 @@ public class FacturaService {
         }
     }
 
-    // ==========================
-    // 🔹 Conversores
-    // ==========================
+
     private FacturaDTO convertirADTO(FacturaEntity entity) {
         FacturaDTO dto = new FacturaDTO();
         dto.setId(entity.getIdFactura()); // 👈 usar el nombre real de tu PK

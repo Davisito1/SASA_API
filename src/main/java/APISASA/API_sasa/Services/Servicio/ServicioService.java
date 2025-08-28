@@ -17,7 +17,7 @@ public class ServicioService {
     @Autowired
     private ServicioRepository repo;
 
-    // ✅ Consultar todos
+    // Consultar todos
     public List<ServicioDTO> obtenerServicios() {
         return repo.findAll()
                 .stream()
@@ -25,7 +25,7 @@ public class ServicioService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ Insertar
+    //  Insertar
     public ServicioDTO insertarServicio(ServicioDTO dto) {
         ServicioEntity entity = convertirAEntity(dto);
         entity.setIdServicio(null); // que Oracle maneje el ID
@@ -33,7 +33,7 @@ public class ServicioService {
         return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar
+    // Actualizar
     public ServicioDTO actualizarServicio(Long id, ServicioDTO dto) {
         ServicioEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionServicioNoEncontrado("No existe un servicio con ID: " + id));
@@ -47,7 +47,7 @@ public class ServicioService {
         return convertirADTO(actualizado);
     }
 
-    // ✅ Eliminar
+    //  Eliminar
     public boolean eliminarServicio(Long id) {
         try {
             if (repo.existsById(id)) {
@@ -61,9 +61,7 @@ public class ServicioService {
         }
     }
 
-    // =======================
-    // 🔹 Mappers
-    // =======================
+
     private ServicioDTO convertirADTO(ServicioEntity entity) {
         ServicioDTO dto = new ServicioDTO();
         dto.setId(entity.getIdServicio());  // ⚠️ si en tu entity es idServicio, cámbialo a getIdServicio()

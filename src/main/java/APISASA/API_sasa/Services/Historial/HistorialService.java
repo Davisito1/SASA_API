@@ -26,14 +26,14 @@ public class HistorialService {
     @Autowired
     private VehicleRepository vehicleRepo;
 
-    // ✅ Consultar historial con paginación
+    // Consultar historial con paginación
     public Page<HistorialDTO> obtenerHistorial(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<HistorialEntity> pageEntity = repo.findAll(pageable);
         return pageEntity.map(this::convertirADTO);
     }
 
-    // ✅ Consultar historial por vehículo
+    // Consultar historial por vehículo
     public List<HistorialDTO> obtenerPorVehiculo(Long idVehiculo) {
         return repo.findByVehiculo_IdVehiculo(idVehiculo)  // 👈 buscar por FK
                 .stream()
@@ -41,7 +41,7 @@ public class HistorialService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ Registrar un nuevo historial
+    //  Registrar un nuevo historial
     public HistorialDTO insertarHistorial(HistorialDTO dto) {
         try {
             HistorialEntity entity = convertirAEntity(dto);
@@ -53,7 +53,7 @@ public class HistorialService {
         }
     }
 
-    // 🔁 Conversores
+
     private HistorialEntity convertirAEntity(HistorialDTO dto) {
         HistorialEntity entity = new HistorialEntity();
         entity.setIdHistorial(dto.getId());

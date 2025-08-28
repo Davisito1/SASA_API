@@ -16,21 +16,19 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/apiUsuario")
-@CrossOrigin(origins = "*") // ✅ Permite CORS
+@CrossOrigin
 public class ControllerUsuario {
 
     @Autowired
     private UserService service;
 
-    // CONSULTAR TODOS - CORREGIDO
     @GetMapping("/consultar")
     public ResponseEntity<?> datosUsuario(
-                                           @RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
-        // Validar tamaño de página
         if (size <= 0 || size > 50) {
-            return ResponseEntity.badRequest().body(Map.of( //return directo
+            return ResponseEntity.badRequest().body(Map.of(
                     "status", "error",
                     "message", "El tamaño de la página debe estar entre 1 y 50"
             ));
@@ -40,7 +38,7 @@ public class ControllerUsuario {
             Page<UserDTO> usuarios = service.getAllUsers(page, size);
 
             if (usuarios == null || usuarios.isEmpty()) {
-                return ResponseEntity.ok(Map.of( // JSON EN VES DE NULL
+                return ResponseEntity.ok(Map.of(
                         "status", "success",
                         "data", Map.of(
                                 "content", java.util.List.of(),
@@ -52,7 +50,7 @@ public class ControllerUsuario {
                 ));
             }
 
-            return ResponseEntity.ok(Map.of( // ✅ Envuelve en estructura consistente
+            return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "data", usuarios,
                     "message", "Usuarios obtenidos correctamente"
@@ -66,7 +64,30 @@ public class ControllerUsuario {
         }
     }
 
-    // REGISTRAR USUARIO - OK
+    // 🔹 Consultar usuario por ID (para el móvil)
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerUsuarioPorId(@PathVariable Long id) {
+        try {
+            UserDTO user = service.getUserById(id);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                        "status", "error",
+                        "message", "Usuario no encontrado"
+                ));
+            }
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", user
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error al obtener usuario",
+                    "detail", e.getMessage()
+            ));
+        }
+    }
+
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarUsuario(@Valid @RequestBody UserDTO json, BindingResult result) {
         if (result.hasErrors()) {
@@ -91,7 +112,6 @@ public class ControllerUsuario {
         }
     }
 
-    // ACTUALIZAR USUARIO - OK
     @PutMapping("/editar/{id}")
     public ResponseEntity<?> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody UserDTO json, BindingResult result) {
         if (result.hasErrors()) {
@@ -113,7 +133,6 @@ public class ControllerUsuario {
         }
     }
 
-    // ELIMINAR USUARIO - OK
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarUsuario(@PathVariable Long id) {
         try {
@@ -138,15 +157,12 @@ public class ControllerUsuario {
         }
     }
 
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         try {
             String nombreUsuario = credentials.get("nombreUsuario");
             String contrasena = credentials.get("contrasena");
 
-            // Aquí debes implementar la lógica de autenticación en tu Service
-            // Por ahora devolveré un ejemplo
             return ResponseEntity.ok(Map.of(
                     "status", "success",
                     "data", Map.of(

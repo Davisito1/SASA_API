@@ -18,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/apiVehiculo")
-@CrossOrigin(origins = "*")
+@CrossOrigin
 public class ControllerVehiculo {
 
     @Autowired
@@ -101,7 +101,7 @@ public class ControllerVehiculo {
         }
     }
 
-    // ✅ ELIMINAR
+
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

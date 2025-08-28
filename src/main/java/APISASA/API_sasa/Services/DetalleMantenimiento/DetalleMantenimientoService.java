@@ -26,21 +26,21 @@ public class DetalleMantenimientoService {
     @PersistenceContext
     private EntityManager em;
 
-    // ✅ Consultar todos
+    //  Consultar todos
     public List<DetalleMantenimientoDTO> obtenerDetalles() {
         return repo.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Consultar por idMantenimiento
+    // Consultar por idMantenimiento
     public List<DetalleMantenimientoDTO> obtenerPorMantenimiento(Long idMantenimiento) {
         return repo.findByMantenimiento_Id(idMantenimiento).stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Consultar con paginación + búsqueda
+    //  Consultar con paginación + búsqueda
     public Page<DetalleMantenimientoDTO> obtenerDetallesPaginado(String q, Pageable pageable) {
         if (q == null || q.isBlank()) {
             return repo.findAll(pageable).map(this::convertirADTO);
@@ -59,13 +59,13 @@ public class DetalleMantenimientoService {
         }
     }
 
-    // ✅ Insertar nuevo detalle
+    //  Insertar nuevo detalle
     public DetalleMantenimientoDTO insertarDetalle(DetalleMantenimientoDTO dto) {
         DetalleMantenimientoEntity entity = convertirAEntity(dto);
         return convertirADTO(repo.save(entity));
     }
 
-    // ✅ Actualizar detalle
+    //  Actualizar detalle
     public DetalleMantenimientoDTO actualizarDetalle(Long id, DetalleMantenimientoDTO dto) {
         DetalleMantenimientoEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionDetalleNoEncontrado("No existe un detalle con ID: " + id));
@@ -78,7 +78,7 @@ public class DetalleMantenimientoService {
         return convertirADTO(repo.save(existente));
     }
 
-    // ================= Conversores =================
+
     private DetalleMantenimientoDTO convertirADTO(DetalleMantenimientoEntity entity) {
         DetalleMantenimientoDTO dto = new DetalleMantenimientoDTO();
         dto.setId(entity.getIdDetalleMantenimiento());

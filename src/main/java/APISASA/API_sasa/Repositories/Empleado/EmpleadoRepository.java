@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface EmpleadoRepository extends JpaRepository<EmpleadoEntity, Long> {
 
-    // ✅ Usamos correoElectronico (el nombre real del atributo en la entidad)
+
     Page<EmpleadoEntity> findByNombresContainingIgnoreCaseOrApellidosContainingIgnoreCaseOrDuiContainingIgnoreCaseOrCorreoElectronicoContainingIgnoreCase(
             String nombres,
             String apellidos,

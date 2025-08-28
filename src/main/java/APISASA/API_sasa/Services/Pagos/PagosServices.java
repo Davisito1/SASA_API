@@ -29,14 +29,14 @@ public class PagosServices {
     @Autowired
     private MetodoPagoRepository metodoPagoRepo;
 
-    // ✅ Obtener todos los pagos
+    //  Obtener todos los pagos
     public List<PagosDTO> obtenerPagos() {
         return repo.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Insertar nuevo pago
+    //  Insertar nuevo pago
     public PagosDTO insertarPago(PagosDTO dto) {
         PagosEntity entity = convertirAEntity(dto);
         entity.setIdPago(null); // Oracle maneja el ID con la secuencia
@@ -44,7 +44,7 @@ public class PagosServices {
         return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar pago
+    //  Actualizar pago
     public PagosDTO actualizarPago(Long id, PagosDTO dto) {
         PagosEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionPagoNoEncontrado("No se encontró pago con ID: " + id));
@@ -60,9 +60,9 @@ public class PagosServices {
         }
 
         // Relación con método de pago
-        if (dto.getMetodoPago() != null) {
-            MetodoPagoEntity metodo = metodoPagoRepo.findById(dto.getMetodoPago())
-                    .orElseThrow(() -> new RuntimeException("Método de pago no encontrado con ID: " + dto.getMetodoPago()));
+        if (dto.getIdMetodoPago() != null) {
+            MetodoPagoEntity metodo = metodoPagoRepo.findById(dto.getIdMetodoPago())
+                    .orElseThrow(() -> new RuntimeException("Método de pago no encontrado con ID: " + dto.getIdMetodoPago()));
             existente.setMetodoPago(metodo);
         }
 
@@ -70,7 +70,7 @@ public class PagosServices {
         return convertirADTO(actualizado);
     }
 
-    // ✅ Eliminar pago
+    //  Eliminar pago
     public boolean eliminarPago(Long id) {
         try {
             if (repo.existsById(id)) {
@@ -96,7 +96,7 @@ public class PagosServices {
             dto.setIdFactura(entity.getFactura().getIdFactura());
         }
         if (entity.getMetodoPago() != null) {
-            dto.setMetodoPago(entity.getMetodoPago().getIdMetodoPago()); // 👈 ahora coincide con tu DTO
+            dto.setIdMetodoPago(entity.getMetodoPago().getIdMetodoPago()); // 👈 ahora coincide con tu DTO
         }
 
         return dto;
@@ -113,9 +113,9 @@ public class PagosServices {
             entity.setFactura(factura);
         }
 
-        if (dto.getMetodoPago() != null) {
-            MetodoPagoEntity metodo = metodoPagoRepo.findById(dto.getMetodoPago())
-                    .orElseThrow(() -> new RuntimeException("Método de pago no encontrado con ID: " + dto.getMetodoPago()));
+        if (dto.getIdMetodoPago() != null) {
+            MetodoPagoEntity metodo = metodoPagoRepo.findById(dto.getIdMetodoPago())
+                    .orElseThrow(() -> new RuntimeException("Método de pago no encontrado con ID: " + dto.getIdMetodoPago()));
             entity.setMetodoPago(metodo);
         }
 

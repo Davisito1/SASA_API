@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/apiMantenimiento")
-@CrossOrigin(origins = "*")
+@CrossOrigin
 public class ControllerMantenimiento {
 
     @Autowired
@@ -136,8 +136,6 @@ public class ControllerMantenimiento {
             ));
         }
     }
-
-    // ========= ELIMINAR =========
     // DELETE /apiMantenimiento/eliminar/{id}
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminarMantenimiento(@PathVariable Long id) {

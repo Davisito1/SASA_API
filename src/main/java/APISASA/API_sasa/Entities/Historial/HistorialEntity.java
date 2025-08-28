@@ -39,7 +39,7 @@ public class HistorialEntity {
     @Column(name = "OBSERVACIONES", length = 500)
     private String observaciones;
 
-    // 🔹 Relación con Vehículo
+    //  Relación con Vehículo
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDVEHICULO", nullable = false)
     private VehicleEntity vehiculo;

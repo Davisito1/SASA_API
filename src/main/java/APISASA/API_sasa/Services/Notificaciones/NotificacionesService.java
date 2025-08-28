@@ -21,7 +21,7 @@ public class NotificacionesService {
     @Autowired
     private UserRepository userRepo;
 
-    // ✅ Obtener todas las notificaciones de un usuario
+    //  Obtener todas las notificaciones de un usuario
     public List<NotificacionDTO> obtenerPorUsuario(Long idUsuario) {
         return repo.findByUsuario_IdUsuario(idUsuario) // relación con UserEntity
                 .stream()
@@ -29,7 +29,7 @@ public class NotificacionesService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ Crear nueva notificación
+    // Crear nueva notificación
     public NotificacionDTO crearNotificacion(NotificacionDTO dto) {
         NotificacionesEntity entity = new NotificacionesEntity();
         entity.setMensaje(dto.getMensaje());
@@ -47,7 +47,7 @@ public class NotificacionesService {
         return convertirADTO(guardada);
     }
 
-    // ✅ Marcar notificación como leída
+    //  Marcar notificación como leída
     public NotificacionDTO marcarLeida(Long id) {
         NotificacionesEntity entity = repo.findById(id)
                 .orElseThrow(() -> new ExceptionNotificacionNoEncontrada("No existe notificación con ID: " + id));
@@ -56,7 +56,7 @@ public class NotificacionesService {
         return convertirADTO(repo.save(entity));
     }
 
-    // ✅ Eliminar notificación
+    // Eliminar notificación
     public boolean eliminarNotificacion(Long id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);
@@ -65,9 +65,7 @@ public class NotificacionesService {
         throw new ExceptionNotificacionNoEncontrada("No se encontró notificación con ID: " + id);
     }
 
-    // ==========================
-    // 🔹 Conversor Entity → DTO
-    // ==========================
+
     private NotificacionDTO convertirADTO(NotificacionesEntity entity) {
         NotificacionDTO dto = new NotificacionDTO();
         dto.setId(entity.getIdNotificacion()); // usa el nombre real de la columna
