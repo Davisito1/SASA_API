@@ -33,7 +33,7 @@ public class VehicleService {
     @Autowired
     private EstadoRepository estadoRepo;
 
-    //  CONSULTAR TODOS ORDENADOS POR ID
+    // CONSULTAR TODOS ORDENADOS POR ID
     public List<VehicleDTO> obtenerVehiculos() {
         List<VehicleEntity> lista = vehicleRepo.findAll(Sort.by(Sort.Direction.ASC, "idVehiculo"));
         return lista.stream()
@@ -41,7 +41,7 @@ public class VehicleService {
                 .collect(Collectors.toList());
     }
 
-    //  INSERTAR VEHÍCULO
+    // INSERTAR VEHÍCULO
     public VehicleDTO insertarVehiculo(@Valid VehicleDTO data) {
         if (data == null || data.getPlaca() == null) {
             throw new IllegalArgumentException("Datos del vehículo incompletos (placa obligatoria)");
@@ -54,7 +54,7 @@ public class VehicleService {
         return convertirADTO(guardado);
     }
 
-    //  ACTUALIZAR VEHÍCULO
+    // ACTUALIZAR VEHÍCULO
     public VehicleDTO actualizarVehiculo(Long id, @Valid VehicleDTO data) {
         VehicleEntity existente = vehicleRepo.findById(id)
                 .orElseThrow(() -> new ExceptionVehiculoNoEcontrado("Vehículo no encontrado con ID: " + id));
@@ -65,14 +65,14 @@ public class VehicleService {
         existente.setPlaca(data.getPlaca());
         existente.setVin(data.getVin()); // puede ser null o exactamente 17 caracteres
 
-        //  actualizar Cliente
+        // actualizar Cliente
         if (data.getIdCliente() != null) {
             ClienteEntity cliente = clientRepo.findById(data.getIdCliente())
                     .orElseThrow(() -> new RuntimeException("Cliente no encontrado con ID: " + data.getIdCliente()));
             existente.setCliente(cliente);
         }
 
-        //  actualizar Estado
+        // actualizar Estado
         if (data.getIdEstado() != null) {
             EstadoVehiculoEntity estado = estadoRepo.findById(data.getIdEstado())
                     .orElseThrow(() -> new RuntimeException("Estado no encontrado con ID: " + data.getIdEstado()));
@@ -93,7 +93,7 @@ public class VehicleService {
         }
     }
 
-
+    // CONVERSIÓN ENTITY → DTO
     private VehicleDTO convertirADTO(VehicleEntity entity) {
         VehicleDTO dto = new VehicleDTO();
         dto.setId(entity.getIdVehiculo());
@@ -104,16 +104,16 @@ public class VehicleService {
         dto.setVin(entity.getVin());
 
         if (entity.getCliente() != null) {
-            dto.setIdCliente(entity.getCliente().getId());
+            dto.setIdCliente(entity.getCliente().getId()); // asegúrate de que sea getIdCliente() si así se llama
         }
         if (entity.getEstado() != null) {
-            dto.setIdEstado(entity.getEstado().getId());
+            dto.setIdEstado(entity.getEstado().getId()); // idem: verifica si es getIdEstado()
         }
 
         return dto;
     }
 
-
+    // CONVERSIÓN DTO → ENTITY
     private VehicleEntity convertirAEntity(VehicleDTO dto) {
         VehicleEntity entity = new VehicleEntity();
         entity.setMarca(dto.getMarca());
@@ -137,9 +137,16 @@ public class VehicleService {
         return entity;
     }
 
+    // CONSULTAR VEHÍCULOS PAGINADOS
     public Page<VehicleDTO> obtenerVehiculosPaginado(Pageable pageable) {
         return vehicleRepo.findAll(pageable)
                 .map(this::convertirADTO);
     }
- }
 
+    // CONSULTAR POR ID
+    public VehicleDTO obtenerVehiculoPorId(Long id) {
+        return vehicleRepo.findById(id)
+                .map(this::convertirADTO)
+                .orElse(null);
+    }
+}

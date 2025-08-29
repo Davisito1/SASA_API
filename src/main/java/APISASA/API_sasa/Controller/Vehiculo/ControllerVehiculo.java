@@ -24,7 +24,7 @@ public class ControllerVehiculo {
     @Autowired
     private VehicleService service;
 
-    //CONSULTAR DATOS PAGINADOS Y ORDENADOS
+    // CONSULTAR DATOS PAGINADOS Y ORDENADOS
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerVehiculos(
             @RequestParam(defaultValue = "0") int page,
@@ -55,7 +55,31 @@ public class ControllerVehiculo {
         ));
     }
 
-    //REGISTRAR
+    // CONSULTAR POR ID
+    @GetMapping("/consultar/{id}")
+    public ResponseEntity<?> obtenerVehiculoPorId(@PathVariable Long id) {
+        try {
+            VehicleDTO vehiculo = service.obtenerVehiculoPorId(id);
+            if (vehiculo == null) {
+                return ResponseEntity.status(404).body(Map.of(
+                        "status", "error",
+                        "message", "Vehículo no encontrado"
+                ));
+            }
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", vehiculo
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error al consultar vehículo",
+                    "details", e.getMessage()
+            ));
+        }
+    }
+
+    // REGISTRAR
     @PostMapping("/registrar")
     public ResponseEntity<?> nuevoVehiculo(@Valid @RequestBody VehicleDTO dto, BindingResult result) {
         if (result.hasErrors()) {
@@ -77,7 +101,7 @@ public class ControllerVehiculo {
         }
     }
 
-    //ACTUALIZAR
+    // ACTUALIZAR
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id,
                                         @Valid @RequestBody VehicleDTO dto,
@@ -101,7 +125,7 @@ public class ControllerVehiculo {
         }
     }
 
-
+    // ELIMINAR
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {
