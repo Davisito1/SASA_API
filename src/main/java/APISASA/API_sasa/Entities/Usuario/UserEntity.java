@@ -26,6 +26,9 @@ public class UserEntity {
     @Column(name = "NOMBREUSUARIO", nullable = false, unique = true, length = 100)
     private String nombreUsuario;
 
+    @Column(name = "CORREO", nullable = false, unique = true, length = 150)
+    private String correo;
+
     @Column(name = "CONTRASENA", nullable = false, length = 100)
     private String contrasena;
 
@@ -41,4 +44,3 @@ public class UserEntity {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NotificacionesEntity> notificaciones = new ArrayList<>();
 }
-

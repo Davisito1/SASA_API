@@ -48,6 +48,7 @@ public class EmpleadoEntity {
     @Column(name = "CORREOELECTRONICO", length = 100)
     private String correoElectronico;
 
+    // 🔑 Relación con USUARIO (cada empleado está ligado a un usuario)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDUSUARIO", nullable = false)
     private UserEntity usuario;

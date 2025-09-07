@@ -1,8 +1,11 @@
+// src/main/java/APISASA/API_sasa/Config/SecurityConfig.java
 package APISASA.API_sasa.Config;
 
 import APISASA.API_sasa.Utils.JwtCookieAuthFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -11,44 +14,48 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.security.config.Customizer;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtCookieAuthFilter jwtCookieAuthFilter;
 
-    public SecurityConfig(JwtCookieAuthFilter jwtCookieAuthFilter) {
-        this.jwtCookieAuthFilter = jwtCookieAuthFilter;
-    }
-
-    // Configuración de seguridad HTTP
+    // Cadena 1: protege SOLO /api/**
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //Aqui van todos los endPoints públicos que no requieren de un JWT
+    @Order(1)
+    public SecurityFilterChain apiChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // Nuevo estilo lambda
-                .authorizeHttpRequests(auth -> auth  // Cambia authorizeRequests por authorizeHttpRequests
-                        .requestMatchers(HttpMethod.POST,
-                                "/api/auth/login",
-                                "/api/auth/logout")
-                        .permitAll()
-                        .requestMatchers("/api/auth/me").authenticated()
+                .securityMatcher("/api/**")
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/logout").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                         .requestMatchers("/api/test/admin-only").hasRole("Administrador")
                         .requestMatchers("/api/test/cliente-only").hasRole("Cliente")
-                        .anyRequest().authenticated())
-                .sessionManagement(sess -> sess
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        .anyRequest().authenticated()
+                )
+                .cors(Customizer.withDefaults())
                 .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    // Exponer el AuthenticationManager como bean
+    // Cadena 2
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    @Order(2)
+    public SecurityFilterChain othersChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .cors(Customizer.withDefaults());
+        return http.build();
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration c) throws Exception {
+        return c.getAuthenticationManager();
+    }
 }
