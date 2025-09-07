@@ -58,6 +58,12 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- Argon2 para contraseñas -->
+        <dependency>
+            <groupId>de.mkammerer</groupId>
+            <artifactId>argon2-jvm</artifactId>
+            <version>2.5</version>
+        </dependency>
 
         <!-- Oracle JDBC -->
         <dependency>
@@ -72,6 +78,12 @@
             <artifactId>lombok</artifactId>
             <version>1.18.36</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Seguridad (Spring Security 6 para Spring Boot 3.x) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <!-- JWT -->
@@ -93,12 +105,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Argon2 para contraseñas -->
-        <dependency>
-            <groupId>de.mkammerer</groupId>
-            <artifactId>argon2-jvm</artifactId>
-            <version>2.5</version>
-        </dependency>
+        <!-- (Opcional) variante sin librerías nativas de Argon2 -->
         <dependency>
             <groupId>de.mkammerer</groupId>
             <artifactId>argon2-jvm-nolibs</artifactId>
@@ -120,7 +127,6 @@
         </dependency>
 
         <!-- Jakarta Transactions -->
-        <!-- Sirve para utilizar anotaciones de transacción con la base de datos -->
         <dependency>
             <groupId>jakarta.transaction</groupId>
             <artifactId>jakarta.transaction-api</artifactId>
