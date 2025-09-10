@@ -1,21 +1,19 @@
 package APISASA.API_sasa.Services.Auth;
 
+import APISASA.API_sasa.Config.Argon2.Argon2Password;
 import APISASA.API_sasa.Entities.Usuario.UserEntity;
 import APISASA.API_sasa.Repositories.Usuario.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private UserRepository repo;
-
-    // Comparador mágico de contraseñas
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final UserRepository repo;
+    private final Argon2Password argon2; // inyecta tu servicio de Argon2
 
     /**
      * Autenticar: busca al usuario por correo o nombreUsuario
@@ -28,17 +26,16 @@ public class AuthService {
             userOpt = repo.findByNombreUsuario(identificador);
         }
 
-        // 2. Si existe, comprobar contraseña
+        // 2. Si existe, comprobar contraseña con Argon2
         if (userOpt.isPresent()) {
             UserEntity user = userOpt.get();
 
-            // La contraseña en BD está guardada con hash
-            if (passwordEncoder.matches(contrasena, user.getContrasena())) {
+            if (argon2.VerifyPassword(user.getContrasena(), contrasena)) {
                 return userOpt;
             }
         }
 
-        return Optional.empty(); //No existe o contraseña incorrecta
+        return Optional.empty(); // No existe o contraseña incorrecta
     }
 
     /**
