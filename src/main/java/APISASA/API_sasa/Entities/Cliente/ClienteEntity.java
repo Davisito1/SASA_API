@@ -53,7 +53,7 @@ public class ClienteEntity {
     private List<VehicleEntity> vehiculos;
 
     // 🔹 Relación con Cita
-    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<CitaEntity> citas;
 }
