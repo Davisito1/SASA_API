@@ -129,6 +129,30 @@ public class ClienteController {
         }
     }
 
+    @PatchMapping("/actualizar-parcial/{id}")
+    public ResponseEntity<?> actualizarParcial(
+            @PathVariable Long id,
+            @RequestBody ClientDTO dto
+    ) {
+        try {
+            ClientDTO actualizado = service.actualizarClienteParcial(id, dto);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", actualizado
+            ));
+        } catch (ExceptionClienteNoEncontrado e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error al actualizar cliente",
+                    "timestamp", Instant.now().toString()
+            ));
+        }
+    }
     // Eliminar cliente
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
