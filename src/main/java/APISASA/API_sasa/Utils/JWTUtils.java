@@ -1,88 +1,79 @@
+// src/main/java/APISASA/API_sasa/Utils/JWTUtils.java
 package APISASA.API_sasa.Utils;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 
 @Component
 public class JWTUtils {
 
-    @Value("${security.jwt.secret}")
-    private String jwtSecreto;                  // Clave (mínimo 32 caracteres recomendados)
-    @Value("${security.jwt.issuer}")
-    private String issuer;                      // Firma del token
-    @Value("${security.jwt.expiration}")
-    private long expiracionMs;                  // Tiempo de expiración
+    @Value("${security.jwt.secret:MiClaveUltraSecretaParaJWT1234567890}")
+    private String jwtSecret;
 
-    private final Logger log = LoggerFactory.getLogger(JWTUtils.class);
+    @Value("${security.jwt.expiration:86400000}") // 1 día
+    private long jwtExpirationMs;
 
-    // ================== NUEVO HELPER ==================
-    private SecretKey getSigningKey() {
-        // Usa la cadena tal cual en UTF-8 (ya no decodifica Base64)
-        return Keys.hmacShaKeyFor(jwtSecreto.getBytes(StandardCharsets.UTF_8));
+    private Key getSignKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    /**
-     * Metodo para crear JWT
-     */
-    public String create(String id, String correo, String rol) {
-        Date now = new Date();
-        Date expiration = new Date(now.getTime() + expiracionMs);
-
-        return Jwts.builder()
-                .setId(id)                                              // ID único (JWT ID)
-                .setIssuedAt(now)                                       // Fecha de emisión
-                .setSubject(correo)                                     // Sujeto (usuario)
-                .claim("id", id)
-                .claim("rol", rol)
-                .setIssuer(issuer)                                      // Emisor del token
-                .setExpiration(expiracionMs >= 0 ? expiration : null)   // Expiración
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)    // Firma con HS256
-                .compact();
+    // ✅ Versión básica (web): username + rol
+    public String generateToken(String username, String rol) {
+        return generateToken(username, rol, null);
     }
 
-    public String extractRol(String token) {
-        Claims claims = parseToken(token);
-        return claims.get("rol", String.class);
+    // ✅ Versión completa (web y móvil): username + rol + idCliente
+    public String generateToken(String username, String rol, Long idCliente) {
+        JwtBuilder builder = Jwts.builder()
+                .setSubject(username)
+                .claim("rol", rol.toUpperCase())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .signWith(getSignKey(), SignatureAlgorithm.HS256);
+
+        if (idCliente != null) {
+            builder.claim("id", idCliente);
+        }
+
+        return builder.compact();
     }
 
-    public String getValue(String jwt) {
-        Claims claims = parseClaims(jwt);
-        return claims.getSubject();
-    }
-
-    public String getKey(String jwt) {
-        Claims claims = parseClaims(jwt);
-        return claims.getId();
-    }
-
-    public Claims parseToken(String jwt) throws ExpiredJwtException, MalformedJwtException {
-        return parseClaims(jwt);
-    }
-
-    public boolean validate(String token) {
+    // ===============================
+    // Validación y parsing
+    // ===============================
+    public boolean validateToken(String token) {
         try {
-            parseClaims(token);
+            Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("Token inválido: {}", e.getMessage());
+        } catch (JwtException e) {
             return false;
         }
     }
 
-    // ================== COMPLEMENTARIO ==================
-    private Claims parseClaims(String jwt) {
+    public Claims parseToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())  // Ahora usa la misma key
+                .setSigningKey(getSignKey())
                 .build()
-                .parseClaimsJws(jwt)
+                .parseClaimsJws(token)
                 .getBody();
+    }
+
+    public String extractUsername(String token) {
+        return parseToken(token).getSubject();
+    }
+
+    public String extractRol(String token) {
+        Object rol = parseToken(token).get("rol");
+        return rol != null ? rol.toString() : null;
+    }
+
+    public Long extractId(String token) {
+        Object id = parseToken(token).get("id");
+        return id != null ? Long.parseLong(id.toString()) : null;
     }
 }

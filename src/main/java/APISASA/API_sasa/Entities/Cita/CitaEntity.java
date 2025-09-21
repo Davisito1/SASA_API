@@ -1,6 +1,7 @@
 package APISASA.API_sasa.Entities.Cita;
 
 import APISASA.API_sasa.Entities.Cliente.ClienteEntity;
+import APISASA.API_sasa.Entities.Vehiculo.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,17 +24,44 @@ public class CitaEntity {
     @Column(name = "IDCITA", insertable = false, updatable = false)
     private Long id;
 
+    // ==========================
+    // FECHA
+    // ==========================
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;
 
-    @Column(name = "HORA", nullable = false, length = 10)
+    // ==========================
+    // HORA
+    // ==========================
+    @Column(name = "HORA", nullable = false, length = 20) // ampliado para hh:mm AM/PM
     private String hora;
 
-    @Column(name = "ESTADO", nullable = false, length = 50)
+    // ==========================
+    // ESTADO
+    // ==========================
+    @Column(name = "ESTADO", nullable = false, length = 20)
     private String estado;
 
-    // Relación con Cliente
+    // ==========================
+    // CLIENTE
+    // ==========================
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDCLIENTE", nullable = false)
     private ClienteEntity cliente;
+
+    // ==========================
+    // VEHÍCULO
+    // ==========================
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDVEHICULO", nullable = false)
+    private VehicleEntity vehiculo;
+
+    // ==========================
+    // DESCRIPCIÓN (opcional)
+    // ==========================
+    @Column(name = "DESCRIPCION", length = 255)
+    private String descripcion;
+
+    @Column(name = "TIPOSERVICIO", length = 50, nullable = false)
+    private String tipoServicio;
 }

@@ -22,6 +22,9 @@ public class CitaController {
     @Autowired
     private CitaService service;
 
+    // ==============================
+    // LISTAR TODAS
+    // ==============================
     @GetMapping("/listar")
     public ResponseEntity<?> listarTodas() {
         return ResponseEntity.ok(Map.of(
@@ -30,6 +33,9 @@ public class CitaController {
         ));
     }
 
+    // ==============================
+    // LISTAR PAGINADO
+    // ==============================
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerPaginado(
             @RequestParam(defaultValue = "0") int page,
@@ -49,6 +55,9 @@ public class CitaController {
         ));
     }
 
+    // ==============================
+    // OBTENER POR ID
+    // ==============================
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
         try {
@@ -65,6 +74,9 @@ public class CitaController {
         }
     }
 
+    // ==============================
+    // CREAR
+    // ==============================
     @PostMapping("/registrar")
     public ResponseEntity<?> crear(@Valid @RequestBody CitaDTO dto, BindingResult result) {
         if (result.hasErrors()) {
@@ -83,11 +95,15 @@ public class CitaController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of(
                     "status", "error",
-                    "message", e.getMessage()
+                    "message", e.getMessage(),
+                    "timestamp", Instant.now().toString()
             ));
         }
     }
 
+    // ==============================
+    // ACTUALIZAR
+    // ==============================
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(@PathVariable Long id, @Valid @RequestBody CitaDTO dto, BindingResult result) {
         if (result.hasErrors()) {
@@ -117,6 +133,9 @@ public class CitaController {
         }
     }
 
+    // ==============================
+    // ELIMINAR
+    // ==============================
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

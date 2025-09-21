@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,7 +22,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 
 @Component
@@ -32,12 +30,11 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtCookieAuthFilter.class);
 
-    @Value("${security.jwt.cookieName:JWT}")
+    @Value("${security.jwt.cookieName:authToken}")
     private String authCookieName;
 
     private final JWTUtils jwtUtils;
 
-    // --- Helpers de path ---
     private boolean isPreflight(HttpServletRequest req) {
         return "OPTIONS".equalsIgnoreCase(req.getMethod());
     }
@@ -45,20 +42,15 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
     private boolean isPublic(HttpServletRequest req) {
         final String path = req.getRequestURI();
         final String method = req.getMethod();
-        // Ajusta estas rutas según tu app
         if (isPreflight(req)) return true;
-        if ("POST".equals(method) && ("/auth/login".equals(path) || "/api/auth/login".equals(path))) return true;
-        if ("POST".equals(method) && ("/auth/logout".equals(path) || "/api/auth/logout".equals(path))) return true;
-        if ("POST".equals(method) && ("/auth/register".equals(path) || "/api/auth/register".equals(path))) return true;
+        if ("POST".equals(method) && path.contains("/auth")) return true;
         if (path.startsWith("/api/public/")) return true;
-        // Swagger (si lo usas) – quítalo si no aplica
         if (path.startsWith("/swagger-ui/") || path.startsWith("/v3/api-docs")) return true;
         return false;
     }
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        // No filtrar preflight ni endpoints públicos
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         return isPublic(request);
     }
 
@@ -70,48 +62,55 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
         try {
             String token = resolveToken(request);
 
-            if (token != null && !token.isBlank() && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Valida y construye autenticación
-                Claims claims = jwtUtils.parseToken(token); // lanza si inválido/expirado
+            if (token != null && !token.isBlank() &&
+                    SecurityContextHolder.getContext().getAuthentication() == null) {
+
+                Claims claims = jwtUtils.parseToken(token);
                 String username = claims.getSubject();
-                String rol = jwtUtils.extractRol(token); // asegúrate de que devuelve algo tipo "Administrador" o "ROLE_ADMIN"
+                String rol = jwtUtils.extractRol(token);
+                Long id = jwtUtils.extractId(token); // 👈 id del cliente
 
-                // Normaliza el prefijo ROLE_
-                String roleName = (rol != null && rol.startsWith("ROLE_")) ? rol : "ROLE_" + (rol == null ? "USER" : rol);
+                // Normaliza rol → ROLE_CLIENTE / ROLE_ADMIN
+                if (rol == null || rol.isBlank()) {
+                    rol = "USER";
+                }
+                rol = rol.toUpperCase();
+                if (!rol.startsWith("ROLE_")) {
+                    rol = "ROLE_" + rol;
+                }
 
-                Collection<? extends GrantedAuthority> authorities =
-                        Collections.singletonList(new SimpleGrantedAuthority(roleName));
+                log.info("Token válido -> Usuario={} Rol={} Id={}", username, rol, id);
 
+                var authorities = Collections.singletonList(new SimpleGrantedAuthority(rol));
+
+                // 👇 El principal será el username, pero en "details" guardamos el idCliente
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(username, null, authorities);
+                auth.setDetails(id); // podrás recuperarlo en el controller
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
 
         } catch (ExpiredJwtException e) {
-            log.warn("JWT expirado: {}", e.getMessage());
-            // Limpia el contexto y deja que el entry point responda 401 si la ruta lo requiere
+            log.warn(" JWT expirado: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         } catch (MalformedJwtException e) {
-            log.warn("JWT malformado: {}", e.getMessage());
+            log.warn(" JWT malformado: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         } catch (Exception e) {
-            log.error("Error procesando JWT", e);
+            log.error(" Error procesando JWT", e);
             SecurityContextHolder.clearContext();
         }
 
-        // Continúa siempre: Security decidirá (permitAll / authenticated)
         chain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
-        // 1) Header Authorization: Bearer
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7).trim();
         }
-        // 2) Cookie HttpOnly
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             return Arrays.stream(cookies)

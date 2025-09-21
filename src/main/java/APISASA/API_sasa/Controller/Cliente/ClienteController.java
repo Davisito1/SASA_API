@@ -22,11 +22,13 @@ public class ClienteController {
     @Autowired
     private ClienteService service;
 
-    // Consultar con paginación
+    // ✅ Consultar con paginación y ordenamiento
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerClientes(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
     ) {
         if (size <= 0 || size > 100) {
             return ResponseEntity.badRequest().body(Map.of(
@@ -35,15 +37,7 @@ public class ClienteController {
             ));
         }
 
-        Page<ClientDTO> clientes = service.obtenerClientes(page, size);
-
-        if (clientes.getContent().isEmpty()) {
-            return ResponseEntity.ok(Map.of(
-                    "status", "success",
-                    "message", "No hay clientes registrados",
-                    "data", clientes
-            ));
-        }
+        Page<ClientDTO> clientes = service.obtenerClientes(page, size, sortBy, sortDir);
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
@@ -51,7 +45,7 @@ public class ClienteController {
         ));
     }
 
-    //  Consultar cliente por ID
+    // ✅ Consultar cliente por ID
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
         try {
@@ -68,7 +62,7 @@ public class ClienteController {
         }
     }
 
-    //  Registrar cliente
+    // ✅ Registrar cliente
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody ClientDTO dto,
@@ -98,7 +92,7 @@ public class ClienteController {
         }
     }
 
-    //  Actualizar cliente
+    // ✅ Actualizar cliente (PUT)
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
@@ -129,6 +123,7 @@ public class ClienteController {
         }
     }
 
+    // ✅ Actualizar cliente parcialmente (PATCH)
     @PatchMapping("/actualizar-parcial/{id}")
     public ResponseEntity<?> actualizarParcial(
             @PathVariable Long id,
@@ -153,7 +148,8 @@ public class ClienteController {
             ));
         }
     }
-    // Eliminar cliente
+
+    // ✅ Eliminar cliente
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

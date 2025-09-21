@@ -46,8 +46,10 @@ public class SecurityConfig {
         cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
+                "http://10.0.2.2:*",    // 👈 necesario para emulador Android
                 "https://mi-frontend.vercel.app"
         ));
+
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
         cfg.setAllowedHeaders(List.of("Origin","Content-Type","Accept","Authorization"));
         cfg.setExposedHeaders(List.of("Authorization","Set-Cookie","WWW-Authenticate"));
@@ -91,25 +93,21 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // CORS preflight
+                        // Preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Auth público (soporta /auth/** y /api/auth/**)
+                        // Login / Registro
                         .requestMatchers("/auth/**", "/api/auth/**").permitAll()
 
-                        // Si tienes endpoints públicos, añádelos aquí (ej. swagger)
-                        // .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Cliente → ahora solo necesita estar autenticado
+                        .requestMatchers("/apiCliente/**").authenticated()
 
-                        // Rutas protegidas: incluye TODOS tus prefijos reales de API
-                        .requestMatchers(
-                                "/api/**",
-                                "/apiVehiculo/**",
-                                "/apiCliente/**",
-                                "/apiCitas/**",
-                                "/apiPagos/**"
-                        ).authenticated()
+                        // Otras APIs necesitan token válido
+                        .requestMatchers("/apiVehiculo/**").authenticated()
+                        .requestMatchers("/apiCitas/**").authenticated()
+                        .requestMatchers("/apiPagos/**").authenticated()
 
-                        // Todo lo demás público (archivos estáticos, páginas HTML, etc.)
+                        // Todo lo demás público
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class)

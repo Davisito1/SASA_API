@@ -2,10 +2,12 @@ package APISASA.API_sasa.Services.Cita;
 
 import APISASA.API_sasa.Entities.Cita.CitaEntity;
 import APISASA.API_sasa.Entities.Cliente.ClienteEntity;
+import APISASA.API_sasa.Entities.Vehiculo.VehicleEntity;
 import APISASA.API_sasa.Exceptions.ExceptionCitaNoEncontrada;
 import APISASA.API_sasa.Models.DTO.Cita.CitaDTO;
 import APISASA.API_sasa.Repositories.Cita.CitaRepository;
 import APISASA.API_sasa.Repositories.Cliente.ClientRepository;
+import APISASA.API_sasa.Repositories.Vehiculo.VehicleRepository;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,39 +29,47 @@ public class CitaService {
     @Autowired
     private ClientRepository repoClient;
 
-    // ✅ Listar todas (no paginado)
+    @Autowired
+    private VehicleRepository repoVehiculo;
+
+    // ============================
+    // LISTAR TODAS
+    // ============================
     public List<CitaDTO> obtenerCitas() {
         return repo.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // ✅ Listar paginado
+    // ============================
+    // LISTAR PAGINADO
+    // ============================
     public Page<CitaDTO> obtenerCitas(Pageable pageable) {
         return repo.findAll(pageable).map(this::convertirADTO);
     }
 
-    // ✅ Obtener por ID
+    // ============================
+    // OBTENER POR ID
+    // ============================
     public CitaDTO obtenerCitaPorId(Long id) {
         return repo.findById(id)
                 .map(this::convertirADTO)
                 .orElseThrow(() -> new ExceptionCitaNoEncontrada("No se encontró cita con ID: " + id));
     }
 
-    // ✅ Crear
+    // ============================
+    // CREAR
+    // ============================
     public CitaDTO insertarCita(@Valid CitaDTO dto) {
-        try {
-            CitaEntity entity = convertirAEntity(dto);
-            entity.setId(null); // dejar que la secuencia maneje el ID
-            CitaEntity guardado = repo.save(entity);
-            return convertirADTO(guardado);
-        } catch (Exception e) {
-            log.error("Error al registrar cita: {}", e.getMessage(), e);
-            throw new RuntimeException("No se pudo registrar la cita.");
-        }
+        CitaEntity entity = convertirAEntity(dto);
+        entity.setId(null); // secuencia genera el ID
+        CitaEntity guardado = repo.save(entity);
+        return convertirADTO(guardado);
     }
 
-    // ✅ Actualizar
+    // ============================
+    // ACTUALIZAR
+    // ============================
     public CitaDTO actualizarCita(Long id, @Valid CitaDTO dto) {
         CitaEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionCitaNoEncontrada("No se encontró cita con ID: " + id));
@@ -67,17 +77,24 @@ public class CitaService {
         existente.setFecha(dto.getFecha());
         existente.setHora(dto.getHora());
         existente.setEstado(dto.getEstado());
+        existente.setDescripcion(dto.getDescripcion());
+        existente.setTipoServicio(dto.getTipoServicio());
 
-        if (dto.getIdCliente() != null) {
-            ClienteEntity cliente = repoClient.getReferenceById(dto.getIdCliente());
-            existente.setCliente(cliente);
-        }
+        // cliente obligatorio según DTO
+        ClienteEntity cliente = repoClient.getReferenceById(dto.getIdCliente());
+        existente.setCliente(cliente);
+
+        // vehículo obligatorio según DTO
+        VehicleEntity vehiculo = repoVehiculo.getReferenceById(dto.getIdVehiculo());
+        existente.setVehiculo(vehiculo);
 
         CitaEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
     }
 
-    // ✅ Eliminar
+    // ============================
+    // ELIMINAR
+    // ============================
     public boolean eliminarCita(Long id) {
         try {
             repo.deleteById(id);
@@ -87,21 +104,25 @@ public class CitaService {
         }
     }
 
-    // ==========================
-    // 🔹 Mappers
-    // ==========================
+    // ============================
+    // MAPPERS
+    // ============================
     private CitaEntity convertirAEntity(CitaDTO dto) {
         CitaEntity entity = new CitaEntity();
-        // ⚠️ Para insertar no hace falta asignar el ID
         entity.setId(dto.getId());
         entity.setFecha(dto.getFecha());
         entity.setHora(dto.getHora());
         entity.setEstado(dto.getEstado());
+        entity.setDescripcion(dto.getDescripcion());
+        entity.setTipoServicio(dto.getTipoServicio());
 
-        if (dto.getIdCliente() != null) {
-            ClienteEntity cliente = repoClient.getReferenceById(dto.getIdCliente());
-            entity.setCliente(cliente);
-        }
+        // cliente obligatorio
+        ClienteEntity cliente = repoClient.getReferenceById(dto.getIdCliente());
+        entity.setCliente(cliente);
+
+        // vehículo obligatorio
+        VehicleEntity vehiculo = repoVehiculo.getReferenceById(dto.getIdVehiculo());
+        entity.setVehiculo(vehiculo);
 
         return entity;
     }
@@ -112,11 +133,21 @@ public class CitaService {
         dto.setFecha(entity.getFecha());
         dto.setHora(entity.getHora());
         dto.setEstado(entity.getEstado());
+        dto.setDescripcion(entity.getDescripcion());
+        dto.setTipoServicio(entity.getTipoServicio());
 
         if (entity.getCliente() != null) {
             dto.setIdCliente(entity.getCliente().getId());
+            dto.setClienteNombre(entity.getCliente().getNombre() + " " + entity.getCliente().getApellido());
+        }
+
+        if (entity.getVehiculo() != null) {
+            dto.setIdVehiculo(entity.getVehiculo().getIdVehiculo());
+            dto.setVehiculoNombre(entity.getVehiculo().getMarca() + " " + entity.getVehiculo().getModelo());
         }
 
         return dto;
     }
+
 }
+

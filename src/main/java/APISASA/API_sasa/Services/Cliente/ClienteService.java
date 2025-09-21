@@ -7,8 +7,7 @@ import APISASA.API_sasa.Repositories.Cliente.ClientRepository;
 import APISASA.API_sasa.Config.Argon2.Argon2Password;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,28 +17,31 @@ public class ClienteService {
     private ClientRepository repo;
 
     @Autowired
-    private Argon2Password argon2Password; // ✅ usamos tu clase personalizada
+    private Argon2Password argon2Password;
 
+    // ✅ Consultar clientes con paginación y ordenamiento
+    public Page<ClientDTO> obtenerClientes(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
 
-    // Consultar clientes con paginación
-    public Page<ClientDTO> obtenerClientes(int page, int size) {
-        PageRequest pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<ClienteEntity> pageEntity = repo.findAll(pageable);
+
         return pageEntity.map(this::convertirADTO);
     }
 
-    // Consultar cliente por ID
+    // ✅ Consultar cliente por ID
     public ClientDTO obtenerClientePorId(Long id) {
         ClienteEntity entity = repo.findById(id)
                 .orElseThrow(() -> new ExceptionClienteNoEncontrado("No existe un cliente con ID: " + id));
         return convertirADTO(entity);
     }
 
-    // Insertar nuevo cliente
+    // ✅ Insertar nuevo cliente
     public ClientDTO insertarCliente(ClientDTO dto) {
         ClienteEntity entity = convertirAEntity(dto);
         entity.setId(null); // ⚠ que lo maneje la secuencia/trigger
-        // ✅ cifrar contraseña al registrar
         if (dto.getContrasena() != null && !dto.getContrasena().isBlank()) {
             entity.setContrasena(argon2Password.EncryptPassword(dto.getContrasena()));
         }
@@ -47,7 +49,7 @@ public class ClienteService {
         return convertirADTO(guardado);
     }
 
-    // Actualizar cliente (completo)
+    // ✅ Actualizar cliente (completo)
     public ClientDTO actualizarCliente(Long id, ClientDTO dto) {
         ClienteEntity existente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionClienteNoEncontrado("No existe un cliente con ID: " + id));
@@ -67,7 +69,7 @@ public class ClienteService {
         return convertirADTO(actualizado);
     }
 
-    // Eliminar cliente
+    // ✅ Eliminar cliente
     public boolean eliminarCliente(Long id) {
         try {
             repo.deleteById(id);
@@ -105,7 +107,7 @@ public class ClienteService {
         return entity;
     }
 
-    // ✅ Actualizar cliente parcialmente (ej. ajustes)
+    // ✅ Actualizar cliente parcialmente
     public ClientDTO actualizarClienteParcial(Long id, ClientDTO dto) {
         ClienteEntity cliente = repo.findById(id)
                 .orElseThrow(() -> new ExceptionClienteNoEncontrado("Cliente no encontrado"));

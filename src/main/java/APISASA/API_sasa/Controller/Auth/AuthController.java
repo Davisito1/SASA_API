@@ -66,7 +66,7 @@ public class AuthController {
         String subject  = (user.getCorreo() != null && !user.getCorreo().isBlank())
                 ? user.getCorreo() : user.getNombreUsuario();
         String roleName = (user.getRol() != null && !user.getRol().isBlank()) ? user.getRol() : "USER";
-        String token    = jwtUtils.create(userId, subject, roleName);
+        String token    = jwtUtils.generateToken(subject, roleName);
 
         // Cookie (opcional), el front usará Bearer en dev
         ResponseCookie cookie = buildJwtCookie(token);
