@@ -1,15 +1,20 @@
 package APISASA.API_sasa.Services.Empleado;
 
+import APISASA.API_sasa.Config.Argon2.Argon2Password;
 import APISASA.API_sasa.Entities.Empleado.EmpleadoEntity;
 import APISASA.API_sasa.Entities.Usuario.UserEntity;
 import APISASA.API_sasa.Exceptions.ExceptionEmpleadoNoEncontrado;
 import APISASA.API_sasa.Models.DTO.Empleado.EmpleadoDTO;
 import APISASA.API_sasa.Repositories.Empleado.EmpleadoRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import APISASA.API_sasa.Repositories.Usuario.UserRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,17 +27,20 @@ public class EmpleadoService {
     @Autowired
     private EmpleadoRepository repo;
 
-    @PersistenceContext
-    private EntityManager em;
+    @Autowired
+    private UserRepository userRepo;
 
-    //  Obtener todos los empleados
+    @Autowired
+    private Argon2Password argon2;
+
+    // Obtener todos los empleados
     public List<EmpleadoDTO> obtenerEmpleados() {
         return repo.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    //  Obtener empleados paginados + búsqueda opcional
+    // Obtener empleados paginados + búsqueda opcional
     public Page<EmpleadoDTO> obtenerEmpleadosPaginado(String q, Pageable pageable) {
         if (q == null || q.isBlank()) {
             return repo.findAll(pageable).map(this::convertirADTO);
@@ -42,13 +50,6 @@ public class EmpleadoService {
                         term, term, term, term, pageable
                 )
                 .map(this::convertirADTO);
-    }
-
-    // Insertar nuevo empleado
-    public EmpleadoDTO insertarEmpleado(EmpleadoDTO dto) {
-        EmpleadoEntity entity = convertirAEntity(dto);
-        EmpleadoEntity guardado = repo.save(entity);
-        return convertirADTO(guardado);
     }
 
     // Actualizar empleado existente
@@ -63,10 +64,8 @@ public class EmpleadoService {
         existente.setTelefono(dto.getTelefono());
         existente.setDireccion(dto.getDireccion());
         existente.setFechaContratacion(dto.getFechaContratacion());
-        existente.setCorreoElectronico(dto.getCorreo()); // usa dto.getCorreo()
-
-        // Relación con usuario
-        existente.setUsuario(em.getReference(UserEntity.class, dto.getIdUsuario()));
+        existente.setFechaNacimiento(dto.getFechaNacimiento());
+        existente.setCorreoElectronico(dto.getCorreo());
 
         return convertirADTO(repo.save(existente));
     }
@@ -96,10 +95,11 @@ public class EmpleadoService {
         dto.setTelefono(entity.getTelefono());
         dto.setDireccion(entity.getDireccion());
         dto.setFechaContratacion(entity.getFechaContratacion());
-        dto.setCorreo(entity.getCorreoElectronico()); // aquí se usa correoElectronico
+        dto.setFechaNacimiento(entity.getFechaNacimiento());
+        dto.setCorreo(entity.getCorreoElectronico());
 
         if (entity.getUsuario() != null) {
-            dto.setIdUsuario(entity.getUsuario().getIdUsuario());
+            dto.setNombreUsuario(entity.getUsuario().getNombreUsuario());
         }
         return dto;
     }
@@ -113,9 +113,49 @@ public class EmpleadoService {
         entity.setTelefono(dto.getTelefono());
         entity.setDireccion(dto.getDireccion());
         entity.setFechaContratacion(dto.getFechaContratacion());
+        entity.setFechaNacimiento(dto.getFechaNacimiento());
         entity.setCorreoElectronico(dto.getCorreo());
-
-        entity.setUsuario(em.getReference(UserEntity.class, dto.getIdUsuario()));
         return entity;
     }
+
+    // 🔹 Registrar Empleado + Usuario en un solo paso
+    @Transactional
+    public EmpleadoDTO registrarEmpleadoConUsuario(@Valid EmpleadoDTO dto) {
+        // 1. Crear y guardar Usuario
+        UserEntity user = new UserEntity();
+        user.setNombreUsuario(dto.getNombreUsuario());
+        user.setCorreo(dto.getCorreo());
+        user.setContrasena(argon2.EncryptPassword(dto.getContrasena())); // encriptar password
+        user.setRol("EMPLEADO");
+        user.setEstado("ACTIVO");
+
+        UserEntity userGuardado = userRepo.save(user);
+
+        // 2. Crear y guardar Empleado vinculado al usuario
+        EmpleadoEntity empleado = new EmpleadoEntity();
+        empleado.setNombres(dto.getNombres());
+        empleado.setApellidos(dto.getApellidos());
+        empleado.setCargo(dto.getCargo());
+        empleado.setDui(dto.getDui());
+        empleado.setTelefono(dto.getTelefono());
+        empleado.setDireccion(dto.getDireccion());
+        empleado.setFechaContratacion(dto.getFechaContratacion());
+        empleado.setFechaNacimiento(dto.getFechaNacimiento());
+        empleado.setCorreoElectronico(dto.getCorreo());
+        empleado.setUsuario(userGuardado);
+
+        EmpleadoEntity guardado = repo.save(empleado);
+
+        return convertirADTO(guardado);
+    }
+
+    // ================== Validaciones duplicados ==================
+    public boolean existeCorreo(String correo) {
+        return userRepo.existsByCorreo(correo);
+    }
+
+    public boolean existeUsuario(String nombreUsuario) {
+        return userRepo.existsByNombreUsuario(nombreUsuario);
+    }
+
 }

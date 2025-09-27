@@ -12,9 +12,13 @@ import java.time.LocalDate;
 @EqualsAndHashCode
 @Getter @Setter
 public class EmpleadoDTO {
-    private Long id;
 
-    @NotBlank(message = "El nombre olbigatorio")
+    private Long id;  // 👈 lo dejamos así como pediste
+
+      private Long idUsuario;        // id del usuario asociado
+    private String nombreUsuario;  // nombre de usuario asociado (para mostrar en tabla)
+
+    @NotBlank(message = "El nombre es obligatorio")
     @Size(max = 100, message = "El nombre no debe exceder 100 caracteres")
     private String nombres;
 
@@ -29,21 +33,27 @@ public class EmpleadoDTO {
     @Pattern(regexp = "^\\d{8}-\\d{1}$", message = "El DUI debe tener el formato ########-#")
     private String dui;
 
-    @NotBlank
+    @NotBlank(message = "El teléfono es obligatorio")
     @Pattern(regexp = "^\\d{4}-\\d{4}$", message = "El número de teléfono debe tener un formato ####-####")
     private String telefono;
 
-    @NotBlank(message = "La dirección es olbigatoria")
+    @NotBlank(message = "La dirección es obligatoria")
     private String direccion;
 
     @NotNull(message = "Fecha de contratación obligatoria")
     private LocalDate fechaContratacion;
 
+    @NotNull(message = "La fecha de nacimiento es obligatoria")
+    @Past(message = "La fecha de nacimiento debe ser una fecha pasada")
+    private LocalDate fechaNacimiento;
+
     @NotNull(message = "Correo electrónico obligatorio")
     @Email(message = "Formato de correo electrónico inválido")
-    @Size(max = 100, message = "El correo eléctronico no puede exceder 100 craracteres")
+    @Size(max = 100, message = "El correo electrónico no puede exceder 100 caracteres")
     private String correo;
 
-    @Min(value = 1, message = "Debe asignarse un usuario válido")
-    private Long idUsuario;
+    // 🔹 Datos para crear Usuario automáticamente
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 6, max = 100, message = "La contraseña debe tener entre 6 y 100 caracteres")
+    private String contrasena;
 }

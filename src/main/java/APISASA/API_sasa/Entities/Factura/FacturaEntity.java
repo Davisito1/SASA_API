@@ -1,14 +1,12 @@
 package APISASA.API_sasa.Entities.Factura;
 
 import APISASA.API_sasa.Entities.Empleado.EmpleadoEntity;
-import APISASA.API_sasa.Entities.Mantenimiento.MantenimientoEntity;
-import APISASA.API_sasa.Entities.Pagos.PagosEntity;
+import APISASA.API_sasa.Entities.OrdenTrabajo.OrdenTrabajoEntity;
+import APISASA.API_sasa.Entities.MetodoPago.MetodoPagoEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "FACTURA")
@@ -31,14 +29,26 @@ public class FacturaEntity {
     @Column(name = "MONTOTOTAL", nullable = false)
     private Double montoTotal;
 
+    @Column(name = "ESTADO", nullable = false, length = 20)
+    private String estado; // Pendiente, Pagada, Cancelada
+
+    @Column(name = "REFERENCIAPAGO", length = 100)
+    private String referenciaPago;
+
+    @Column(name = "DESCRIPCION", length = 255)
+    private String descripcion;
+
+    // 🔹 Relaciones
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDEMPLEADO", nullable = false)
     private EmpleadoEntity empleado;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IDMANTENIMIENTO", nullable = false)
-    private MantenimientoEntity mantenimiento;
+    @JoinColumn(name = "IDORDEN", nullable = false)
+    private OrdenTrabajoEntity ordenTrabajo;
 
-    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PagosEntity> pagos = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDMETODOPAGO", nullable = false)
+    private MetodoPagoEntity metodoPago;
 }

@@ -1,5 +1,6 @@
 package APISASA.API_sasa.Entities.MetodoPago;
 
+import APISASA.API_sasa.Entities.Factura.FacturaEntity;
 import APISASA.API_sasa.Entities.Pagos.PagosEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,7 +25,6 @@ public class MetodoPagoEntity {
 
     @Column(name = "METODO", nullable = false, length = 100)
     private String metodo;
-
-    @OneToMany(mappedBy = "metodoPago", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PagosEntity> pagos = new ArrayList<>();
+    @OneToMany(mappedBy = "metodoPago", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<FacturaEntity> facturas = new ArrayList<>();
 }

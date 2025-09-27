@@ -38,8 +38,9 @@ public class UserEntity {
     @Column(name = "ESTADO", length = 100)
     private String estado;
 
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EmpleadoEntity> empleados = new ArrayList<>();
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private EmpleadoEntity empleado;
+
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NotificacionesEntity> notificaciones = new ArrayList<>();

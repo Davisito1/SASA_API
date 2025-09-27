@@ -24,7 +24,7 @@ public class ControllerEmpleado {
     @Autowired
     private EmpleadoService service;
 
-    // Consultar con paginación y búsqueda opcional
+    // 🔹 Consultar con paginación y búsqueda opcional
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerEmpleados(
             @RequestParam(defaultValue = "0") int page,
@@ -47,7 +47,7 @@ public class ControllerEmpleado {
         ));
     }
 
-    //  Registrar
+    // 🔹 Registrar Empleado + Usuario
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody EmpleadoDTO dto,
@@ -65,9 +65,24 @@ public class ControllerEmpleado {
         }
 
         try {
-            EmpleadoDTO creado = service.insertarEmpleado(dto);
-            return ResponseEntity.ok(Map.of(
+            // 🚨 Validar duplicados antes de registrar
+            if (service.existeCorreo(dto.getCorreo())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "El correo ya está en uso"
+                ));
+            }
+            if (service.existeUsuario(dto.getNombreUsuario())) {
+                return ResponseEntity.badRequest().body(Map.of(
+                        "status", "error",
+                        "message", "El nombre de usuario ya está en uso"
+                ));
+            }
+
+            EmpleadoDTO creado = service.registrarEmpleadoConUsuario(dto);
+            return ResponseEntity.status(201).body(Map.of(
                     "status", "success",
+                    "message", "Empleado registrado correctamente",
                     "data", creado
             ));
         } catch (Exception e) {
@@ -78,7 +93,8 @@ public class ControllerEmpleado {
         }
     }
 
-    //  Actualizar
+
+    // 🔹 Actualizar Empleado
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
@@ -100,6 +116,7 @@ public class ControllerEmpleado {
             EmpleadoDTO actualizado = service.actualizarEmpleado(id, dto);
             return ResponseEntity.ok(Map.of(
                     "status", "success",
+                    "message", "Empleado actualizado correctamente",
                     "data", actualizado
             ));
         } catch (ExceptionEmpleadoNoEncontrado e) {
@@ -110,7 +127,7 @@ public class ControllerEmpleado {
         }
     }
 
-    // 🔹 Eliminar
+    // 🔹 Eliminar Empleado
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

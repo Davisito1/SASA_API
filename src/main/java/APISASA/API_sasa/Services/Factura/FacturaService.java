@@ -56,29 +56,14 @@ public class FacturaService {
             existente.setEmpleado(emp);
         }
 
-        if (dto.getIdMantenimiento() != null) {
-            MantenimientoEntity mant = mantenimientoRepo.findById(dto.getIdMantenimiento())
-                    .orElseThrow(() -> new RuntimeException("Mantenimiento no encontrado con ID: " + dto.getIdMantenimiento()));
-            existente.setMantenimiento(mant);
+        if (dto.getId() != null) {
+            MantenimientoEntity mant = mantenimientoRepo.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("Mantenimiento no encontrado con ID: " + dto.getId()));
         }
 
         FacturaEntity actualizado = repo.save(existente);
         return convertirADTO(actualizado);
     }
-
-    // Eliminar factura
-    public boolean eliminarFactura(Long id) {
-        try {
-            if (repo.existsById(id)) {
-                repo.deleteById(id);
-                return true;
-            }
-            return false;
-        } catch (EmptyResultDataAccessException e) {
-            throw new ExceptionFacturaNoEncontrada("No se encontró la factura con ID: " + id + " para eliminar.");
-        }
-    }
-
 
     private FacturaDTO convertirADTO(FacturaEntity entity) {
         FacturaDTO dto = new FacturaDTO();
@@ -88,9 +73,6 @@ public class FacturaService {
 
         if (entity.getEmpleado() != null) {
             dto.setIdEmpleado(entity.getEmpleado().getIdEmpleado());
-        }
-        if (entity.getMantenimiento() != null) {
-            dto.setIdMantenimiento(entity.getMantenimiento().getId());
         }
 
         return dto;
@@ -107,10 +89,9 @@ public class FacturaService {
             entity.setEmpleado(emp);
         }
 
-        if (dto.getIdMantenimiento() != null) {
-            MantenimientoEntity mant = mantenimientoRepo.findById(dto.getIdMantenimiento())
-                    .orElseThrow(() -> new RuntimeException("Mantenimiento no encontrado con ID: " + dto.getIdMantenimiento()));
-            entity.setMantenimiento(mant);
+        if (dto.getId() != null) {
+            MantenimientoEntity mant = mantenimientoRepo.findById(dto.getId())
+                    .orElseThrow(() -> new RuntimeException("Mantenimiento no encontrado con ID: " + dto.getId()));
         }
 
         return entity;
@@ -121,4 +102,15 @@ public class FacturaService {
                 .map(this::convertirADTO)  // 🔹 convierte la entidad a DTO
                 .orElseThrow(() -> new RuntimeException("No existe una factura con ID: " + id));
     }
+
+    public FacturaDTO anularFactura(Long id) {
+        FacturaEntity factura = repo.findById(id)
+                .orElseThrow(() -> new ExceptionFacturaNoEncontrada("Factura no encontrada con ID " + id));
+
+        factura.setEstado("Cancelada"); // 👈 marcamos estado
+        FacturaEntity guardada = repo.save(factura);
+
+        return convertirADTO(guardada);
+    }
+
 }

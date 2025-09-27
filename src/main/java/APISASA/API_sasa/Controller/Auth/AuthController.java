@@ -19,14 +19,14 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/auth") // ⬅️ COINCIDE con tu LoginService.js
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
     private final JWTUtils jwtUtils;
 
-    @Value("${security.jwt.cookieName:authToken}") // ⬅️ debe coincidir con el filtro
+    @Value("${security.jwt.cookieName:authToken}")
     private String jwtCookieName;
 
     @Value("${app.env.prod:false}")
@@ -76,7 +76,7 @@ public class AuthController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Map.of(
                         "status","OK",
-                        "token", token, // ⬅️ Tu LoginService lo guarda para Authorization: Bearer
+                        "token", token,
                         "user", Map.of(
                                 "id", user.getIdUsuario(),
                                 "username", user.getNombreUsuario(),
@@ -125,4 +125,38 @@ public class AuthController {
         if (isProd) b.sameSite("None").secure(true); else b.sameSite("Lax").secure(false);
         return b.build();
     }
+    @PostMapping(
+            value = "/register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> register(@Valid @RequestBody UserDTO data) {
+        try {
+            UserEntity nuevo = new UserEntity();
+            nuevo.setNombreUsuario(data.getNombreUsuario());
+            nuevo.setCorreo(data.getCorreo());
+            nuevo.setContrasena(data.getContrasena()); // se encripta en AuthService
+            nuevo.setRol(data.getRol());
+            nuevo.setEstado("ACTIVO");
+
+            UserEntity guardado = authService.register(nuevo);
+
+            return ResponseEntity.ok(Map.of(
+                    "status","OK",
+                    "message","Usuario registrado correctamente",
+                    "user", Map.of(
+                            "id", guardado.getIdUsuario(),
+                            "username", guardado.getNombreUsuario(),
+                            "email", guardado.getCorreo(),
+                            "rol", guardado.getRol()
+                    )
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status","ERROR",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
 }

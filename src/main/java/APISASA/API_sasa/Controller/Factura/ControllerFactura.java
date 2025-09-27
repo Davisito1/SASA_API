@@ -131,26 +131,28 @@ public class ControllerFactura {
     }
 
     // 🔹 Eliminar
-    @DeleteMapping("/eliminar/{id}")
-    public ResponseEntity<?> eliminar(@PathVariable Long id) {
+// 🔹 Anular (cambiar estado a Cancelada)
+    @PutMapping("/{id}/anular")
+    public ResponseEntity<?> anular(@PathVariable Long id) {
         try {
-            if (service.eliminarFactura(id)) {
-                return ResponseEntity.ok(Map.of(
-                        "status", "success",
-                        "message", "Factura eliminada correctamente"
-                ));
-            } else {
-                return ResponseEntity.status(404).body(Map.of(
-                        "status", "error",
-                        "message", "Factura no encontrada"
-                ));
-            }
+            FacturaDTO anulada = service.anularFactura(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", anulada,
+                    "message", "Factura anulada correctamente"
+            ));
+        } catch (ExceptionFacturaNoEncontrada e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of(
                     "status", "error",
-                    "message", "Error al eliminar factura",
+                    "message", "Error al anular factura",
                     "timestamp", Instant.now().toString()
             ));
         }
     }
+
 }

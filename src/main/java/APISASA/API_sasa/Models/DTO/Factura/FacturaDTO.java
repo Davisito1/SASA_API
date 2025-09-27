@@ -14,19 +14,33 @@ import java.time.LocalDate;
 public class FacturaDTO {
     private Long id;
 
-    @NotNull(message = "La fecha es obligatoria")
-    @NotNull(message = "La fecha es obligatoria")
-    @PastOrPresent(message = "La fecha no puede ser posterior al día de hoy")
-    @FutureOrPresent(message = "La fecha no puede ser anterior al día de hoy")
+    @NotNull(message = "La fecha de emisión es obligatoria")
+    @PastOrPresent(message = "La fecha de emisión no puede ser futura")
     private LocalDate fecha;
 
-    @NotNull(message = "El monto es obligatorio")
-    @PositiveOrZero(message = "El precio no puede ser negativo")
-    private double montoTotal;
+    @NotNull(message = "El monto total es obligatorio")
+    @PositiveOrZero(message = "El monto no puede ser negativo")
+    private Double montoTotal;
 
-    @Min(value = 1, message = "Debe asignarse un empleado valido")
+    @NotNull(message = "Debe asignarse un empleado válido")
+    @Min(value = 1, message = "El idEmpleado debe ser mayor a 0")
     private Long idEmpleado;
 
-    @Min(value = 1, message = "Debe asignarse un mantenimiento valido")
-    private Long idMantenimiento;
+    @NotNull(message = "Debe asignarse una orden de trabajo válida")
+    @Min(value = 1, message = "El idOrden debe ser mayor a 0")
+    private Long idOrden;
+
+    @NotNull(message = "Debe especificarse el método de pago")
+    @Min(value = 1, message = "El idMetodoPago debe ser mayor a 0")
+    private Long idMetodoPago;
+
+    @Size(max = 100, message = "La referencia de pago no debe superar los 100 caracteres")
+    private String referenciaPago;
+
+    @Size(max = 255, message = "La descripción no debe superar los 255 caracteres")
+    private String descripcion;
+
+    @NotNull(message = "El estado de la factura es obligatorio")
+    @Pattern(regexp = "Pendiente|Pagada|Cancelada", message = "Estado inválido")
+    private String estado;
 }
