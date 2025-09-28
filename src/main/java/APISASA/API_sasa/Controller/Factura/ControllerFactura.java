@@ -22,7 +22,7 @@ public class ControllerFactura {
     @Autowired
     private FacturaService service;
 
-    //Consultar facturas con paginación
+    // 🔹 Consultar facturas con paginación
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerFacturas(
             @RequestParam(defaultValue = "0") int page,
@@ -50,8 +50,8 @@ public class ControllerFactura {
         ));
     }
 
-    // 🔹 Obtener factura por ID
-    @GetMapping("/{id}")
+    // 🔹 Obtener factura por ID (solo números)
+    @GetMapping("/{id:\\d+}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
         try {
             FacturaDTO dto = service.obtenerFacturaPorId(id);
@@ -67,7 +67,7 @@ public class ControllerFactura {
         }
     }
 
-    // 🔹 Registrar
+    // 🔹 Registrar factura
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody FacturaDTO dto,
@@ -98,7 +98,7 @@ public class ControllerFactura {
         }
     }
 
-    // 🔹 Actualizar
+    // 🔹 Actualizar factura
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
@@ -130,9 +130,8 @@ public class ControllerFactura {
         }
     }
 
-    // 🔹 Eliminar
-// 🔹 Anular (cambiar estado a Cancelada)
-    @PutMapping("/{id}/anular")
+    // 🔹 Anular factura (estado = Cancelada)
+    @PutMapping("/{id:\\d+}/anular")
     public ResponseEntity<?> anular(@PathVariable Long id) {
         try {
             FacturaDTO anulada = service.anularFactura(id);

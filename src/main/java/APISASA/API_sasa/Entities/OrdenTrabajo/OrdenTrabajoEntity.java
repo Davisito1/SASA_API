@@ -22,7 +22,7 @@ public class OrdenTrabajoEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orden_seq")
     @SequenceGenerator(name = "orden_seq", sequenceName = "SEQ_ORDENTRABAJO", allocationSize = 1)
     @Column(name = "IDORDEN")
-    private Long Id;
+    private Long idOrden;
 
     @Column(name = "FECHA", nullable = false)
     private LocalDate fecha;

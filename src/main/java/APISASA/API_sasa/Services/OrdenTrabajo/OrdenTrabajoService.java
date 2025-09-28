@@ -82,15 +82,18 @@ public class OrdenTrabajoService {
     // ===============================
     private OrdenTrabajoDTO convertirADTO(OrdenTrabajoEntity entity) {
         return OrdenTrabajoDTO.builder()
-                .id(entity.getId())
+                .id(entity.getIdOrden())
                 .fecha(entity.getFecha())
                 .idVehiculo(entity.getVehiculo().getIdVehiculo())
+                .placaVehiculo(entity.getVehiculo().getPlaca())     //  se agrega
+                .marcaVehiculo(entity.getVehiculo().getMarca())     // se agrega
                 .detallesIds(entity.getDetalles()
                         .stream()
                         .map(DetalleOrdenEntity::getIdDetalle)
                         .collect(Collectors.toList()))
                 .build();
     }
+
 
     private OrdenTrabajoEntity convertirAEntity(OrdenTrabajoDTO dto) {
         VehicleEntity vehiculo = vehicleRepository.findById(dto.getIdVehiculo())
@@ -101,7 +104,7 @@ public class OrdenTrabajoService {
                 : List.of();
 
         return OrdenTrabajoEntity.builder()
-                .Id(dto.getId())
+                .idOrden(dto.getId())
                 .fecha(dto.getFecha())
                 .vehiculo(vehiculo)
                 .detalles(detalles)

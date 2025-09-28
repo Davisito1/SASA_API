@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,7 +22,7 @@ public class DetalleOrdenController {
     @Autowired
     private DetalleOrdenService service;
 
-    // 🔹 Consultar todos los detalles de orden
+    // 🔹 Consultar todos los detalles
     @GetMapping("/consultar")
     public ResponseEntity<?> obtenerDetalles() {
         return ResponseEntity.ok(Map.of(
@@ -30,7 +31,7 @@ public class DetalleOrdenController {
         ));
     }
 
-    // 🔹 Consultar por ID
+    // 🔹 Consultar por ID detalle
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
         try {
@@ -47,7 +48,17 @@ public class DetalleOrdenController {
         }
     }
 
-    // 🔹 Registrar
+    // 🔹 Consultar detalles por ID de orden
+    @GetMapping("/porOrden/{idOrden}")
+    public ResponseEntity<?> obtenerPorOrden(@PathVariable Long idOrden) {
+        List<DetalleOrdenDTO> lista = service.obtenerPorOrden(idOrden);
+        return ResponseEntity.ok(Map.of(
+                "status", "success",
+                "data", lista
+        ));
+    }
+
+    // 🔹 Registrar detalle
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
             @Valid @RequestBody DetalleOrdenDTO dto,
@@ -71,7 +82,7 @@ public class DetalleOrdenController {
         ));
     }
 
-    // 🔹 Actualizar
+    // 🔹 Actualizar detalle
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<?> actualizar(
             @PathVariable Long id,
@@ -103,7 +114,7 @@ public class DetalleOrdenController {
         }
     }
 
-    // 🔹 Eliminar
+    // 🔹 Eliminar detalle
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Long id) {
         try {

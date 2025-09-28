@@ -103,7 +103,7 @@ public class DetalleOrdenService {
     private DetalleOrdenDTO convertirADTO(DetalleOrdenEntity entity) {
         return DetalleOrdenDTO.builder()
                 .id(entity.getIdDetalle())
-                .idOrden(entity.getOrdenTrabajo() != null ? entity.getOrdenTrabajo().getId() : null)
+                .idOrden(entity.getOrdenTrabajo() != null ? entity.getOrdenTrabajo().getIdOrden() : null)
                 .idMantenimiento(entity.getMantenimiento() != null ? entity.getMantenimiento().getId() : null)
                 .cantidad(entity.getCantidad())
                 .precioUnitario(entity.getPrecioUnitario())
@@ -138,4 +138,23 @@ public class DetalleOrdenService {
 
         return entity;
     }
+
+    public List<DetalleOrdenDTO> obtenerPorOrden(Long idOrden) {
+        return repo.findByOrdenTrabajo_IdOrden(idOrden).stream()
+                .map(e -> DetalleOrdenDTO.builder()
+                        .id(e.getIdDetalle())                              // PK del detalle
+                        .idOrden(e.getOrdenTrabajo().getIdOrden())         // FK orden
+                        .idMantenimiento(e.getMantenimiento().getId())    // 👈 aquí va el Long
+                        .mantenimientoNombre(e.getMantenimiento().getDescripcionTrabajo()) // 👈 aquí va el String
+                        .cantidad(e.getCantidad())
+                        .precioUnitario(e.getPrecioUnitario())
+                        .subtotal(e.getSubtotal())
+                        .build()
+                ).toList();
+    }
+
+
+
+
+
 }

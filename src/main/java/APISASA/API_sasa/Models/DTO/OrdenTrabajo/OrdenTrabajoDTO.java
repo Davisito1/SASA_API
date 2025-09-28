@@ -22,10 +22,15 @@ public class OrdenTrabajoDTO {
     @Min(value = 1, message = "El idVehiculo debe ser mayor a 0")
     private Long idVehiculo;
 
+    // Info del vehículo (solo lectura)
+    private String placaVehiculo;
+    private String marcaVehiculo;
+
+
     @NotNull(message = "La fecha de la orden es obligatoria")
     @PastOrPresent(message = "La fecha de la orden no puede ser futura")
     private LocalDate fecha;
 
-    // 🔹 Lista de detalles (opcional, se puede cargar desde el service)
+    //Lista de detalles (opcional, se puede cargar desde el service)
     private List<Long> detallesIds;
 }
