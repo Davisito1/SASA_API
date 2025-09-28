@@ -18,23 +18,6 @@
     <name>API_sasa</name>
     <description>Api del sistema SASA</description>
 
-    <url/>
-
-    <licenses>
-        <license/>
-    </licenses>
-
-    <developers>
-        <developer/>
-    </developers>
-
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
-
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -65,13 +48,6 @@
             <version>2.5</version>
         </dependency>
 
-        <!-- Oracle JDBC -->
-        <dependency>
-            <groupId>com.oracle.database.jdbc</groupId>
-            <artifactId>ojdbc11</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -80,7 +56,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Seguridad (Spring Security 6 para Spring Boot 3.x) -->
+        <!-- Seguridad -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -105,21 +81,21 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- (Opcional) variante sin librerías nativas de Argon2 -->
+        <!-- Variante sin librerías nativas de Argon2 -->
         <dependency>
             <groupId>de.mkammerer</groupId>
             <artifactId>argon2-jvm-nolibs</artifactId>
             <version>2.11</version>
         </dependency>
 
-        <!-- XML Bind (si lo necesitas para JAXB) -->
+        <!-- XML Bind -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
             <version>3.0.0</version>
         </dependency>
 
-        <!-- Cargar archivo .env -->
+        <!-- Dotenv -->
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>dotenv-java</artifactId>
@@ -133,11 +109,29 @@
             <version>2.0.1</version>
         </dependency>
 
-        <!-- Test -->
+        <!-- Oracle JDBC driver -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc11</artifactId>
+            <version>23.7.0.25.01</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Librerías para Oracle Wallet -->
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>oraclepki</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_core</artifactId>
+            <version>21.9.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.oracle.database.security</groupId>
+            <artifactId>osdt_cert</artifactId>
+            <version>21.9.0.0</version>
         </dependency>
 
         <!-- Tomcat en entorno WAR -->
@@ -145,6 +139,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- Test -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -178,5 +179,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
