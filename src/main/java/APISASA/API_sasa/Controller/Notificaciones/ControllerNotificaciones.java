@@ -2,6 +2,7 @@ package APISASA.API_sasa.Controller.Notificaciones;
 
 import APISASA.API_sasa.Models.DTO.Notificaciones.NotificacionDTO;
 import APISASA.API_sasa.Services.Notificaciones.NotificacionesService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,24 @@ public class ControllerNotificaciones {
     @Autowired
     private NotificacionesService service;
 
-    //Consultar todas las notificaciones de un usuario
+    // 🔹 Crear nueva notificación
+    @PostMapping("/crear")
+    public ResponseEntity<?> crearNotificacion(@Valid @RequestBody NotificacionDTO dto) {
+        try {
+            NotificacionDTO creada = service.crearNotificacion(dto);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", creada
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        }
+    }
+
+    // 🔹 Consultar todas las notificaciones de un usuario
     @GetMapping("/listar/{idUsuario}")
     public ResponseEntity<?> obtenerPorUsuario(@PathVariable Long idUsuario) {
         return ResponseEntity.ok(Map.of(
@@ -24,7 +42,7 @@ public class ControllerNotificaciones {
         ));
     }
 
-    //Marcar como leída
+    // 🔹 Marcar como leída
     @PutMapping("/marcarLeida/{id}")
     public ResponseEntity<?> marcarLeida(@PathVariable Long id) {
         try {

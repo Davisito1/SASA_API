@@ -39,4 +39,15 @@ public class NotificacionesEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IDUSUARIO", nullable = false)
     private UserEntity usuario;
+
+    // Se ejecuta automáticamente antes de insertar
+    @PrePersist
+    public void prePersist() {
+        if (fecha == null) {
+            fecha = LocalDate.now(); // Se asigna la fecha actual
+        }
+        if (lectura == null) {
+            lectura = 0; // Por defecto: no leída
+        }
+    }
 }

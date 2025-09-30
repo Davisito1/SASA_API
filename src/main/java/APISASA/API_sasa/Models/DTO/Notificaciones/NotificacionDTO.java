@@ -1,37 +1,29 @@
 package APISASA.API_sasa.Models.DTO.Notificaciones;
 
 import jakarta.validation.constraints.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
-import java.time.LocalDate;
+import lombok.*;
 
 @ToString
 @EqualsAndHashCode
 @Getter @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NotificacionDTO {
     private Long id;
 
-    @NotBlank(message = "El mensaje es olbigatorio")
+    @NotBlank(message = "El mensaje es obligatorio")
     private String mensaje;
 
-    @NotNull(message = "La fecha es obligatoria")
-    private LocalDate fecha;
-
     @NotBlank(message = "Debe indicarse el tipo de notificación")
-    @Pattern(regexp = "^(Informativa|Alerta|Urgenta)$", message = "Tipo de notificacion invalido (Informativa, Alerta y Urgente)")
+    @Pattern(regexp = "^(Informativa|Alerta|Urgente)$",
+            message = "Tipo de notificación inválido (Informativa, Alerta, Urgente)")
     private String tipoNotificacion;
 
-    @NotNull(message = "El estado de lectura es obligatorio")
-    @Min(value = 0, message = "El valor mínimo de lectura es 0")
-    @Max(value = 1, message = "El valor máximo de lectura es 1")
-    private Integer lectura;
-
-    @NotBlank(message = "Debe indicarse el tipo de propiedad")
+    @NotBlank(message = "Debe indicarse la prioridad")
     private String prioridad;
 
-    @Min(value = 1, message = "Debe asignarse un usuario valido")
+    @NotNull(message = "Debe asignarse un usuario válido")
+    @Min(value = 1, message = "Debe asignarse un usuario válido")
     private Long idUsuario;
 }

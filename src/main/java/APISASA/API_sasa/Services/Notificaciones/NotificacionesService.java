@@ -21,64 +21,57 @@ public class NotificacionesService {
     @Autowired
     private UserRepository userRepo;
 
-    //  Obtener todas las notificaciones de un usuario
+    // 🔹 Obtener todas las notificaciones de un usuario
     public List<NotificacionDTO> obtenerPorUsuario(Long idUsuario) {
-        return repo.findByUsuario_IdUsuario(idUsuario) // relación con UserEntity
+        return repo.findByUsuario_IdUsuario(idUsuario)
                 .stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
-    // Crear nueva notificación
+    // 🔹 Crear nueva notificación
     public NotificacionDTO crearNotificacion(NotificacionDTO dto) {
         NotificacionesEntity entity = new NotificacionesEntity();
         entity.setMensaje(dto.getMensaje());
-        entity.setFecha(dto.getFecha());
         entity.setTipoNotificacion(dto.getTipoNotificacion());
-        entity.setLectura(dto.getLectura() != null ? dto.getLectura() : 0);
         entity.setPrioridad(dto.getPrioridad());
 
-        // 🔹 Vincular con usuario existente
+        // Vincular con usuario existente
         UserEntity usuario = userRepo.findById(dto.getIdUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + dto.getIdUsuario()));
         entity.setUsuario(usuario);
 
+        // ⚡ fecha y lectura se setean solos en @PrePersist
         NotificacionesEntity guardada = repo.save(entity);
         return convertirADTO(guardada);
     }
 
-    //  Marcar notificación como leída
+    // 🔹 Marcar notificación como leída
     public NotificacionDTO marcarLeida(Long id) {
         NotificacionesEntity entity = repo.findById(id)
                 .orElseThrow(() -> new ExceptionNotificacionNoEncontrada("No existe notificación con ID: " + id));
 
-        entity.setLectura(1); // marcar como leída
+        entity.setLectura(1); // 1 = leída
         return convertirADTO(repo.save(entity));
     }
 
-    // Eliminar notificación
+    // 🔹 Eliminar notificación
     public boolean eliminarNotificacion(Long id) {
         if (repo.existsById(id)) {
             repo.deleteById(id);
             return true;
         }
-        throw new ExceptionNotificacionNoEncontrada("No se encontró notificación con ID: " + id);
+        return false; // el Controller devuelve 404 si es false
     }
 
-
+    // 🔹 Convertir Entity → DTO
     private NotificacionDTO convertirADTO(NotificacionesEntity entity) {
-        NotificacionDTO dto = new NotificacionDTO();
-        dto.setId(entity.getIdNotificacion()); // usa el nombre real de la columna
-        dto.setMensaje(entity.getMensaje());
-        dto.setFecha(entity.getFecha());
-        dto.setTipoNotificacion(entity.getTipoNotificacion());
-        dto.setLectura(entity.getLectura());
-        dto.setPrioridad(entity.getPrioridad());
-
-        if (entity.getUsuario() != null) {
-            dto.setIdUsuario(entity.getUsuario().getIdUsuario()); // usa getIdUsuario de UserEntity
-        }
-
-        return dto;
+        return NotificacionDTO.builder()
+                .id(entity.getIdNotificacion())
+                .mensaje(entity.getMensaje())
+                .tipoNotificacion(entity.getTipoNotificacion())
+                .prioridad(entity.getPrioridad())
+                .idUsuario(entity.getUsuario() != null ? entity.getUsuario().getIdUsuario() : null)
+                .build();
     }
 }

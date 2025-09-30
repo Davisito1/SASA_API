@@ -9,6 +9,9 @@ import java.util.List;
 @Repository
 public interface NotificacionesRepository extends JpaRepository<NotificacionesEntity, Long> {
 
-    // Buscar notificaciones por ID de usuario (usando el nombre real de la PK en UserEntity)
+    //  Obtener todas las notificaciones de un usuario
     List<NotificacionesEntity> findByUsuario_IdUsuario(Long idUsuario);
+
+    //  Opcional: obtener solo las no leídas
+    List<NotificacionesEntity> findByUsuario_IdUsuarioAndLectura(Long idUsuario, Integer lectura);
 }
