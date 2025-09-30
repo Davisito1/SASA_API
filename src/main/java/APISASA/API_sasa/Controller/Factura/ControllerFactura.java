@@ -9,7 +9,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
+import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +74,37 @@ public class ControllerFactura {
         }
     }
 
+
+    @GetMapping("/{id:\\d+}/pdf")
+    public ResponseEntity<byte[]> generarPdf(@PathVariable Long id) {
+        try {
+            FacturaDTO factura = service.obtenerFacturaPorId(id);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Document document = new Document();
+            PdfWriter.getInstance(document, baos);
+            document.open();
+            document.add(new Paragraph("Factura #" + factura.getId()));
+            document.add(new Paragraph("Fecha: " + factura.getFecha()));
+            document.add(new Paragraph("Empleado: " + factura.getIdEmpleado()));
+            document.add(new Paragraph("Método de Pago: " + factura.getIdMetodoPago()));
+            document.add(new Paragraph("Monto: $" + factura.getMontoTotal()));
+            document.add(new Paragraph("Estado: " + factura.getEstado()));
+            document.close();
+
+            byte[] pdf = baos.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", "factura-" + id + ".pdf");
+
+            return ResponseEntity.ok().headers(headers).body(pdf);
+
+        } catch (ExceptionFacturaNoEncontrada e) {
+            return ResponseEntity.status(404).body(null);
+        } catch (DocumentException e) {
+            return ResponseEntity.internalServerError().body(null);
+        }
+    }
     // 🔹 Registrar factura
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(
@@ -129,6 +167,54 @@ public class ControllerFactura {
             ));
         }
     }
+
+    // 🔹 Marcar factura como Pagada
+    @PutMapping("/{id:\\d+}/pagar")
+    public ResponseEntity<?> pagar(@PathVariable Long id) {
+        try {
+            FacturaDTO pagada = service.pagarFactura(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", pagada,
+                    "message", "Factura marcada como pagada correctamente"
+            ));
+        } catch (ExceptionFacturaNoEncontrada e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error al marcar como pagada",
+                    "timestamp", Instant.now().toString()
+            ));
+        }
+    }
+    // 🔹 Archivar factura (estado = Archivada)
+    @PutMapping("/{id:\\d+}/archivar")
+    public ResponseEntity<?> archivar(@PathVariable Long id) {
+        try {
+            FacturaDTO archivada = service.archivarFactura(id);
+            return ResponseEntity.ok(Map.of(
+                    "status", "success",
+                    "data", archivada,
+                    "message", "Factura archivada correctamente"
+            ));
+        } catch (ExceptionFacturaNoEncontrada e) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "status", "error",
+                    "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "status", "error",
+                    "message", "Error al archivar factura",
+                    "timestamp", Instant.now().toString()
+            ));
+        }
+    }
+
 
     // 🔹 Anular factura (estado = Cancelada)
     @PutMapping("/{id:\\d+}/anular")

@@ -163,4 +163,30 @@ public class FacturaService {
 
         return convertirADTO(guardada);
     }
+
+
+// Pagar factura (estado = Pagada)
+
+    public FacturaDTO pagarFactura(Long id) {
+        FacturaEntity factura = repo.findById(id)
+                .orElseThrow(() -> new ExceptionFacturaNoEncontrada("Factura no encontrada con ID " + id));
+
+        factura.setEstado("Pagada");
+        FacturaEntity guardada = repo.save(factura);
+
+        return convertirADTO(guardada);
+    }
+
+// Archivar factura (estado = Archivada)
+
+    public FacturaDTO archivarFactura(Long id) {
+        FacturaEntity factura = repo.findById(id)
+                .orElseThrow(() -> new ExceptionFacturaNoEncontrada("Factura no encontrada con ID " + id));
+
+        factura.setEstado("Archivada");
+        FacturaEntity guardada = repo.save(factura);
+
+        return convertirADTO(guardada);
+    }
+
 }

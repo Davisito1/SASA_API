@@ -70,7 +70,8 @@ public class AuthControllerClientes {
         String subject  = cliente.getCorreo();
         String roleName = "CLIENTE";
 
-        // ✅ Generar token con rol y idCliente
+
+        //generan token con rol y id
         String token = jwtUtils.generateToken(subject, roleName, cliente.getId());
 
         ResponseCookie cookie = buildJwtCookie(token);
