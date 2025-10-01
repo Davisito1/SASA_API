@@ -39,6 +39,7 @@ public class SecurityConfig {
     }
 
     // 2) CORS
+    // 2) CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
@@ -46,8 +47,8 @@ public class SecurityConfig {
         cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://10.0.2.2:*",    // 👈 necesario para emulador Android
-                "https://mi-frontend.vercel.app"
+                "http://10.0.2.2:*",       // 👈 necesario para emulador Android
+                "https://sasa-expo.vercel.app" // 👈 tu dominio en Vercel
         ));
 
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));

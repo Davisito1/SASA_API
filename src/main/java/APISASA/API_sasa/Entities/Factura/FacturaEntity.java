@@ -3,6 +3,7 @@ package APISASA.API_sasa.Entities.Factura;
 import APISASA.API_sasa.Entities.Empleado.EmpleadoEntity;
 import APISASA.API_sasa.Entities.OrdenTrabajo.OrdenTrabajoEntity;
 import APISASA.API_sasa.Entities.MetodoPago.MetodoPagoEntity;
+import APISASA.API_sasa.Entities.Cliente.ClienteEntity; // 👈 importar Cliente
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,11 +45,14 @@ public class FacturaEntity {
     private EmpleadoEntity empleado;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IDORDEN", nullable = false)
+    @JoinColumn(name = "IDORDEN")
     private OrdenTrabajoEntity ordenTrabajo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "IDMETODOPAGO")
+    private MetodoPagoEntity metodoPago;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "IDMETODOPAGO", nullable = false)
-    private MetodoPagoEntity metodoPago;
+    @JoinColumn(name = "IDCLIENTE", nullable = false)
+    private ClienteEntity cliente;
 }
