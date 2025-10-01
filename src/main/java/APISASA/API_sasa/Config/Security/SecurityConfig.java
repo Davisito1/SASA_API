@@ -39,7 +39,6 @@ public class SecurityConfig {
     }
 
     // 2) CORS
-    // 2) CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
@@ -47,12 +46,12 @@ public class SecurityConfig {
         cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://10.0.2.2:*",       // 👈 necesario para emulador Android
-                "https://sasa-expo.vercel.app" // 👈 tu dominio en Vercel
+                "http://10.0.2.2:*",          // Emulador Android
+                "https://sasa-expo.vercel.app" // Producción (Vercel)
         ));
-
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Origin","Content-Type","Accept","Authorization"));
+        // Mantengo los headers que ya usabas y agrego wildcard por si acaso
+        cfg.setAllowedHeaders(List.of("Origin","Content-Type","Accept","Authorization","X-Requested-With","*"));
         cfg.setExposedHeaders(List.of("Authorization","Set-Cookie","WWW-Authenticate"));
         cfg.setMaxAge(3600L);
 
@@ -80,11 +79,14 @@ public class SecurityConfig {
         };
     }
 
-    // 4) Cadena de seguridad única
+    // 4) Cadena de seguridad (todo lo no público -> autenticado)
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   AuthenticationEntryPoint unauthorizedEntryPoint,
-                                                   AccessDeniedHandler accessDeniedHandler) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            AuthenticationEntryPoint unauthorizedEntryPoint,
+            AccessDeniedHandler accessDeniedHandler
+    ) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
@@ -97,23 +99,16 @@ public class SecurityConfig {
                         // Preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Login / Registro
-                        .requestMatchers("/auth/**", "/api/auth/**").permitAll()
+                        // Endpoints PÚBLICOS (login/registro/estáticos)
+                        .requestMatchers("/auth/**", "/api/auth/**", "/public/**").permitAll()
 
-                        // Cliente → ahora solo necesita estar autenticado
-                        .requestMatchers("/apiCliente/**").authenticated()
-
-                        // Otras APIs necesitan token válido
-                        .requestMatchers("/apiVehiculo/**").authenticated()
-                        .requestMatchers("/apiCitas/**").authenticated()
-                        .requestMatchers("/apiPagos/**").authenticated()
-
-                        // Todo lo demás público
-                        .anyRequest().permitAll()
+                        // TODO lo demás requiere estar AUTENTICADO (da igual admin/empleado)
+                        .anyRequest().authenticated()
                 )
+                // Tu filtro que valida JWT (cookie o lo que tengas implementado)
                 .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .httpBasic(httpBasic -> httpBasic.disable())
-                .formLogin(form -> form.disable());
+                .httpBasic(h -> h.disable())
+                .formLogin(f -> f.disable());
 
         return http.build();
     }
