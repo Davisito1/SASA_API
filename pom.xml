@@ -95,12 +95,7 @@
             <version>3.0.0</version>
         </dependency>
 
-        <!-- Dotenv -->
-        <dependency>
-            <groupId>io.github.cdimascio</groupId>
-            <artifactId>dotenv-java</artifactId>
-            <version>3.0.0</version>
-        </dependency>
+
 
         <!-- Jakarta Transactions -->
         <dependency>
@@ -183,7 +178,19 @@
                         </exclude>
                     </excludes>
                 </configuration>
+
             </plugin>
+            <plugin>
+
+                <groupId>org.apache.maven.plugins</groupId>
+
+                <artifactId>maven-war-plugin</artifactId>
+
+                <version>3.3.2</version>
+
+            </plugin>
+
+
         </plugins>
     </build>
 </project>
