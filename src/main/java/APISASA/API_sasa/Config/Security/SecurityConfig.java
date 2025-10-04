@@ -48,6 +48,7 @@ public class SecurityConfig {
                 "http://127.0.0.1:*",
                 "http://10.0.2.2:*",          // Emulador Android
                 "https://sasa-expo.vercel.app" // Producción (Vercel)
+                "https://sasaapi-73d5de493985.herokuapp.com" // 🔥 Backend Heroku
         ));
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
         // Mantengo los headers que ya usabas y agrego wildcard por si acaso
