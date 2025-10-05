@@ -1,4 +1,3 @@
-// src/main/java/APISASA/API_sasa/Config/Security/SecurityConfig.java
 package APISASA.API_sasa.Config.Security;
 
 import APISASA.API_sasa.Utils.JwtCookieAuthFilter;
@@ -32,26 +31,31 @@ public class SecurityConfig {
 
     private final JwtCookieAuthFilter jwtCookieAuthFilter;
 
+    // =======================
     // 1) PasswordEncoder
+    // =======================
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new Argon2PasswordEncoder(16, 32, 1, 1 << 13, 3);
     }
 
-    // 2) CORS
+    // =======================
+    // 2) Configuración de CORS
+    // =======================
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowCredentials(true);
+
+        // 🔥 Permitimos localhost (front local) + emulador Android + pruebas generales
         cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://10.0.2.2:*",          // Emulador Android
-                "https://sasa-expo.vercel.app",// Producción (Vercel)
-                "https://sasaapi-73d5de493985.herokuapp.com" // 🔥 Backend Heroku
+                "http://10.0.2.2:*",
+                "*" // ⚠️ permite cualquier origen temporalmente (útil para pruebas en Heroku)
         ));
+
         cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        // Mantengo los headers que ya usabas y agrego wildcard por si acaso
         cfg.setAllowedHeaders(List.of("Origin","Content-Type","Accept","Authorization","X-Requested-With","*"));
         cfg.setExposedHeaders(List.of("Authorization","Set-Cookie","WWW-Authenticate"));
         cfg.setMaxAge(3600L);
@@ -61,7 +65,9 @@ public class SecurityConfig {
         return source;
     }
 
-    // 3) Handlers 401/403
+    // =======================
+    // 3) Handlers de errores (401 / 403)
+    // =======================
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
         return (request, response, ex) -> {
@@ -80,7 +86,9 @@ public class SecurityConfig {
         };
     }
 
-    // 4) Cadena de seguridad (todo lo no público -> autenticado)
+    // =======================
+    // 4) Cadena de seguridad (filtros y permisos)
+    // =======================
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -89,34 +97,54 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
+                // 🔒 Desactiva CSRF porque usamos JWT (no sesiones)
                 .csrf(csrf -> csrf.disable())
+
+                // 🌐 Habilita CORS con la config anterior
                 .cors(Customizer.withDefaults())
+
+                // 🚫 Sin sesiones (stateless)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // ⚠️ Manejo de excepciones JWT
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(unauthorizedEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
+
+                // 🔐 Reglas de acceso
                 .authorizeHttpRequests(auth -> auth
-                        // Preflight
+                        // Preflight de CORS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Endpoints PÚBLICOS (login/registro/estáticos)
-                        .requestMatchers("/auth/**", "/api/auth/**", "/public/**").permitAll()
+                        // Endpoints públicos (login, registro, swagger, etc.)
+                        .requestMatchers(
+                                "/auth/**",
+                                "/api/auth/**",
+                                "/api/public/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
 
-                        // TODO lo demás requiere estar AUTENTICADO (da igual admin/empleado)
+                        // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )
-                // Tu filtro que valida JWT (cookie o lo que tengas implementado)
+
+                // 🔎 Filtro JWT personalizado (antes del UsernamePasswordAuthenticationFilter)
                 .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // Desactivar login HTTP básico y formulario
                 .httpBasic(h -> h.disable())
                 .formLogin(f -> f.disable());
 
         return http.build();
     }
 
+    // =======================
     // 5) AuthenticationManager
+    // =======================
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration c) throws Exception {
-        return c.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
