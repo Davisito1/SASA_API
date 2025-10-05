@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -30,11 +31,12 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtCookieAuthFilter.class);
 
-    @Value("${security.jwt.cookieName:authToken}")
+    @Value("${security.jwt.cookieName:JWT_TOKEN}") // ✅ siempre busca la cookie correcta
     private String authCookieName;
 
     private final JWTUtils jwtUtils;
 
+    // Métodos auxiliares
     private boolean isPreflight(HttpServletRequest req) {
         return "OPTIONS".equalsIgnoreCase(req.getMethod());
     }
@@ -65,41 +67,39 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
             if (token != null && !token.isBlank() &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                Claims claims = jwtUtils.parseToken(token);
-                String username = claims.getSubject();
-                String rol = jwtUtils.extractRol(token);
-                Long id = jwtUtils.extractId(token); // 👈 id del cliente
+                if (jwtUtils.validateToken(token)) {
+                    Claims claims = jwtUtils.parseToken(token);
+                    String username = claims.getSubject();
+                    String rol = jwtUtils.extractRol(token);
+                    Long id = jwtUtils.extractId(token);
 
-                // Normaliza rol → ROLE_CLIENTE / ROLE_ADMIN
-                if (rol == null || rol.isBlank()) {
-                    rol = "USER";
+                    // Normaliza el rol
+                    if (rol == null || rol.isBlank()) rol = "USER";
+                    rol = rol.toUpperCase();
+                    if (!rol.startsWith("ROLE_")) rol = "ROLE_" + rol;
+
+                    log.info("✅ Token válido → Usuario={} | Rol={} | Id={}", username, rol, id);
+
+                    var authorities = Collections.singletonList(new SimpleGrantedAuthority(rol));
+
+                    UsernamePasswordAuthenticationToken auth =
+                            new UsernamePasswordAuthenticationToken(username, null, authorities);
+
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                } else {
+                    log.warn("⚠️ Token inválido o expirado");
                 }
-                rol = rol.toUpperCase();
-                if (!rol.startsWith("ROLE_")) {
-                    rol = "ROLE_" + rol;
-                }
-
-                log.info("Token válido -> Usuario={} Rol={} Id={}", username, rol, id);
-
-                var authorities = Collections.singletonList(new SimpleGrantedAuthority(rol));
-
-                // 👇 El principal será el username, pero en "details" guardamos el idCliente
-                UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(username, null, authorities);
-                auth.setDetails(id); // podrás recuperarlo en el controller
-                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(auth);
             }
 
         } catch (ExpiredJwtException e) {
-            log.warn(" JWT expirado: {}", e.getMessage());
+            log.warn("⚠️ JWT expirado: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         } catch (MalformedJwtException e) {
-            log.warn(" JWT malformado: {}", e.getMessage());
+            log.warn("⚠️ JWT malformado: {}", e.getMessage());
             SecurityContextHolder.clearContext();
         } catch (Exception e) {
-            log.error(" Error procesando JWT", e);
+            log.error("❌ Error procesando JWT", e);
             SecurityContextHolder.clearContext();
         }
 
@@ -107,18 +107,28 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
     }
 
     private String resolveToken(HttpServletRequest request) {
+        // 1️⃣ Buscar en header Authorization
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7).trim();
         }
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            return Arrays.stream(cookies)
-                    .filter(c -> authCookieName.equals(c.getName()))
+
+        // 2️⃣ Buscar en cookie JWT_TOKEN (o nombre definido)
+        Cookie cookie = WebUtils.getCookie(request, authCookieName);
+        if (cookie != null) {
+            return cookie.getValue();
+        }
+
+        // 3️⃣ Buscar cookie alternativa (compatibilidad)
+        if (request.getCookies() != null) {
+            return Arrays.stream(request.getCookies())
+                    .filter(c -> c.getName().equalsIgnoreCase("JWT_TOKEN") ||
+                            c.getName().equalsIgnoreCase("authToken"))
                     .findFirst()
                     .map(Cookie::getValue)
                     .orElse(null);
         }
+
         return null;
     }
 }
