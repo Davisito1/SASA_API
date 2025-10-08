@@ -8,11 +8,17 @@ public class ApiSasaApplication {
 
 	public static void main(String[] args) {
 
-		// Ya no usamos Dotenv, Heroku maneja las variables de entorno automáticamente.
-		// Puedes accederlas con System.getenv("NOMBRE_DE_LA_VARIABLE") desde cualquier clase.
+		// Las variables de entorno ya están disponibles en Heroku,
+		// no es necesario cargar ningún archivo .env ni usar Dotenv.
 
-		// Ejemplo opcional de lectura (solo para probar si quieres imprimir en logs):
-		// System.out.println("BD_USER: " + System.getenv("ORACLE_CLOUD_BD_USER"));
+		// Opcional: puedes verificar que se estén leyendo correctamente
+		String dbUrl = System.getenv("ORACLE_CLOUD_BD_URL");
+		String dbUser = System.getenv("ORACLE_CLOUD_BD_USER");
+		String jwtSecret = System.getenv("SECURITY_JWT_SECRET");
+
+		System.out.println("🔹 ORACLE_CLOUD_BD_URL: " + (dbUrl != null));
+		System.out.println("🔹 ORACLE_CLOUD_BD_USER: " + (dbUser != null));
+		System.out.println("🔹 SECURITY_JWT_SECRET: " + (jwtSecret != null));
 
 		SpringApplication.run(ApiSasaApplication.class, args);
 	}

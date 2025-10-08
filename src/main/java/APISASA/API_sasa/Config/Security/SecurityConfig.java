@@ -17,11 +17,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.config.Customizer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
-
 import java.util.List;
 
 @Configuration
@@ -31,33 +29,26 @@ public class SecurityConfig {
 
     private final JwtCookieAuthFilter jwtCookieAuthFilter;
 
-    // =======================
-    // 1) PasswordEncoder
-    // =======================
+    // Bean de codificación de contraseñas (Argon2)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new Argon2PasswordEncoder(16, 32, 1, 1 << 13, 3);
     }
 
-    // =======================
-    // 2) Configuración de CORS
-    // =======================
+    // Configuración global de CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowCredentials(true);
-
-        // 🔥 Permitimos localhost (front local) + emulador Android + pruebas generales
         cfg.setAllowedOriginPatterns(List.of(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
                 "http://10.0.2.2:*",
-                "*" // ⚠️ permite cualquier origen temporalmente (útil para pruebas en Heroku)
+                "*"
         ));
-
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Origin","Content-Type","Accept","Authorization","X-Requested-With","*"));
-        cfg.setExposedHeaders(List.of("Authorization","Set-Cookie","WWW-Authenticate"));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        cfg.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With", "*"));
+        cfg.setExposedHeaders(List.of("Authorization", "Set-Cookie", "WWW-Authenticate"));
         cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -65,9 +56,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // =======================
-    // 3) Handlers de errores (401 / 403)
-    // =======================
+    // Control de respuestas para errores 401 (no autorizado)
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
         return (request, response, ex) -> {
@@ -77,6 +66,7 @@ public class SecurityConfig {
         };
     }
 
+    // Control de respuestas para errores 403 (acceso denegado)
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, ex) -> {
@@ -86,9 +76,7 @@ public class SecurityConfig {
         };
     }
 
-    // =======================
-    // 4) Cadena de seguridad (filtros y permisos)
-    // =======================
+    // Configuración principal de seguridad HTTP
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -97,52 +85,35 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                // 🔒 Desactiva CSRF porque usamos JWT (no sesiones)
                 .csrf(csrf -> csrf.disable())
-
-                // 🌐 Habilita CORS con la config anterior
                 .cors(Customizer.withDefaults())
-
-                // 🚫 Sin sesiones (stateless)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // ⚠️ Manejo de excepciones JWT
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(unauthorizedEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
-
-                // 🔐 Reglas de acceso
                 .authorizeHttpRequests(auth -> auth
-                        // Preflight de CORS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
-                        // Endpoints públicos (login, registro, swagger, etc.)
                         .requestMatchers(
+                                "/",
+                                "/error",
+                                "/favicon.ico",
                                 "/auth/**",
                                 "/api/auth/**",
                                 "/api/public/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-
-                        // Todo lo demás requiere autenticación
                         .anyRequest().authenticated()
                 )
-
-                // 🔎 Filtro JWT personalizado (antes del UsernamePasswordAuthenticationFilter)
                 .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class)
-
-                // Desactivar login HTTP básico y formulario
                 .httpBasic(h -> h.disable())
                 .formLogin(f -> f.disable());
 
         return http.build();
     }
 
-    // =======================
-    // 5) AuthenticationManager
-    // =======================
+    // Bean del AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
