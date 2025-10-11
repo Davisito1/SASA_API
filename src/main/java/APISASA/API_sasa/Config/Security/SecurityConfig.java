@@ -30,9 +30,7 @@ public class SecurityConfig {
 
     private final JwtCookieAuthFilter jwtCookieAuthFilter;
 
-    // ========================================
-    // 🔒 Password Encoder (Argon2)
-    // ========================================
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         // Parámetros seguros recomendados por OWASP
@@ -44,9 +42,6 @@ public class SecurityConfig {
         return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memory, iterations);
     }
 
-    // ========================================
-    // 🌐 Configuración CORS
-    // ========================================
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
@@ -58,7 +53,8 @@ public class SecurityConfig {
                 "http://10.0.2.2:*",
                 "https://*.vercel.app",
                 "https://*.herokuapp.com",
-                "*" // fallback global
+                "*"
+
         ));
         cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"));
@@ -70,9 +66,7 @@ public class SecurityConfig {
         return source;
     }
 
-    // ========================================
-    // 🚫 Handler: No Autorizado (401)
-    // ========================================
+
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
         return (request, response, ex) -> {
@@ -88,9 +82,7 @@ public class SecurityConfig {
         };
     }
 
-    // ========================================
-    // 🚫 Handler: Acceso Denegado (403)
-    // ========================================
+
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, ex) -> {
@@ -106,9 +98,7 @@ public class SecurityConfig {
         };
     }
 
-    // ========================================
-    // 🛡️ Configuración principal HTTP Security
-    // ========================================
+
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -117,22 +107,17 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                // 🚫 Desactivar CSRF (usamos JWT)
                 .csrf(csrf -> csrf.disable())
 
-                // 🌍 CORS global
                 .cors(Customizer.withDefaults())
 
-                // ⚙️ Stateless (sin sesiones)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // ⚠️ Manejo de errores personalizados
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(unauthorizedEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
 
-                // ✅ Rutas permitidas sin autenticación
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
@@ -146,19 +131,15 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // 🔑 Filtro JWT antes del filtro de login
                 .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
-                // 🚫 Sin HTTP Basic ni formularios
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
 
         return http.build();
     }
 
-    // ========================================
-    // ⚙️ Authentication Manager (para login)
-    // ========================================
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
