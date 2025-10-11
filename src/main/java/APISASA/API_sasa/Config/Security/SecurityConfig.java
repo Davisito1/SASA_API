@@ -21,7 +21,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -30,29 +29,22 @@ public class SecurityConfig {
 
     private final JwtCookieAuthFilter jwtCookieAuthFilter;
 
-    // ========================================
-    // 🔐 Encriptación segura (Argon2)
-    // ========================================
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new Argon2PasswordEncoder(16, 32, 1, 1 << 13, 3);
     }
 
-    // ========================================
-    // 🌐 Configuración global de CORS
-    // ========================================
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-
         cfg.setAllowCredentials(true);
         cfg.setAllowedOrigins(Arrays.asList(
                 "http://localhost:5500",
                 "http://127.0.0.1:5500",
                 "http://127.0.0.1:5501",
-                "http://127.0.0.1:5502",   // ✅ Live Server
-                "http://10.0.2.2:8080",     // ✅ Emulador Android
-                "https://sasaapi-73d5de493985.herokuapp.com" // backend mismo dominio
+                "http://127.0.0.1:5502",
+                "http://10.0.2.2:8080",
+                "https://sasaapi-73d5de493985.herokuapp.com"
         ));
         cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         cfg.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"));
@@ -64,9 +56,6 @@ public class SecurityConfig {
         return source;
     }
 
-    // ========================================
-    // 🚫 Manejo de errores de autenticación
-    // ========================================
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
         return (request, response, ex) -> {
@@ -97,9 +86,6 @@ public class SecurityConfig {
         };
     }
 
-    // ========================================
-    // 🧱 Configuración de filtros y rutas
-    // ========================================
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -108,7 +94,7 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ MUY IMPORTANTE
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(eh -> eh
@@ -116,7 +102,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ habilita preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(
                                 "/", "/error", "/favicon.ico",
                                 "/auth/**", "/api/auth/**",
@@ -133,9 +119,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ========================================
-    // ⚙️ Authentication Manager
-    // ========================================
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
