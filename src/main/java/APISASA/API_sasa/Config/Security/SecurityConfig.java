@@ -19,8 +19,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.config.Customizer;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -30,35 +30,33 @@ public class SecurityConfig {
 
     private final JwtCookieAuthFilter jwtCookieAuthFilter;
 
-
+    // ========================================
+    // 🔐 Encriptación segura (Argon2)
+    // ========================================
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Parámetros seguros recomendados por OWASP
-        int saltLength = 16; // bytes
-        int hashLength = 32; // bytes
-        int parallelism = 1;
-        int memory = 1 << 13; // 8 MB
-        int iterations = 3;
-        return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memory, iterations);
+        return new Argon2PasswordEncoder(16, 32, 1, 1 << 13, 3);
     }
 
+    // ========================================
+    // 🌐 Configuración global de CORS
+    // ========================================
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
 
         cfg.setAllowCredentials(true);
-        cfg.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                "http://10.0.2.2:*",
-                "https://*.vercel.app",
-                "https://*.herokuapp.com",
-                "*"
-
+        cfg.setAllowedOrigins(Arrays.asList(
+                "http://localhost:5500",
+                "http://127.0.0.1:5500",
+                "http://127.0.0.1:5501",
+                "http://127.0.0.1:5502",   // ✅ Live Server
+                "http://10.0.2.2:8080",     // ✅ Emulador Android
+                " https://sasaapi-73d5de493985.herokuapp.com" // backend mismo dominio
         ));
-        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        cfg.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"));
-        cfg.setExposedHeaders(List.of("Authorization", "Set-Cookie", "WWW-Authenticate"));
+        cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        cfg.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"));
+        cfg.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie", "WWW-Authenticate"));
         cfg.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -66,7 +64,9 @@ public class SecurityConfig {
         return source;
     }
 
-
+    // ========================================
+    // 🚫 Manejo de errores de autenticación
+    // ========================================
     @Bean
     public AuthenticationEntryPoint unauthorizedEntryPoint() {
         return (request, response, ex) -> {
@@ -81,7 +81,6 @@ public class SecurityConfig {
             """.formatted(request.getRequestURI()));
         };
     }
-
 
     @Bean
     public AccessDeniedHandler accessDeniedHandler() {
@@ -98,7 +97,9 @@ public class SecurityConfig {
         };
     }
 
-
+    // ========================================
+    // 🧱 Configuración de filtros y rutas
+    // ========================================
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
@@ -107,39 +108,34 @@ public class SecurityConfig {
     ) throws Exception {
 
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ MUY IMPORTANTE
                 .csrf(csrf -> csrf.disable())
-
-                .cors(Customizer.withDefaults())
-
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 .exceptionHandling(eh -> eh
                         .authenticationEntryPoint(unauthorizedEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler)
                 )
-
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ✅ habilita preflight
                         .requestMatchers(
                                 "/", "/error", "/favicon.ico",
                                 "/auth/**", "/api/auth/**",
                                 "/api/public/**",
-                                "/apiEmpleados/registrar", // permitir registro de empleados
+                                "/apiEmpleados/registrar",
                                 "/swagger-ui/**", "/v3/api-docs/**"
                         ).permitAll()
-                        // 🔒 Todo lo demás requiere token JWT
                         .anyRequest().authenticated()
                 )
-
                 .addFilterBefore(jwtCookieAuthFilter, UsernamePasswordAuthenticationFilter.class)
-
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable());
 
         return http.build();
     }
 
-
+    // ========================================
+    // ⚙️ Authentication Manager
+    // ========================================
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
