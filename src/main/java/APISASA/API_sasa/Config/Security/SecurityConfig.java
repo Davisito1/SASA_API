@@ -52,7 +52,7 @@ public class SecurityConfig {
                 "http://127.0.0.1:5501",
                 "http://127.0.0.1:5502",   // ✅ Live Server
                 "http://10.0.2.2:8080",     // ✅ Emulador Android
-                " https://sasaapi-73d5de493985.herokuapp.com" // backend mismo dominio
+                "https://sasaapi-73d5de493985.herokuapp.com" // backend mismo dominio
         ));
         cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         cfg.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"));
