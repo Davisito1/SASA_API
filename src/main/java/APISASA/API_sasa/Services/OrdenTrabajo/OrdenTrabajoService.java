@@ -9,6 +9,7 @@ import APISASA.API_sasa.Repositories.Vehiculo.VehicleRepository;
 import APISASA.API_sasa.Repositories.DetalleOrden.DetalleOrdenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional; // ✅ Import necesario
 
 import java.util.List;
 import java.util.Optional;
@@ -53,12 +54,12 @@ public class OrdenTrabajoService {
             OrdenTrabajoEntity entity = existe.get();
             entity.setFecha(dto.getFecha());
 
-            // 🔹 actualizar vehículo
+            // 🔹 Actualizar vehículo
             VehicleEntity vehiculo = vehicleRepository.findById(dto.getIdVehiculo())
                     .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
             entity.setVehiculo(vehiculo);
 
-            // 🔹 actualizar detalles
+            // 🔹 Actualizar detalles
             List<DetalleOrdenEntity> detalles = detalleOrdenRepository.findAllById(dto.getDetallesIds());
             entity.setDetalles(detalles);
 
@@ -68,13 +69,20 @@ public class OrdenTrabajoService {
         return null;
     }
 
-    // 🔹 Eliminar orden
+    // 🔹 Eliminar orden (✅ sin error 500)
+    @Transactional
     public boolean eliminarOrden(Long id) {
-        if (repository.existsById(id)) {
-            repository.deleteById(id);
-            return true;
+        if (!repository.existsById(id)) {
+            return false;
         }
-        return false;
+
+        // 🔸 Eliminar primero todos los detalles asociados
+        detalleOrdenRepository.deleteAllByOrdenTrabajo_IdOrden(id);
+
+        // 🔸 Luego eliminar la orden
+        repository.deleteById(id);
+
+        return true;
     }
 
     // ===============================
@@ -85,15 +93,14 @@ public class OrdenTrabajoService {
                 .id(entity.getIdOrden())
                 .fecha(entity.getFecha())
                 .idVehiculo(entity.getVehiculo().getIdVehiculo())
-                .placaVehiculo(entity.getVehiculo().getPlaca())     //  se agrega
-                .marcaVehiculo(entity.getVehiculo().getMarca())     // se agrega
+                .placaVehiculo(entity.getVehiculo().getPlaca())
+                .marcaVehiculo(entity.getVehiculo().getMarca())
                 .detallesIds(entity.getDetalles()
                         .stream()
                         .map(DetalleOrdenEntity::getIdDetalle)
                         .collect(Collectors.toList()))
                 .build();
     }
-
 
     private OrdenTrabajoEntity convertirAEntity(OrdenTrabajoDTO dto) {
         VehicleEntity vehiculo = vehicleRepository.findById(dto.getIdVehiculo())
