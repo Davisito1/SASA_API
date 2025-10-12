@@ -93,13 +93,23 @@ public class SecurityConfig {
                 .securityMatcher("/**")
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // --- Endpoints públicos (sin autenticación requerida) ---
                         .requestMatchers(
                                 "/", "/error", "/favicon.ico",
                                 "/auth/**", "/api/auth/**",
                                 "/api/public/**",
                                 "/apiEmpleados/registrar",
-                                "/swagger-ui/**", "/v3/api-docs/**"
+                                "/swagger-ui/**", "/v3/api-docs/**",
+
+                                // 🔓 Autenticación y recuperación (permitidos sin cookie)
+                                "/api/Auth/login",
+                                "/api/Auth/logout",
+                                "/api/Auth/register",
+                                "/api/recuperacion/**"
                         ).permitAll()
+
+                        // --- Cualquier otro endpoint requiere autenticación JWT ---
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
