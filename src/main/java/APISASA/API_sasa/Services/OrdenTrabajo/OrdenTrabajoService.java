@@ -7,9 +7,11 @@ import APISASA.API_sasa.Models.DTO.OrdenTrabajo.OrdenTrabajoDTO;
 import APISASA.API_sasa.Repositories.OrdenTrabajo.OrdenTrabajoRepository;
 import APISASA.API_sasa.Repositories.Vehiculo.VehicleRepository;
 import APISASA.API_sasa.Repositories.DetalleOrden.DetalleOrdenRepository;
+import APISASA.API_sasa.Repositories.Factura.FacturaRepository; // ✅ se agrega
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional; // ✅ Import necesario
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,48 +20,50 @@ import java.util.stream.Collectors;
 @Service
 public class OrdenTrabajoService {
 
-    @Autowired
-    private OrdenTrabajoRepository repository;
+    @Autowired private OrdenTrabajoRepository repository;
+    @Autowired private VehicleRepository vehicleRepository;
+    @Autowired private DetalleOrdenRepository detalleOrdenRepository;
+    @Autowired private FacturaRepository facturaRepository; // ✅ se inyecta
 
-    @Autowired
-    private VehicleRepository vehicleRepository;
-
-    @Autowired
-    private DetalleOrdenRepository detalleOrdenRepository;
-
+    // ===================================================
     // 🔹 Obtener todas las órdenes
+    // ===================================================
     public List<OrdenTrabajoDTO> obtenerOrdenes() {
         return repository.findAll().stream()
                 .map(this::convertirADTO)
                 .collect(Collectors.toList());
     }
 
+    // ===================================================
     // 🔹 Obtener orden por ID
+    // ===================================================
     public OrdenTrabajoDTO obtenerPorId(Long id) {
         Optional<OrdenTrabajoEntity> orden = repository.findById(id);
         return orden.map(this::convertirADTO).orElse(null);
     }
 
+    // ===================================================
     // 🔹 Crear nueva orden
+    // ===================================================
     public OrdenTrabajoDTO crearOrden(OrdenTrabajoDTO dto) {
         OrdenTrabajoEntity entity = convertirAEntity(dto);
         OrdenTrabajoEntity guardado = repository.save(entity);
         return convertirADTO(guardado);
     }
 
+    // ===================================================
     // 🔹 Actualizar orden
+    // ===================================================
     public OrdenTrabajoDTO actualizarOrden(Long id, OrdenTrabajoDTO dto) {
         Optional<OrdenTrabajoEntity> existe = repository.findById(id);
         if (existe.isPresent()) {
             OrdenTrabajoEntity entity = existe.get();
             entity.setFecha(dto.getFecha());
 
-            // 🔹 Actualizar vehículo
             VehicleEntity vehiculo = vehicleRepository.findById(dto.getIdVehiculo())
                     .orElseThrow(() -> new RuntimeException("Vehículo no encontrado"));
             entity.setVehiculo(vehiculo);
 
-            // 🔹 Actualizar detalles
             List<DetalleOrdenEntity> detalles = detalleOrdenRepository.findAllById(dto.getDetallesIds());
             entity.setDetalles(detalles);
 
@@ -69,25 +73,36 @@ public class OrdenTrabajoService {
         return null;
     }
 
-    // 🔹 Eliminar orden (✅ sin error 500)
+    // ===================================================
+    // 🔹 Eliminar orden (ahora sin error 500)
+    // ===================================================
     @Transactional
     public boolean eliminarOrden(Long id) {
         if (!repository.existsById(id)) {
             return false;
         }
 
-        // 🔸 Eliminar primero todos los detalles asociados
-        detalleOrdenRepository.deleteAllByOrdenTrabajo_IdOrden(id);
+        try {
+            // 🔸 1️⃣ Borrar facturas asociadas
+            facturaRepository.deleteAllByOrdenTrabajo_IdOrden(id);
 
-        // 🔸 Luego eliminar la orden
-        repository.deleteById(id);
+            // 🔸 2️⃣ Borrar detalles asociados
+            detalleOrdenRepository.deleteAllByOrdenTrabajo_IdOrden(id);
 
-        return true;
+            // 🔸 3️⃣ Borrar la orden
+            repository.deleteById(id);
+
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error al eliminar la orden: " + e.getMessage(), e);
+        }
     }
 
-    // ===============================
+    // ===================================================
     // 🔹 Conversores DTO ↔ Entity
-    // ===============================
+    // ===================================================
     private OrdenTrabajoDTO convertirADTO(OrdenTrabajoEntity entity) {
         return OrdenTrabajoDTO.builder()
                 .id(entity.getIdOrden())
